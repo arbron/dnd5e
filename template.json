@@ -666,7 +666,7 @@
     },
     "race": {
       "templates": ["itemDescription"],
-      "type": [],
+      "type": ["humanoid"],
       "size": {
         "options": ["med"],
         "selected": "med"
@@ -688,7 +688,7 @@
       "languages": {
         "default": ["common"],
         "additional": 0,
-        "value": [],
+        "value": ["common"],
         "custom": ""
       }
     },
