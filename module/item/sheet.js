@@ -1,4 +1,5 @@
 import { AdvancementManager } from "../advancement/advancement-manager.js";
+import FormulaEditor from "../apps/formula-editor.js";
 import ProficiencySelector from "../apps/proficiency-selector.js";
 import TraitSelector from "../apps/trait-selector.js";
 import ActiveEffect5e from "../active-effect.js";
@@ -410,6 +411,7 @@ export default class ItemSheet5e extends ItemSheet {
     if ( this.isEditable ) {
       html.find(".damage-control").click(this._onDamageControl.bind(this));
       html.find(".trait-selector").click(this._onConfigureTraits.bind(this));
+      html.find(".formula button").click(this._onEditFormula.bind(this));
       html.find(".effect-control").click(ev => {
         if ( this.item.isOwned ) return ui.notifications.warn("Managing Active Effects within an Owned Item is not currently supported and will be added in a subsequent update.");
         ActiveEffect5e.onManageActiveEffect(ev, this.item);
@@ -533,6 +535,23 @@ export default class ItemSheet5e extends ItemSheet {
     const actor = game.actors.get(event.target.dataset.actor);
     const item = actor?.items.get(event.target.dataset.id);
     item?.sheet.render(true);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle spawning the FormulaEditor application.
+   * @param {Event} event  The click event which originated the editor
+   * @protected
+   */
+  _onEditFormula(event) {
+    event.preventDefault();
+    const t = event.currentTarget.parentElement;
+    const input = t.querySelector("input");
+    const options = {
+      name: input.name
+    }
+    new FormulaEditor(this.item, options).render(true);
   }
 
   /* -------------------------------------------- */

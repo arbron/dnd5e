@@ -647,6 +647,20 @@
   max-height: 90vh;
   overflow-y: auto;
 }
+/* ----------------------------------------- */
+/*  Formula Editor                           */
+/* ----------------------------------------- */
+.dnd5e .form-group div.formula {
+  display: flex;
+  flex: 0;
+  margin-right: 0.5em;
+}
+.dnd5e .form-group div.formula input {
+  border-color: purple !important;
+}
+.dnd5e.formula-editor input[name="formula"] {
+  font-size: 1.15em;
+}
 .dnd5e.sheet.actor {
   /* ----------------------------------------- */
   /*  Shared Styles                            */
