@@ -9,11 +9,17 @@ export default class ActiveEffect5e extends ActiveEffect {
    */
   isSuppressed = false;
 
+  /**
+   * Is the active effect deferred until later in the data preparation process?
+   * @type {boolean}
+   */
+  isDeferred = false;
+
   /* --------------------------------------------- */
 
   /** @inheritdoc */
   apply(actor, change) {
-    if ( this.isSuppressed ) return null;
+    if ( this.isSuppressed || this.isDeferred ) return null;
     if ( change.key.startsWith("flags.dnd5e.") ) change = this._prepareFlagChange(actor, change);
     return super.apply(actor, change);
   }
@@ -62,6 +68,21 @@ export default class ActiveEffect5e extends ActiveEffect {
     const item = this.parent.items.get(documentId);
     if ( !item ) return;
     this.isSuppressed = item.areEffectsSuppressed;
+  }
+
+  /* --------------------------------------------- */
+
+  /**
+   * Determine whether this Active Effect should be deferred until after prepareDerivedData.
+   */
+  determineDeferred() {
+    for ( const { key } of this.data.changes ) {
+      const existing = foundry.utils.getProperty(this.parent.data, key);
+      if ( existing === undefined ) {
+        this.isDeferred = true;
+        return;
+      }
+    }
   }
 
   /* --------------------------------------------- */

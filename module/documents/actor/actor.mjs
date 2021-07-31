@@ -75,6 +75,9 @@ export default class Actor5e extends Actor {
     this._classes = undefined;
     this._preparationWarnings = [];
     super.prepareData();
+    this.applyDeferredActiveEffects();
+
+    // Iterate over owned items and recompute attributes that depend on prepared actor data
     this.items.forEach(item => item.prepareFinalAttributes());
   }
 
@@ -89,7 +92,6 @@ export default class Actor5e extends Actor {
       else this.update(updates);
     }
 
-    this._prepareBaseArmorClass();
     switch ( this.type ) {
       case "character":
         return this._prepareCharacterData();
@@ -105,9 +107,54 @@ export default class Actor5e extends Actor {
   /** @inheritDoc */
   applyActiveEffects() {
     // The Active Effects do not have access to their parent at preparation time, so we wait until this stage to
-    // determine whether they are suppressed or not.
-    this.effects.forEach(e => e.determineSuppression());
+    // determine whether they are suppressed or deferred.
+    this.effects.forEach(effect => {
+      effect.determineSuppression();
+      effect.determineDeferred();
+    });
     return super.applyActiveEffects();
+  }
+
+  /* --------------------------------------------- */
+
+  /**
+   * Apply any active effects that have been deferred.
+   * @param {...string} [properties]  Only apply active effects that apply to the provided properties.
+   */
+  applyDeferredActiveEffects(properties) {
+    const overrides = {};
+    properties = arguments.length > 0 ? new Set(arguments) : null;
+
+    const effects = this.effects.filter(effect => {
+      if ( !effect.isDeferred ) return false;
+      if ( !properties ) return true;
+      for ( const { key } of effect.data.changes ) {
+        if ( properties.has(key) ) return true;
+      }
+      return false;
+    });
+
+    // Organize non-disabled effects by their application priority
+    const changes = effects.reduce((changes, e) => {
+      if ( e.data.disabled ) return changes;
+      e.isDeferred = false;
+      return changes.concat(e.data.changes.map(c => {
+        c = foundry.utils.duplicate(c);
+        c.effect = e;
+        c.priority = c.priority ?? (c.mode * 10);
+        return c;
+      }));
+    }, []);
+    changes.sort((a, b) => a.priority - b.priority);
+
+    // Apply all changes
+    for ( let change of changes ) {
+      const result = change.effect.apply(this, change);
+      if ( result !== null ) overrides[change.key] = result;
+    }
+
+    // Merge new overrides with existing set
+    this.overrides = foundry.utils.mergeObject(this.overrides, foundry.utils.expandObject(overrides));
   }
 
   /* -------------------------------------------- */
@@ -225,19 +272,6 @@ export default class Actor5e extends Actor {
   /* -------------------------------------------- */
 
   /**
-   * Initialize derived AC fields for Active Effects to target.
-   * Mutates the system.attributes.ac object.
-   * @protected
-   */
-  _prepareBaseArmorClass() {
-    const ac = this.system.attributes.ac;
-    ac.armor = 10;
-    ac.shield = ac.bonus = ac.cover = 0;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
    * Perform any Character specific preparation.
    * Mutates several aspects of the system data object.
    * @protected
@@ -340,6 +374,8 @@ export default class Actor5e extends Actor {
       const checkBonusAbl = simplifyBonus(abl.bonuses?.check, bonusData);
       abl.checkBonus = checkBonusAbl + checkBonus;
 
+      this.applyDeferredActiveEffects(`data.abilities.${id}.mod`);
+
       abl.save = abl.mod + abl.saveBonus;
       if ( Number.isNumeric(abl.saveProf.term) ) abl.save += abl.saveProf.flat;
       abl.dc = 8 + abl.mod + this.system.attributes.prof + dcBonus;
@@ -412,6 +448,8 @@ export default class Actor5e extends Actor {
    */
   _prepareArmorClass() {
     const ac = this.system.attributes.ac;
+    ac.armor = 10;
+    ac.shield = ac.bonus = ac.cover = 0;
 
     // Apply automatic migrations for older data structures
     let cfg = CONFIG.DND5E.armorClasses[ac.calc];
@@ -475,6 +513,11 @@ export default class Actor5e extends Actor {
       ac.shield = shields[0].system.armor.value ?? 0;
       ac.equippedShield = shields[0];
     }
+
+    this.applyDeferredActiveEffects(
+      "data.attributes.ac.base", "data.attributes.ac.shield",
+      "data.attributes.ac.bonus", "data.attributes.ac.cover"
+    );
 
     // Compute total AC and return
     ac.value = ac.base + ac.shield + ac.bonus + ac.cover;
