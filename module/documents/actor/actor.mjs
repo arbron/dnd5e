@@ -125,20 +125,13 @@ export default class Actor5e extends Actor {
     const overrides = {};
     properties = arguments.length > 0 ? new Set(arguments) : null;
 
-    const effects = this.effects.filter(effect => {
-      if ( !effect.isDeferred ) return false;
-      if ( !properties ) return true;
-      for ( const { key } of effect.data.changes ) {
-        if ( properties.has(key) ) return true;
-      }
-      return false;
-    });
-
     // Organize non-disabled effects by their application priority
-    const changes = effects.reduce((changes, e) => {
+    const changes = this.effects.reduce((changes, e) => {
       if ( e.data.disabled ) return changes;
-      e.isDeferred = false;
-      return changes.concat(e.data.changes.map(c => {
+      return changes.concat(e.data.changes.filter(c => {
+        if ( !e.deferred.has(c.key) ) return false;
+        return !properties ? true : properties.has(c.key);
+      }).map(c => {
         c = foundry.utils.duplicate(c);
         c.effect = e;
         c.priority = c.priority ?? (c.mode * 10);
@@ -149,6 +142,7 @@ export default class Actor5e extends Actor {
 
     // Apply all changes
     for ( let change of changes ) {
+      change.effect.deferred.delete(change.key);
       const result = change.effect.apply(this, change);
       if ( result !== null ) overrides[change.key] = result;
     }
