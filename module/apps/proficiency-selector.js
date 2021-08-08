@@ -98,6 +98,10 @@ export default class ProficiencySelector extends TraitSelector {
       category.children = game.dnd5e.utils.sortObjectEntries(category.children, "label");
     }
 
+    const source = foundry.utils.getProperty(this.object.data._source, this.attribute);
+    const sourceValue = (this.options.valueKey) ? foundry.utils.getProperty(source, this.options.valueKey) ?? [] : source;
+    this._disableAssignedTraits(data.choices, sourceValue, value);
+
     return data;
   }
 
