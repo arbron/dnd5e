@@ -485,6 +485,10 @@ export default class Item5e extends Item {
       // Damage Label
       this.getDerivedDamageLabel();
     }
+
+    if ( this.system.hasOwnProperty("proficiencyMode") ) {
+      this.getProficiency();
+    }
   }
 
   /* -------------------------------------------- */
@@ -615,6 +619,42 @@ export default class Item5e extends Item {
     if ( this.type === "weapon" ) actorThreshold = actorFlags.weaponCriticalThreshold;
     else if ( this.type === "spell" ) actorThreshold = actorFlags.spellCriticalThreshold;
     return Math.min(this.system.critical?.threshold ?? 20, actorThreshold ?? 20);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Set the proficiency based on actor's proficiencies.
+   */
+  getProficiency() {
+    switch ( this.system.proficiencyMode ) {
+      case "auto":
+        if ( this.actor?.type === "npc" ) {
+          this.system.proficient = true;
+          break;
+        }
+
+        const type = (this.type === "equipment") ? "armor" : this.type;
+        const actorProf = this.actor?.system.traits[`${type}Prof`]?.value ?? [];
+        const subtypeProperty = (type === "armor") ? "system.armor.type" : `system.${type}Type`;
+        const subtype = foundry.utils.getProperty(this, subtypeProperty);
+        const mappedProf = foundry.utils.getProperty(CONFIG.DND5E, `${type}ProficienciesMap.${subtype}`) ?? subtype;
+
+        this.system.proficient = (mappedProf === true)
+          || actorProf.includes(mappedProf)
+          || actorProf.includes(this.system?.baseItem);
+
+        break;
+      case "always":
+        this.system.proficient = true;
+        break;
+      case "never":
+        this.system.proficient = false;
+        break;
+    }
+
+    if ( this.type === "tool" ) this.system.proficient = Number(proficiency);
+    // TODO: Handle expertise when it is added to actor data
   }
 
   /* -------------------------------------------- */
@@ -1994,9 +2034,6 @@ export default class Item5e extends Item {
       case "spell":
         updates = this._onCreateOwnedSpell(data, isNPC);
         break;
-      case "tool":
-        updates = this._onCreateOwnedTool(data, isNPC);
-        break;
       case "weapon":
         updates = this._onCreateOwnedWeapon(data, isNPC);
         break;
@@ -2071,18 +2108,8 @@ export default class Item5e extends Item {
    */
   _onCreateOwnedEquipment(data, isNPC) {
     const updates = {};
-    if ( foundry.utils.getProperty(data, "system.equipped") === undefined ) {
+    if ( !foundry.utils.hasProperty(data, "system.equipped") ) {
       updates["system.equipped"] = isNPC;  // NPCs automatically equip equipment
-    }
-    if ( foundry.utils.getProperty(data, "system.proficient") === undefined ) {
-      if ( isNPC ) {
-        updates["system.proficient"] = true;  // NPCs automatically have equipment proficiency
-      } else {
-        const armorProf = CONFIG.DND5E.armorProficienciesMap[this.system.armor?.type]; // Player characters check proficiency
-        const actorArmorProfs = this.parent.system.traits?.armorProf?.value || [];
-        updates["system.proficient"] = (armorProf === true) || actorArmorProfs.includes(armorProf)
-          || actorArmorProfs.includes(this.system.baseItem);
-      }
     }
     return updates;
   }
@@ -2108,29 +2135,6 @@ export default class Item5e extends Item {
   /* -------------------------------------------- */
 
   /**
-   * Pre-creation logic for the automatic configuration of owned tool type Items.
-   * @param {object} data       Data for the newly created item.
-   * @param {boolean} isNPC     Is this actor an NPC?
-   * @returns {object}          Updates to apply to the item data.
-   * @private
-   */
-  _onCreateOwnedTool(data, isNPC) {
-    const updates = {};
-    if ( data.system?.proficient === undefined ) {
-      if ( isNPC ) updates["system.proficient"] = 1;
-      else {
-        const actorToolProfs = this.parent.system.traits?.toolProf?.value;
-        const proficient = actorToolProfs.includes(this.system.toolType)
-          || actorToolProfs.includes(this.system.baseItem);
-        updates["system.proficient"] = Number(proficient);
-      }
-    }
-    return updates;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
    * Pre-creation logic for the automatic configuration of owned weapon type Items.
    * @param {object} data       Data for the newly created item.
    * @param {boolean} isNPC     Is this actor an NPC?
@@ -2138,25 +2142,9 @@ export default class Item5e extends Item {
    * @private
    */
   _onCreateOwnedWeapon(data, isNPC) {
-
-    // NPCs automatically equip items and are proficient with them
-    if ( isNPC ) {
-      const updates = {};
-      if ( !foundry.utils.hasProperty(data, "system.equipped") ) updates["system.equipped"] = true;
-      if ( !foundry.utils.hasProperty(data, "system.proficient") ) updates["system.proficient"] = true;
-      return updates;
-    }
-    if ( data.system?.proficient !== undefined ) return {};
-
-    // Some weapon types are always proficient
-    const weaponProf = CONFIG.DND5E.weaponProficienciesMap[this.system.weaponType];
     const updates = {};
-    if ( weaponProf === true ) updates["system.proficient"] = true;
-
-    // Characters may have proficiency in this weapon type (or specific base weapon)
-    else {
-      const actorProfs = this.parent.system.traits?.weaponProf?.value || [];
-      updates["system.proficient"] = actorProfs.includes(weaponProf) || actorProfs.includes(this.system.baseItem);
+    if ( !foundry.utils.hasProperty(data, "system.equipped") ) {
+      updates["system.equipped"] = isNPC;  // NPCs automatically equip equipment
     }
     return updates;
   }
