@@ -156,10 +156,12 @@
                       </a>
                     </div>
                     <span class="skill-ability">{{skill.ability}}</span>
-                    <span class="skill-mod" data-tooltip="{{localize 'DND5E.SkillModifierHint' skill=skill.label}}">
+                    <span class="skill-mod" data-attribution="skills.{{s}}.passive" data-tooltip-direction="RIGHT"
+                        data-attribution-caption="{{localize 'DND5E.SkillModifierHint' skill=skill.label}}">
                         {{numberFormat skill.total decimals=0 sign=true}}
                     </span>
-                    <span class="skill-passive" data-tooltip="{{localize 'DND5E.SkillPassiveHint' skill=skill.label}}">
+                    <span class="skill-passive" data-attribution="skills.{{s}}.passive" data-tooltip-direction="RIGHT"
+                        data-attribution-caption="{{localize 'DND5E.SkillPassiveHint' skill=skill.label}}">
                         ({{skill.passive}})
                     </span>
                 </li>

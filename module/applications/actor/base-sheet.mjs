@@ -1,6 +1,7 @@
 import ActiveEffect5e from "../../documents/active-effect.mjs";
 import * as Trait from "../../documents/actor/trait.mjs";
 import Item5e from "../../documents/item.mjs";
+import { simplifyBonus } from "../../utils.mjs";
 
 import ActorAbilityConfig from "./ability-config.mjs";
 import ActorArmorConfig from "./armor-config.mjs";
@@ -173,6 +174,9 @@ export default class ActorSheet5e extends ActorSheet {
       async: true,
       relativeTo: this.actor
     });
+
+    // Empty attribution cache
+    this._skillAttributions = undefined;
 
     return context;
   }
@@ -374,6 +378,94 @@ export default class ActorSheet5e extends ActorSheet {
       value: ac.cover
     });
     return attribution;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Produce attributions for all of the actor's skills.
+   * @param {string} property             Property path for which to return attributions.
+   * @param {object} rollData             Actor data from which to determine the attributions.
+   * @returns {AttributionDescription[]}  List of attribution descriptions.
+   */
+  _prepareSkillAttribution(property, rollData) {
+    // Get cached data if available
+    if ( this._skillAttributions ) return this._skillAttributions[property];
+
+    const bonuses = foundry.utils.getProperty(rollData, "bonuses.abilities");
+    const globalAbilityCheckBonus = simplifyBonus(bonuses?.check, rollData);
+    const globalSkillCheckBonus = simplifyBonus(bonuses?.skill, rollData);
+
+    this._skillAttributions = {};
+    for ( const s of Object.keys(CONFIG.DND5E.skills) ) {
+      const skl = foundry.utils.getProperty(rollData, `skills.${s}`);
+      if ( !skl ) continue;
+      const abilityName = CONFIG.DND5E.abilities[skl.ability];
+      const skillName = CONFIG.DND5E.skills[s].label;
+
+      // Mod
+      const mod = [];
+      if ( skl.prof.flat && (game.settings.get("dnd5e", "proficiencyModifier") !== "dice") ) mod.push({
+        label: CONFIG.DND5E.proficiencyLevels[skl.prof.multiplier] ?? game.i18n.localize("DND5E.Proficiency"),
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: skl.prof.flat
+      });
+      if ( skl.mod ) mod.push({
+        label: game.i18n.format("DND5E.AbilityMod", { ability: abilityName }),
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: skl.mod
+      });
+      if ( globalAbilityCheckBonus ) mod.push({
+        label: game.i18n.localize("DND5E.BonusAbilityCheck"),
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: globalAbilityCheckBonus
+      });
+      if ( globalSkillCheckBonus ) mod.push({
+        label: game.i18n.localize("DND5E.BonusAbilitySkill"),
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: globalSkillCheckBonus
+      });
+      const abilityCheckBonus = simplifyBonus(rollData.abilities[skl.ability]?.bonuses.check, rollData) ?? 0;
+      if ( abilityCheckBonus ) mod.push({
+        label: game.i18n.format("DND5E.SkillBonusCheckType", { type: abilityName }),
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: abilityCheckBonus
+      });
+      const checkBonus = simplifyBonus(skl.bonuses?.check, rollData);
+      if ( checkBonus ) mod.push({
+        label: game.i18n.format("DND5E.SkillBonusCheckType", { type: skillName }),
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: checkBonus
+      });
+      this._skillAttributions[`skills.${s}.total`] = mod;
+
+      // Passive
+      const passive = [{
+        label: game.i18n.localize("DND5E.PropertyBase"),
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        value: 10
+      }];
+      if ( skl.total ) passive.push({
+        label: game.i18n.localize("DND5E.Modifier"),
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: skl.total
+      });
+      const passiveBonus = simplifyBonus(skl.bonuses?.passive, rollData);
+      if ( passiveBonus ) passive.push({
+        label: game.i18n.localize("DND5E.SkillBonusPassive"),
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: passiveBonus
+      });
+      if ( CONFIG.DND5E.characterFlags.observantFeat.skills.includes(s)
+        && this.actor.getFlag("dnd5e", "observantFeat") ) passive.push({
+        label: game.i18n.localize("DND5E.FlagsObservant"),
+        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+        value: 5
+      });
+      this._skillAttributions[`skills.${s}.passive`] = passive;
+    }
+
+    return this._skillAttributions[property];
   }
 
   /* -------------------------------------------- */
@@ -1312,10 +1404,9 @@ export default class ActorSheet5e extends ActorSheet {
     const rollData = this.actor.getRollData({ deterministic: true });
     const title = game.i18n.localize(element.dataset.attributionCaption);
     let attributions;
-    switch ( property ) {
-      case "attributes.ac":
-        attributions = this._prepareArmorClassAttribution(rollData); break;
-    }
+    if ( property === "attributes.ac" ) attributions = this._prepareArmorClassAttribution(rollData);
+    else if ( property.startsWith("skills.") ) attributions = this._prepareSkillAttribution(property, rollData);
+
     if ( !attributions ) return;
     new PropertyAttribution(this.actor, attributions, property, {title}).renderTooltip(element);
   }
