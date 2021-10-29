@@ -1,6 +1,7 @@
 import { DocumentData } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { defaultData, mergeObjects, NONNEGATIVE_NUMBER_FIELD } from "./base.mjs";
+import { NONNEGATIVE_NUMBER_FIELD } from "../fields.mjs";
+import { defaultData, mergeObjects } from "./base.mjs";
 import * as common from "./common.mjs";
 
 
