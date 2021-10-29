@@ -1,8 +1,8 @@
 import { DocumentData } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
 import { mergeObject } from "/common/utils/helpers.mjs";
-import { defaultData, mappingField } from "./base.js";
-import * as common from "./common.js";
+import { defaultData, mappingField } from "./base.mjs";
+import * as common from "./common.mjs";
 
 
 export class ActorVehicleData extends common.CommonData {

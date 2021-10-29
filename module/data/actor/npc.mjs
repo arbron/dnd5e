@@ -1,8 +1,8 @@
 import { DocumentData } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
 import { mergeObject } from "/common/utils/helpers.mjs";
-import { defaultData } from "./base.js";
-import * as creature from "./creature.js";
+import { defaultData } from "./base.mjs";
+import * as creature from "./creature.mjs";
 
 
 export class ActorNPCData extends creature.CreatureData {

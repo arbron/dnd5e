@@ -1,9 +1,9 @@
 import { DocumentData } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
 import { mergeObject } from "/common/utils/helpers.mjs";
-import { defaultData } from "./base.js";
-import { SimpleTraitData } from "./common.js";
-import * as creature from "./creature.js";
+import { defaultData } from "./base.mjs";
+import { SimpleTraitData } from "./common.mjs";
+import * as creature from "./creature.mjs";
 
 
 export class ActorCharacterData extends creature.CreatureData {

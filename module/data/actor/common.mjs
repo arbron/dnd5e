@@ -1,6 +1,6 @@
 import { DocumentData } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { defaultData, mappingField } from "./base.js";
+import { defaultData, mappingField } from "./base.mjs";
 
 
 export class CommonData extends DocumentData {
