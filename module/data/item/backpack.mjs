@@ -6,6 +6,15 @@ import * as common from "./common.mjs";
 import { CurrencyData } from "../actor/common.mjs";
 
 
+/**
+ * Data definition for Backpack items.
+ * @extends DocumentData
+ * @see common.ItemDescriptionData
+ * @see common.PhysicalItemData
+ *
+ * @property {CapacityData} capacity  Information on container's carrying capacity.
+ * @property {CurrencyData} currency  Amount of currency currently held by the container.
+ */
 export class ItemBackpackData extends DocumentData {
   static defineSchema() {
     return mergeObjects(
