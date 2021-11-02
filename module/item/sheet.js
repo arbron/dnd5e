@@ -73,6 +73,10 @@ export default class ItemSheet5e extends ItemSheet {
     const sourceMax = foundry.utils.getProperty(this.item.data._source, "data.uses.max");
     if ( sourceMax ) itemData.data.uses.max = sourceMax;
 
+    // Classes
+    data.showRegularProficiencies = data.editablePrototype || this.item.isOriginalClass;
+    data.showMulticlassProficiencies = data.editablePrototype || !this.item.isOriginalClass;
+
     // Vehicles
     data.isCrewed = itemData.data.activation?.type === "crew";
     data.isMountable = this._isItemMountable(itemData);
@@ -89,11 +93,11 @@ export default class ItemSheet5e extends ItemSheet {
     data.effects = ActiveEffect5e.prepareActiveEffectCategories(this.item.effects);
 
     // Prepare Traits
-    if ( itemData.type === "background" ) {
+    if ( itemData.data.traits ) {
       this._prepareTraits(itemData);
       await this._prepareGrantedTraits(data);
-      if ( itemData.data.feature ) data.feature = await fromUuid(itemData.data.feature);
     }
+    if ( itemData.data.feature ) data.feature = await fromUuid(itemData.data.feature);
 
     // Re-define the template data references (backwards compatible)
     data.item = itemData;
@@ -387,13 +391,19 @@ export default class ItemSheet5e extends ItemSheet {
     data.labels.grants = {};
     for ( const [type, config] of Object.entries(data.data.data.traits) ) {
       if ( this.object.isEmbedded ) {
+        const useMulticlass = this.item.isOriginalClass === false
         const choices = await this.constructor._prepareTraitOptions(
-          type, config.grants, config.choices, this.object.actor.getSelectedTraits(type),
-          config.value, config.allowReplacements
+          type,
+          config[!useMulticlass ? 'grants' : 'multiclassGrants'],
+          config[!useMulticlass ? 'choices' : 'multiclassChoices'],
+          this.object.actor.getSelectedTraits(type),
+          config.value,
+          config.allowReplacements
         );
         config.available = choices;
         if ( choices ) {
-          data.labels.grants[type] = game.i18n.format("DND5E.TraitConfigurationChoicesRemaining", {
+          const labelName = !useMulticlass ? type : `${type}Multiclass`;
+          data.labels.grants[labelName] = game.i18n.format("DND5E.TraitConfigurationChoicesRemaining", {
             count: choices.remaining,
             type: TraitConfig.typeLabel(type, choices.remaining)
           });
@@ -403,6 +413,12 @@ export default class ItemSheet5e extends ItemSheet {
           ...config.grants.map(g => TraitConfig.keyLabel(type, g)),
           ...config.choices.map(c => TraitConfig.choiceLabel(type, c))
         ]);
+        if ( data.data.type === "class" ) {
+          data.labels.grants[`${type}Multiclass`] = listFormatter.format([
+            ...config.multiclassGrants.map(g => TraitConfiguration.keyLabel(type, g)),
+            ...config.multiclassChoices.map(c => TraitConfiguration.choiceLabel(type, c))
+          ]);
+        }
       }
     }
   }
@@ -729,6 +745,10 @@ export default class ItemSheet5e extends ItemSheet {
       title: a.parentElement.innerText,
       type: a.dataset.type
     };
+    if ( a.classList.contains("multiclass") ) {
+      options.grantsKeyPath = 'multiclassGrants';
+      options.choicesKeyPath = 'multiclassChoices';
+    }
     new TraitConfig(this.item, options).render(true);
   }
 

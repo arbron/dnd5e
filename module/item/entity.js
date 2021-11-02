@@ -110,6 +110,17 @@ export default class Item5e extends Item {
   /* -------------------------------------------- */
 
   /**
+   * Is this class item the original class for the owning actor?
+   * @type {boolean|undefined}
+   */
+  get isOriginalClass() {
+    if ( this.type !== "class" || !this.isEmbedded ) return;
+    return this.id === this.parent.data.data.details.originalClass;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
    * Does the Item implement a saving throw as part of its usage?
    * @type {boolean}
    */
@@ -195,6 +206,7 @@ export default class Item5e extends Item {
   get actorTraitChanges() {
     switch (this.type) {
       case "background":
+      case "class":
         return Object.entries(this.data.data.traits).reduce((obj, [type, data]) => {
           obj[type] = data.value;
           return obj;
@@ -341,6 +353,8 @@ export default class Item5e extends Item {
     // Proficiency
     const isProficient = (this.type === "spell") || this.data.data.proficient; // Always proficient in spell attacks.
     this.data.data.prof = new Proficiency(this.actor?.data.data.attributes.prof, isProficient);
+
+    if ( this.type === "class" ) this.data.data.isOriginalClass = this.isOriginalClass;
 
     if ( this.data.data.hasOwnProperty("actionType") ) {
       // Ability checks
@@ -1587,6 +1601,7 @@ export default class Item5e extends Item {
     let updates;
     switch (data.type) {
       case "background":
+      case "class":
         updates = await this._assignOwnedItemTraits(data, this.parent);
         break;
       case "equipment":
@@ -1709,8 +1724,13 @@ export default class Item5e extends Item {
   async _assignOwnedItemTraits(itemData, actor) {
     const updates = {};
     for ( const [type, config] of Object.entries(itemData.data.traits) ) {
-      const { available } = await game.dnd5e.applications.ItemSheet5e._prepareUnfulfilledGrants(
-        type, config.grants, config.choices, actor.getSelectedTraits(type), config.value
+      const useMulticlass = (itemData.type === "class") && (this.actor?.data?.data?.details?.originalClass !== "");
+      const { available } = game.dnd5e.applications.ItemSheet5e._prepareUnfulfilledGrants(
+        type,
+        config[!useMulticlass ? 'grants' : 'multiclassGrants'],
+        config[!useMulticlass ? 'choices' : 'multiclassChoices'],
+        actor.getSelectedTraits(type),
+        config.value
       );
       let newValues = [];
       for ( const { set } of available ) {

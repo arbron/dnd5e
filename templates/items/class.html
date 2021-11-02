@@ -108,10 +108,24 @@
             </div>
 
             {{!-- Proficiencies --}}
-            <div class="form-group">
+            <div>
+                <h2>{{ localize "DND5E.ProficienciesHeader" }}</h2>
+            </div>
+
+            {{#if showRegularProficiencies}}
+            {{!-- Armor Proficiencies --}}
+            {{> "systems/dnd5e/templates/items/parts/item-selectable-trait.html" header="DND5E.TraitArmorProf" type="armor" data=data.traits.armor label=labels.grants.armor}}
+
+            {{!-- Weapon Proficiencies --}}
+            {{> "systems/dnd5e/templates/items/parts/item-selectable-trait.html" header="DND5E.TraitWeaponProf" type="weapon" data=data.traits.weapon label=labels.grants.weapon}}
+
+            {{!-- Tool Proficiencies --}}
+            {{> "systems/dnd5e/templates/items/parts/item-selectable-trait.html" header="DND5E.TraitToolProf" type="tool" data=data.traits.tool label=labels.grants.tool}}
+
+            <div class="form-group selectable-trait">
                 <label>
                     {{ localize "DND5E.ClassSaves" }}
-                    {{#if editable}}
+                    {{#if editablePrototype}}
                     <a class="trait-selector class-saves" data-target="data.saves" data-options="saves">
                         <i class="fas fa-edit"></i>
                     </a>
@@ -126,49 +140,31 @@
                 </div>
             </div>
 
-            {{!-- Level 1 skills --}}
-            <div class="form-group">
-                <label>{{localize "DND5E.ClassSkillsNumber"}}</label>
-                <div class="form-fields">
-                    <input type="text" placeholder="0" name="data.skills.number" value="{{data.skills.number}}" data-dtype="Number"/>
-                </div>
-            </div>
+            {{!-- Skill Proficiencies --}}
+            {{> "systems/dnd5e/templates/items/parts/item-selectable-trait.html" header="DND5E.TraitSkillProf" type="skills" data=data.traits.skills label=labels.grants.skills}}
+            {{/if}}
 
-            <div class="form-group">
-                <label>
-                    {{localize "DND5E.ClassSkillsEligible"}}
-                    {{#if editable }}
-                    <a class="trait-selector class-skills" data-target="data.skills.choices" data-options="skills.choices">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    {{/if}}
-                </label>
-                <div class="form-fields">
-                    <ul class="traits-list">
-                        {{#each data.skills.choices}}
-                        <li class="tag {{this}}">{{lookup ../config.skills this}}</li>
-                        {{/each}}
-                    </ul>
-                </div>
+            {{!-- Multiclassing --}}
+            {{#if editablePrototype}}
+            <div>
+                <h2>{{ localize "DND5E.MulticlassingHeader" }}</h2>
             </div>
+            {{/if}}
 
-            <div class="form-group">
-                <label>
-                    {{localize "DND5E.ClassSkillsChosen"}}
-                    {{#if editable }}
-                    <a class="trait-selector class-skills" data-target="data.skills" data-options="skills">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    {{/if}}
-                </label>
-                <div class="form-fields">
-                    <ul class="traits-list">
-                        {{#each data.skills.value}}
-                            <li class="tag {{this}}">{{lookup ../config.skills this}}</li>
-                        {{/each}}
-                    </ul>
-                </div>
-            </div>
+            {{#if showMulticlassProficiencies}}
+            {{!-- Armor Proficiencies --}}
+            {{> "systems/dnd5e/templates/items/parts/item-selectable-trait.html" header="DND5E.TraitArmorProf" type="armor" data=data.traits.armor label=labels.grants.armorMulticlass multiclass=true}}
+
+            {{!-- Weapon Proficiencies --}}
+            {{> "systems/dnd5e/templates/items/parts/item-selectable-trait.html" header="DND5E.TraitWeaponProf" type="weapon" data=data.traits.weapon label=labels.grants.weaponMulticlass multiclass=true}}
+
+            {{!-- Tool Proficiencies --}}
+            {{> "systems/dnd5e/templates/items/parts/item-selectable-trait.html" header="DND5E.TraitToolProf" type="tool" data=data.traits.tool label=labels.grants.toolMulticlass multiclass=true}}
+
+            {{!-- Skill Proficiencies --}}
+            {{> "systems/dnd5e/templates/items/parts/item-selectable-trait.html" header="DND5E.TraitSkillProf" type="skills" data=data.traits.skills label=labels.grants.skillsMulticlass multiclass=true}}
+            {{/if}}
+
         </div>
 
         {{!-- Advancement Tab --}}

@@ -634,14 +634,39 @@
       "hitDiceUsed": 0,
       "advancement": [],
       "saves": [],
-      "skills": {
-        "number": 2,
-        "choices": [],
-        "value": []
-      },
       "spellcasting": {
         "progression": "none",
         "ability": ""
+      },
+      "traits": {
+        "armor": {
+          "grants": [],
+          "choices": [],
+          "multiclassGrants": [],
+          "multiclassChoices": [],
+          "value": []
+        },
+        "weapon": {
+          "grants": [],
+          "choices": [],
+          "multiclassGrants": [],
+          "multiclassChoices": [],
+          "value": []
+        },
+        "tool": {
+          "grants": [],
+          "choices": [],
+          "multiclassGrants": [],
+          "multiclassChoices": [],
+          "value": []
+        },
+        "skills": {
+          "grants": [],
+          "choices": [],
+          "multiclassGrants": [],
+          "multiclassChoices": [],
+          "value": []
+        }
       }
     },
     "consumable": {
