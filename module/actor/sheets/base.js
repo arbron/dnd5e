@@ -585,7 +585,7 @@ export default class ActorSheet5e extends ActorSheet {
       inputs.addBack().find('[data-dtype="Number"]').change(this._onChangeInputDelta.bind(this));
 
       // Ability Proficiency
-      html.find(".ability-proficiency").click(this._onToggleAbilityProficiency.bind(this));
+      html.find(".ability-proficiency").on("click contextmenu", this._onToggleAbilityProficiency.bind(this));
 
       // Toggle Skill Proficiency
       html.find(".skill-proficiency").on("click contextmenu", this._onCycleSkillProficiency.bind(this));
@@ -721,18 +721,19 @@ export default class ActorSheet5e extends ActorSheet {
   _onCycleSkillProficiency(event) {
     event.preventDefault();
     const field = event.currentTarget.previousElementSibling;
-    const skillName = field.parentElement.dataset.skill;
-    const source = this.actor.data._source.data.skills[skillName];
-    if ( !source ) return;
+    const base = Number(field.value);
+    const override = this.actor.itemOverrides[field.name];
+
+    // Limit levels list to prevent clicks that don't do anything
+    let levels = [0, 1, 0.5, 2];
+    if ( override ) levels = levels.filter(l => (l === 0) || (l > override));
 
     // Cycle to the next or previous skill level
-    const levels = [0, 1, 0.5, 2];
-    let idx = levels.indexOf(source.value);
-    const next = idx + (event.type === "click" ? 1 : 3);
-    field.value = levels[next % 4];
+    let idx = levels.indexOf(base);
+    const next = idx + (event.type === "click" ? 1 : levels.length - 1);
 
-    // Update the field value and save the form
-    return this._onSubmit(event);
+    // Update the actor
+    return this.actor.update({[field.name]: levels[next % levels.length]});
   }
 
   /* -------------------------------------------- */
@@ -1070,7 +1071,11 @@ export default class ActorSheet5e extends ActorSheet {
   _onToggleAbilityProficiency(event) {
     event.preventDefault();
     const field = event.currentTarget.previousElementSibling;
-    return this.actor.update({[field.name]: 1 - parseInt(field.value)});
+    const base = Number(field.value);
+    const override = this.actor.itemOverrides[field.name];
+    if ( override ) return;
+
+    return this.actor.update({[field.name]: 1 - base});
   }
 
   /* -------------------------------------------- */

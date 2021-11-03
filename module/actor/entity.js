@@ -20,6 +20,12 @@ export default class Actor5e extends Actor {
    */
   _classes = undefined;
 
+  /**
+   * An object for keeping track of overrides provided by items.
+   * @type {object}
+   */
+  itemOverrides = {};
+
   /* -------------------------------------------- */
   /*  Properties                                  */
   /* -------------------------------------------- */
@@ -124,7 +130,10 @@ export default class Actor5e extends Actor {
     const saveBonus = this._simplifyBonus(bonuses.save, bonusData);
     const checkBonus = this._simplifyBonus(bonuses.check, bonusData);
     for (let [id, abl] of Object.entries(data.abilities)) {
-      if ( flags.diamondSoul ) abl.proficient = 1;  // Diamond Soul is proficient in all saves
+      if ( flags.diamondSoul ) {
+        abl.proficient = 1;  // Diamond Soul is proficient in all saves
+        this.itemOverrides[`data.abilities.${id}.proficient`] = 1;
+      }
       abl.mod = Math.floor((abl.value - 10) / 2);
 
       const isRA = this._isRemarkableAthlete(id);
@@ -246,13 +255,20 @@ export default class Actor5e extends Actor {
    */
   assignTraitProficiencies(type, keys) {
     const traitConfig = CONFIG.DND5E.traits[type];
+    if ( !this.itemOverrides ) this.itemOverrides = {};
     for ( const key of keys ) {
       if ( traitConfig.proficiency ) {
         if ( !this.data.data.traits[type]?.value?.includes(key) ) this.data.data.traits[`${type}Prof`]?.value?.push(key);
       } else if ( type === "skills" ) {
-        if ( this.data.data.skills[key]?.value < 1 ) this.data.data.skills[key].value = 1;
+        if ( this.data.data.skills[key]?.value < 1 ) {
+          this.data.data.skills[key].value = 1;
+          this.itemOverrides[`data.skills.${key}.value`] = 1;
+        }
       } else if ( type === "saves" ) {
-        if ( this.data.data.abilities[key]?.proficient < 1 ) this.data.data.abilities[key].proficient = 1;
+        if ( this.data.data.abilities[key]?.proficient < 1 ) {
+          this.data.data.abilities[key].proficient = 1;
+          this.itemOverrides[`data.abilities.${key}.proficient`] = 1;
+        }
       } else if ( !this.data.data.traits[type]?.value?.includes(key) ) {
         this.data.data.traits[type]?.value?.push(key);
       }
@@ -465,6 +481,7 @@ export default class Actor5e extends Actor {
       for ( const [type, changes] of Object.entries(item.actorTraitChanges) ) {
         this.assignTraitProficiencies(type, changes);
       }
+      if ( item.isOriginalClass ) this.assignTraitProficiencies("saves", item.data.data.saves);
     }
   }
 
