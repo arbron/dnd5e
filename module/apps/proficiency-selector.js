@@ -166,7 +166,7 @@ export default class ProficiencySelector extends TraitSelector {
     super.activateListeners(html);
 
     for ( const checkbox of html[0].querySelectorAll("input[type='checkbox']") ) {
-      if ( checkbox.checked ) ProficiencySelector._onToggleCategory(checkbox);
+      if ( checkbox.checked ) this.constructor._onToggleCategory(checkbox);
     }
   }
 
@@ -176,7 +176,7 @@ export default class ProficiencySelector extends TraitSelector {
   async _onChangeInput(event) {
     super._onChangeInput(event);
 
-    if ( event.target.tagName === "INPUT" ) ProficiencySelector._onToggleCategory(event.target);
+    if ( event.target.tagName === "INPUT" ) this.constructor._onToggleCategory(event.target);
   }
 
   /* -------------------------------------------- */
