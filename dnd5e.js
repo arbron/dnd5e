@@ -39,7 +39,7 @@ import LongRestDialog from "./module/apps/long-rest.js";
 import ProficiencySelector from "./module/apps/proficiency-selector.js";
 import SelectItemsPrompt from "./module/apps/select-items-prompt.js";
 import ShortRestDialog from "./module/apps/short-rest.js";
-import TraitConfiguration from "./module/apps/trait-configuration.js";
+import TraitConfig from "./module/apps/trait-config.js";
 import TraitSelector from "./module/apps/trait-selector.js";
 
 // Import Helpers
@@ -79,7 +79,7 @@ Hooks.once("init", function() {
       ProficiencySelector,
       SelectItemsPrompt,
       ShortRestDialog,
-      TraitConfiguration,
+      TraitConfig,
       TraitSelector
     },
     canvas: {
