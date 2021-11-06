@@ -19,24 +19,63 @@
       "str",
       "con"
     ],
-    "skills": {
-      "number": 2,
-      "choices": [
-        "ani",
-        "ath",
-        "itm",
-        "nat",
-        "prc",
-        "sur"
-      ],
-      "value": []
-    },
     "spellcasting": {
       "progression": "none",
       "ability": ""
     },
-    "damage": {
-      "parts": []
+    "traits": {
+      "armor": {
+        "grants": [
+          "lgt",
+          "med",
+          "shl"
+        ],
+        "choices": [],
+        "multiclassGrants": [
+          "shl"
+        ],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "weapon": {
+        "grants": [
+          "sim",
+          "mar"
+        ],
+        "choices": [],
+        "multiclassGrants": [
+          "sim",
+          "mar"
+        ],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "tool": {
+        "grants": [],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "skills": {
+        "grants": [],
+        "choices": [
+          {
+            "count": 2,
+            "choices": [
+              "ani",
+              "ath",
+              "itm",
+              "nat",
+              "prc",
+              "sur"
+            ]
+          }
+        ],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      }
     }
   },
   "effects": [],

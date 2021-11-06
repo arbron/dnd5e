@@ -19,29 +19,87 @@
       "dex",
       "int"
     ],
-    "skills": {
-      "number": 4,
-      "choices": [
-        "acr",
-        "ath",
-        "dec",
-        "ins",
-        "itm",
-        "inv",
-        "per",
-        "prf",
-        "prc",
-        "slt",
-        "ste"
-      ],
-      "value": []
-    },
     "spellcasting": {
       "progression": "none",
       "ability": ""
     },
-    "damage": {
-      "parts": []
+    "traits": {
+      "armor": {
+        "grants": [
+          "lgt"
+        ],
+        "choices": [],
+        "multiclassGrants": [
+          "lgt"
+        ],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "weapon": {
+        "grants": [
+          "sim",
+          "handcrossbow",
+          "longsword",
+          "rapier",
+          "shortsword"
+        ],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "tool": {
+        "grants": [
+          "thief"
+        ],
+        "choices": [],
+        "multiclassGrants": [
+          "thief"
+        ],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "skills": {
+        "grants": [],
+        "choices": [
+          {
+            "count": 4,
+            "choices": [
+              "acr",
+              "ath",
+              "dec",
+              "ins",
+              "itm",
+              "inv",
+              "prc",
+              "prf",
+              "per",
+              "slt",
+              "ste"
+            ]
+          }
+        ],
+        "multiclassGrants": [],
+        "multiclassChoices": [
+          {
+            "count": 1,
+            "choices": [
+              "acr",
+              "ath",
+              "dec",
+              "ins",
+              "itm",
+              "inv",
+              "prc",
+              "prf",
+              "per",
+              "slt",
+              "ste"
+            ]
+          }
+        ],
+        "value": []
+      }
     }
   },
   "effects": [],

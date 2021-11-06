@@ -19,24 +19,57 @@
       "con",
       "cha"
     ],
-    "skills": {
-      "number": 2,
-      "choices": [
-        "arc",
-        "dec",
-        "ins",
-        "itm",
-        "per",
-        "rel"
-      ],
-      "value": []
-    },
     "spellcasting": {
       "progression": "full",
       "ability": "cha"
     },
-    "damage": {
-      "parts": []
+    "traits": {
+      "armor": {
+        "grants": [],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "weapon": {
+        "grants": [
+          "dagger",
+          "dart",
+          "lightcrossbow",
+          "quarterstaff",
+          "sling"
+        ],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "tool": {
+        "grants": [],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "skills": {
+        "grants": [],
+        "choices": [
+          {
+            "count": 2,
+            "choices": [
+              "arc",
+              "dec",
+              "ins",
+              "itm",
+              "per",
+              "rel"
+            ]
+          }
+        ],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      }
     }
   },
   "effects": [],

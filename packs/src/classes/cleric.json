@@ -19,23 +19,60 @@
       "wis",
       "cha"
     ],
-    "skills": {
-      "number": 2,
-      "choices": [
-        "his",
-        "ins",
-        "med",
-        "per",
-        "rel"
-      ],
-      "value": []
-    },
     "spellcasting": {
       "progression": "full",
       "ability": "wis"
     },
-    "damage": {
-      "parts": []
+    "traits": {
+      "armor": {
+        "grants": [
+          "lgt",
+          "med",
+          "shl"
+        ],
+        "choices": [],
+        "multiclassGrants": [
+          "lgt",
+          "med",
+          "shl"
+        ],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "weapon": {
+        "grants": [
+          "sim"
+        ],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "tool": {
+        "grants": [],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "skills": {
+        "grants": [],
+        "choices": [
+          {
+            "count": 2,
+            "choices": [
+              "his",
+              "ins",
+              "med",
+              "per",
+              "rel"
+            ]
+          }
+        ],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      }
     }
   },
   "effects": [],

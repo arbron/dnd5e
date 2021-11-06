@@ -19,24 +19,65 @@
       "str",
       "dex"
     ],
-    "skills": {
-      "number": 2,
-      "choices": [
-        "acr",
-        "ath",
-        "his",
-        "ins",
-        "rel",
-        "ste"
-      ],
-      "value": []
-    },
     "spellcasting": {
       "progression": "none",
       "ability": ""
     },
-    "damage": {
-      "parts": []
+    "traits": {
+      "armor": {
+        "grants": [],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "weapon": {
+        "grants": [
+          "sim",
+          "shortsword"
+        ],
+        "choices": [],
+        "multiclassGrants": [
+          "sim",
+          "shortsword"
+        ],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "tool": {
+        "grants": [],
+        "choices": [
+          {
+            "count": 1,
+            "choices": [
+              "art",
+              "music"
+            ]
+          }
+        ],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "skills": {
+        "grants": [],
+        "choices": [
+          {
+            "count": 2,
+            "choices": [
+              "acr",
+              "ath",
+              "his",
+              "ins",
+              "rel",
+              "ste"
+            ]
+          }
+        ],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      }
     }
   },
   "effects": [],

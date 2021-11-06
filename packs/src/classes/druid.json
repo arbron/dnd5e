@@ -19,26 +19,74 @@
       "int",
       "wis"
     ],
-    "skills": {
-      "number": 2,
-      "choices": [
-        "arc",
-        "ani",
-        "ins",
-        "med",
-        "nat",
-        "prc",
-        "rel",
-        "sur"
-      ],
-      "value": []
-    },
     "spellcasting": {
       "progression": "full",
       "ability": "wis"
     },
-    "damage": {
-      "parts": []
+    "traits": {
+      "armor": {
+        "grants": [
+          "lgt",
+          "med",
+          "shl"
+        ],
+        "choices": [],
+        "multiclassGrants": [
+          "lgt",
+          "med",
+          "shl"
+        ],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "weapon": {
+        "grants": [
+          "club",
+          "dagger",
+          "dart",
+          "javelin",
+          "mace",
+          "quarterstaff",
+          "scimitar",
+          "sickle",
+          "sling",
+          "spear"
+        ],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "tool": {
+        "grants": [
+          "herb"
+        ],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "skills": {
+        "grants": [],
+        "choices": [
+          {
+            "count": 2,
+            "choices": [
+              "ani",
+              "arc",
+              "ins",
+              "med",
+              "nat",
+              "prc",
+              "rel",
+              "sur"
+            ]
+          }
+        ],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      }
     }
   },
   "effects": [],

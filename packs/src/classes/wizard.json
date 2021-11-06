@@ -19,24 +19,57 @@
       "int",
       "wis"
     ],
-    "skills": {
-      "number": 2,
-      "choices": [
-        "arc",
-        "his",
-        "ins",
-        "inv",
-        "med",
-        "rel"
-      ],
-      "value": []
-    },
     "spellcasting": {
       "progression": "full",
       "ability": "int"
     },
-    "damage": {
-      "parts": []
+    "traits": {
+      "armor": {
+        "grants": [],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "weapon": {
+        "grants": [
+          "dagger",
+          "dart",
+          "lightcrossbow",
+          "quarterstaff",
+          "sling"
+        ],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "tool": {
+        "grants": [],
+        "choices": [],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      },
+      "skills": {
+        "grants": [],
+        "choices": [
+          {
+            "count": 2,
+            "choices": [
+              "arc",
+              "his",
+              "ins",
+              "inv",
+              "med",
+              "rel"
+            ]
+          }
+        ],
+        "multiclassGrants": [],
+        "multiclassChoices": [],
+        "value": []
+      }
     }
   },
   "effects": [],
