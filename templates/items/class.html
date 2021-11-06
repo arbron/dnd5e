@@ -145,7 +145,7 @@
             {{/if}}
 
             {{!-- Multiclassing --}}
-            {{#if editablePrototype}}
+            {{#if (not embedded)}}
             <div>
                 <h2>{{ localize "DND5E.MulticlassingHeader" }}</h2>
             </div>

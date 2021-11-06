@@ -74,8 +74,8 @@ export default class ItemSheet5e extends ItemSheet {
     if ( sourceMax ) itemData.data.uses.max = sourceMax;
 
     // Classes
-    data.showRegularProficiencies = data.editablePrototype || this.item.isOriginalClass;
-    data.showMulticlassProficiencies = data.editablePrototype || !this.item.isOriginalClass;
+    data.showRegularProficiencies = !data.embedded || (data.embedded && this.item.isOriginalClass);
+    data.showMulticlassProficiencies = !data.embedded || (data.embedded && !this.item.isOriginalClass);
 
     // Vehicles
     data.isCrewed = itemData.data.activation?.type === "crew";
