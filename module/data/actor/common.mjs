@@ -1,359 +1,192 @@
-import { DocumentData } from "/common/abstract/module.mjs";
+import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { FORMULA_FIELD, mappingField } from "../fields.mjs";
-import { defaultData } from "./base.mjs";
+import { FormulaField, MappingField } from "../fields.mjs";
 
+
+export const REQUIRED_INTEGER = {required: true, nullable: false, integer: true};
 
 /**
  * Data definition for common data template.
- * @extends DocumentData
  *
- * @property {object<string, AbilityData>} abilities  Actor's ability scores.
+ * @property {Object<string, AbilityData>} abilities  Actor's ability scores.
  * @property {AttributeData} attributes               Armor class, hit points, movement, and initiative data.
  * @property {DetailsData} details                    Actor's biography.
  * @property {TraitsData} traits                      Actor's size, resistances, vulnerabilities, and immunities.
  * @property {CurrencyData} currency                  Currency being held by this actor.
  */
-export class CommonData extends DocumentData {
+export class CommonData extends DataModel {
   static defineSchema() {
     return {
-      abilities: mappingField({
-        type: AbilityData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.common.abilities")
-      }),
-      attributes: {
-        type: AttributeData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.common.attributes")
-      },
-      details: {
-        type: DetailsData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.common.details")
-      },
-      traits: {
-        type: TraitsData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.common.traits")
-      },
-      currency: {
-        type: CurrencyData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.common.currency")
-      }
+      abilities: new MappingField(AbilityData, {label: "DND5E.Abilities"}),
+      attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
+      details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
+      traits: new fields.EmbeddedDataField(TraitsData, {label: "DND5E.Traits"}),
+      currency: new fields.EmbeddedDataField(CurrencyData, {label: "DND5E.Currency"})
     };
   }
 }
-
-/* -------------------------------------------- */
-/*  Abilities                                   */
-/* -------------------------------------------- */
 
 /**
  * An embedded data structure for actor ability scores.
- * @extends DocumentData
  * @see ActorData5e
  *
- * @property {number} value                Ability score.
- * @property {number} proficient           Proficiency value for saves.
- * @property {AbilityBonusesData} bonuses  Bonuses that modify ability checks and saves.
+ * @property {number} value          Ability score.
+ * @property {number} proficient     Proficiency value for saves.
+ * @property {object} bonuses        Bonuses that modify ability checks and saves.
+ * @property {string} bonuses.check  Numeric or dice bonus to ability checks.
+ * @property {string} bonuses.save   Numeric or dice bonus to ability saving throws.
  */
-export class AbilityData extends DocumentData {
+export class AbilityData extends DataModel {
   static defineSchema() {
     return {
-      value: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, {
-        required: true,
-        nullable: false,
-        default: 10
+      value: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 10, label: "DND5E.AbilityScore"}),
+      proficient: new fields.NumberField({
+        required: true, initial: 0, choices: CONFIG.DND5E.proficiencyLevels, label: "DND5E.ProficiencyLevel"
       }),
-      proficient: fields.field(fields.NUMERIC_FIELD, fields.REQUIRED_NUMBER),
-      bonuses: {
-        type: AbilityBonusesData,
-        required: true,
-        default: defaultData("templates.common.abilities.dex.bonuses")
-      }
+      bonuses: new fields.SchemaField({
+        check: new FormulaField({required: true, label: "DND5E.AbilityCheckBonus"}),
+        save: new FormulaField({required: true, label: "DND5E.SaveBonus"})
+      }, {label: "DND5E.AbilityBonuses"})
     };
   }
 }
-
-/**
- * An embedded data structure for actor ability bonuses.
- * @extends DocumentData
- * @see AbilityData
- *
- * @property {string} check  Numeric or dice bonus to ability checks.
- * @property {string} save   Numeric or dice bonus to ability saving throws.
- */
-class AbilityBonusesData extends DocumentData {
-  static defineSchema() {
-    return {
-      check: FORMULA_FIELD,
-      save: FORMULA_FIELD
-    };
-  }
-}
-
-/* -------------------------------------------- */
-/*  Attributes                                  */
-/* -------------------------------------------- */
 
 /**
  * An embedded data structure for actor attributes.
- * @extends DocumentData
  * @see CommonData
  *
- * @property {ACData} ac              Data used to calculate actor's armor class.
- * @property {HPData} hp              Actor's hit point data.
- * @property {InitiativeData} init    Actor's initiative modifier and bonuses.
- * @property {MovementData} movement  Various actor movement speeds.
+ * @property {object} ac               Data used to calculate actor's armor class.
+ * @property {number} ac.flat          Flat value used for flat or natural armor calculation.
+ * @property {string} ac.calc          Name of one of the built-in formulas to use.
+ * @property {string} ac.formula       Custom formula to use.
+ * @property {object} hp               Actor's hit point data.
+ * @property {number} hp.value         Current hit points.
+ * @property {number} hp.min           Minimum allowed HP value.
+ * @property {number} hp.max           Maximum allowed HP value.
+ * @property {number} hp.temp          Temporary HP applied on top of value.
+ * @property {number} hp.tempmax       Temporary change to the maximum HP.
+ * @property {object} init             Actor's initiative modifier and bonuses.
+ * @property {number} init.value       Calculated initiative modifier.
+ * @property {number} init.bonus       Fixed bonus provided to initiative rolls.
+ * @property {object} movement         Various actor movement speeds.
+ * @property {number} movement.burrow  Actor burrowing speed.
+ * @property {number} movement.climb   Actor climbing speed.
+ * @property {number} movement.fly     Actor flying speed.
+ * @property {number} movement.swim    Actor swimming speed.
+ * @property {number} movement.walk    Actor walking speed.
+ * @property {string} movement.units   Movement used to measure the various speeds.
+ * @property {boolean} movement.hover  Is this flying creature able to hover in place.
  */
-export class AttributeData extends DocumentData {
+export class AttributeData extends DataModel {
   static defineSchema() {
     return {
-      ac: {
-        type: ACData,
-        required: true,
-        default: defaultData("templates.common.attributes.ac")
-      },
-      hp: {
-        type: HPData,
-        required: true,
-        default: defaultData("templates.common.attributes.hp")
-      },
-      init: {
-        type: InitiativeData,
-        required: true,
-        default: defaultData("templates.common.attributes.init")
-      },
-      movement: {
-        type: MovementData,
-        required: true,
-        default: defaultData("templates.common.attributes.movement")
-      }
-    };
-  }
-}
-
-/**
- * An embedded data structure for actor armor class.
- * @extends DocumentData
- * @see AttributeData
- *
- * @property {number} [flat]   Flat value used for flat or natural armor calculation.
- * @property {string} calc     Name of one of the built-in formulas to use.
- * @property {string} formula  Custom formula to use.
- */
-export class ACData extends DocumentData {
-  static defineSchema() {
-    return {
-      flat: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, { nullable: true }),
-      calc: fields.field(fields.REQUIRED_STRING, { default: "default" }),
-      formula: FORMULA_FIELD
-    };
-  }
-}
-
-/**
- * An embedded data structure for actor hit points.
- * @extends DocumentData
- * @see AttributeData
- *
- * @property {number} value    Current hit points.
- * @property {number} min      Minimum allowed HP value.
- * @property {number} max      Maximum allowed HP value.
- * @property {number} temp     Temporary HP applied on top of value.
- * @property {number} tempmax  Temporary change to the maximum HP.
- */
-export class HPData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, {
-        required: true,
-        nullable: false,
-        default: 10
+      ac: new fields.SchemaField({
+        flat: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.ArmorClassFlat"}),
+        calc: new fields.StringField({required: true, initial: "default", label: "DND5E.ArmorClassCalculation"}),
+        formula: new FormulaField({required: true, deterministic: true, label: "DND5E.ArmorClassFormula"})
+      }, { label: "DND5E.ArmorClass" }),
+      hp: new fields.SchemaField({
+        value: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 10, label: "DND5E.HitPointsCurrent"}),
+        min: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.HitPointsMin"}),
+        max: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 10, label: "DND5E.HitPointsMax"}),
+        temp: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.HitPointsTemp"}),
+        tempmax: new fields.NumberField({required: true, integer: true, label: "DND5E.HitPointsTempMax"})
+      }, {
+        label: "DND5E.HitPoints", validate: d => d.min <= d.max,
+        validationError: "HP minimum must be less than HP maximum"
       }),
-      min: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      max: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, {
-        required: true,
-        nullable: false,
-        default: 10
-      }),
-      temp: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      tempmax: fields.field(fields.INTEGER_FIELD, fields.REQUIRED_NUMBER)
+      init: new fields.SchemaField({
+        value: new fields.NumberField({...REQUIRED_INTEGER, initial: 0, label: "DND5E.Initiative"}),
+        bonus: new fields.NumberField({...REQUIRED_INTEGER, initial: 0, label: "DND5E.InitiativeBonus"})
+      }, { label: "DND5E.Initiative" }),
+      movement: new fields.SchemaField({
+        burrow: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.MovementBurrow"}),
+        climb: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.MovementClimb"}),
+        fly: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.MovementFly"}),
+        swim: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.MovementSwim"}),
+        walk: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 30, label: "DND5E.MovementWalk"}),
+        units: new fields.StringField({
+          required: true, initial: "ft", choices: CONFIG.DND5E.movementUnits, label: "DND5E.MovementUnits"
+        }),
+        hover: new fields.BooleanField({label: "DND5E.MovementHover"})
+      }, { label: "DND5E.Movement" })
     };
   }
 }
-
-/**
- * An embedded data structure for actor initiative.
- * @extends DocumentData
- * @see AttributeData
- *
- * @property {number} value  Calculated initiative modifier.
- * @property {number} bonus  Fixed bonus provided to initiative rolls.
- */
-export class InitiativeData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.field(fields.INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      bonus: fields.field(fields.INTEGER_FIELD, fields.REQUIRED_NUMBER)
-    };
-  }
-}
-
-/**
- * An embedded data structure for actor movement.
- * @extends DocumentData
- * @see AttributeData
- *
- * @property {number} burrow  Actor burrowing speed.
- * @property {number} climb   Actor climbing speed.
- * @property {number} fly     Actor flying speed.
- * @property {number} swim    Actor swimming speed.
- * @property {number} walk    Actor walking speed.
- * @property {string} units   Movement used to measure the various speeds.
- * @property {boolean} hover  Is this flying creature able to hover in place.
- */
-export class MovementData extends DocumentData {
-  static defineSchema() {
-    return {
-      burrow: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      climb: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      fly: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      swim: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      walk: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, {
-        required: true,
-        nullable: false,
-        default: defaultData("templates.common.attributes.movement.walk")
-      }),
-      units: fields.field(fields.REQUIRED_STRING, { default: "ft" }),
-      hover: fields.BOOLEAN_FIELD
-    };
-  }
-}
-
-/* -------------------------------------------- */
-/*  Details                                     */
-/* -------------------------------------------- */
 
 /**
  * An embedded data structure for actor details.
- * @extends DocumentData
  * @see CommonData
  *
- * @property {BiographyData} biography  Actor's biography data.
+ * @property {object} biography         Actor's biography data.
+ * @property {string} biography.value   Full HTML biography information.
+ * @property {string} biography.public  Biography that will be displayed to players with only observer privileges.
  */
-export class DetailsData extends DocumentData {
+export class DetailsData extends DataModel {
   static defineSchema() {
     return {
-      biography: {
-        type: BiographyData,
-        required: true,
-        default: defaultData("templates.common.details.biography")
-      }
+      biography: new fields.SchemaField({
+        value: new fields.StringField({ blank: true, label: "DND5E.Biography" }),
+        public: new fields.StringField({ blank: true, label: "DND5E.BiographyPublic" })
+      }, { label: "DND5E.Biography" })
     };
   }
 }
-
-/**
- * An embedded data structure for actor biography.
- * @extends DocumentData
- * @see DetailsData
- *
- * @property {string} value   Full HTML biography information.
- * @property {string} public  Biography that will be displayed to players with only observer privileges.
- */
-export class BiographyData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.BLANK_STRING,
-      public: fields.BLANK_STRING
-    };
-  }
-}
-
-/* -------------------------------------------- */
-/*  Traits                                      */
-/* -------------------------------------------- */
 
 /**
  * An embedded data structure representing shared traits.
- * @extends DocumentData
  * @see CommonData
  *
- * @property {string} size         Actor's size.
- * @property {SimpleTraitData} di  Damage immunities.
- * @property {SimpleTraitData} dr  Damage resistances.
- * @property {SimpleTraitData} dv  Damage vulnerabilities.
- * @property {SimpleTraitData} ci  Condition immunities.
+ * @property {string} size        Actor's size.
+ * @property {object} di          Damage immunities.
+ * @property {string[]} di.value  Currently selected damage immunities.
+ * @property {string} di.custom   Semicolon-separated list of custom damage immunities.
+ * @property {object} dr          Damage resistances.
+ * @property {string[]} dr.value  Currently selected damage resistances.
+ * @property {string} dr.custom   Semicolon-separated list of custom damage resistances.
+ * @property {object} dv          Damage vulnerabilities.
+ * @property {string[]} dv.value  Currently selected damage vulnerabilities.
+ * @property {string} dv.custom   Semicolon-separated list of custom damage vulnerabilities.
+ * @property {object} ci          Condition immunities.
+ * @property {string[]} ci.value  Currently selected condition immunities.
+ * @property {string} ci.custom   Semicolon-separated list of custom condition immunities.
  */
-export class TraitsData extends DocumentData {
+export class TraitsData extends DataModel {
   static defineSchema() {
     return {
-      size: fields.field(fields.REQUIRED_STRING, { default: "med" }),
-      di: {
-        type: SimpleTraitData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.common.traits.di")
-      },
-      dr: {
-        type: SimpleTraitData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.common.traits.dr")
-      },
-      dv: {
-        type: SimpleTraitData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.common.traits.dv")
-      },
-      ci: {
-        type: SimpleTraitData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.common.traits.ci")
-      }
+      size: new fields.StringField({
+        required: true, initial: "med", choices: CONFIG.DND5E.actorSizes, label: "DND5E.Size"
+      }),
+      di: new fields.SchemaField({
+        value: new fields.ArrayField(new fields.StringField({
+          blank: false, choices: CONFIG.DND5E.damageResistanceTypes
+        }), {label: "DND5E.TraitsChosen"}),
+        custom: new fields.StringField({required: true, label: "DND5E.Special"})
+      }, {label: "DND5E.DamImm"}),
+      dr: new fields.SchemaField({
+        value: new fields.ArrayField(new fields.StringField({
+          blank: false, choices: CONFIG.DND5E.damageResistanceTypes
+        }), {label: "DND5E.TraitsChosen"}),
+        custom: new fields.StringField({required: true, label: "DND5E.Special"})
+      }, {label: "DND5E.DamRes"}),
+      dv: new fields.SchemaField({
+        value: new fields.ArrayField(new fields.StringField({
+          blank: false, choices: CONFIG.DND5E.damageResistanceTypes
+        }), {label: "DND5E.TraitsChosen"}),
+        custom: new fields.StringField({required: true, label: "DND5E.Special"})
+      }, {label: "DND5E.DamVuln"}),
+      ci: new fields.SchemaField({
+        value: new fields.ArrayField(new fields.StringField({
+          blank: false, choices: CONFIG.DND5E.conditionTypes
+        }), {label: "DND5E.TraitsChosen"}),
+        custom: new fields.StringField({required: true, label: "DND5E.Special"})
+      }, {label: "DND5E.ConImm"})
     };
   }
 }
-
-/**
- * An embedded data structure for storing simple traits.
- * @extends DocumentData
- * @see TraitsData
- *
- * @property {string[]} value  Currently selected traits.
- * @property {string} custom   Semicolon-separated list of custom traits.
- */
-export class SimpleTraitData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: {
-        type: [String],
-        required: true,
-        nullable: false,
-        default: []
-      },
-      custom: fields.BLANK_STRING
-    };
-  }
-}
-
-/* -------------------------------------------- */
-/*  Currency                                    */
-/* -------------------------------------------- */
 
 /**
  * An embedded data structure for currently held currencies.
- * @extends CommonData
  * @see DetailsData
  *
  * @property {number} pp  Platinum pieces.
@@ -362,14 +195,14 @@ export class SimpleTraitData extends DocumentData {
  * @property {number} sp  Silver pieces.
  * @property {number} cp  Copper pieces.
  */
-export class CurrencyData extends DocumentData {
+export class CurrencyData extends DataModel {
   static defineSchema() {
     return {
-      pp: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      gp: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      ep: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      sp: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      cp: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER)
+      pp: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.CurrencyPP"}),
+      gp: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.CurrencyGP"}),
+      ep: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.CurrencyEP"}),
+      sp: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.CurrencySP"}),
+      cp: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.CurrencyCP"})
     };
   }
 }

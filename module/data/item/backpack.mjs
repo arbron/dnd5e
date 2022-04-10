@@ -1,58 +1,39 @@
-import { DocumentData } from "/common/abstract/module.mjs";
+import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { NONNEGATIVE_NUMBER_FIELD } from "../fields.mjs";
-import { defaultData, mergeObjects } from "./base.mjs";
+import { mergeObjects } from "./base.mjs";
 import * as common from "./common.mjs";
 import { CurrencyData } from "../actor/common.mjs";
 
 
 /**
  * Data definition for Backpack items.
- * @extends DocumentData
  * @see common.ItemDescriptionData
  * @see common.PhysicalItemData
  *
- * @property {CapacityData} capacity  Information on container's carrying capacity.
- * @property {CurrencyData} currency  Amount of currency currently held by the container.
+ * @property {object} capacity              Information on container's carrying capacity.
+ * @property {string} capacity.type         Method for tracking max capacity as defined in `DND5E.itemCapacityTypes`.
+ * @property {number} capacity.value        Total amount of the type this container can carry.
+ * @property {boolean} capacity.weightless  Does the weight of the items in the container carry over to the actor?
+ * @property {CurrencyData} currency        Amount of currency currently held by the container.
  */
-export class ItemBackpackData extends DocumentData {
+export class ItemBackpackData extends DataModel {
   static defineSchema() {
     return mergeObjects(
       common.ItemDescriptionData.defineSchema(),
       common.PhysicalItemData.defineSchema(),
       {
-        capacity: {
-          type: CapacityData,
-          required: true,
-          nullable: false,
-          default: defaultData("backpack.capacity")
-        },
-        currency: {
-          type: CurrencyData,
-          required: true,
-          nullable: false,
-          default: defaultData("backpack.currency")
-        }
+        capacity: new fields.SchemaField({
+          type: new fields.StringField({
+            required: true, initial: "weight", choices: CONFIG.DND5E.itemCapacityTypes,
+            label: "DND5E.ItemContainerCapacityType"
+          }),
+          value: new fields.NumberField({
+            required: true, nullable: false, initial: 0, min: 0, label: "DND5E.ItemContainerCapacityMax"
+          }),
+          weightless: new fields.BooleanField({required: true, label: "DND5E.ItemContainerWeightless"})
+        }, {label: "DND5E.ItemContainerCapacity"}),
+        currency: new fields.EmbeddedDataField(CurrencyData, {label: "DND5E.Currency"})
       }
     );
-  }
-}
-
-/**
- * An embedded data structure for tracking container carrying capacity.
- * @extends DocumentData
- * @see ItemBackpackData
- *
- * @property {string} type         Method for tracking maximum capacity as defined in `DND5E.itemCapacityTypes`.
- * @property {number} value        Total amount of the type this container can carry.
- * @property {boolean} weightless  Does the weight of the items in the container carry over to the actor?
- */
-class CapacityData extends DocumentData {
-  static defineSchema() {
-    return {
-      type: fields.field(fields.REQUIRED_STRING, { default: defaultData("backpack.capacity.type") }),
-      value: fields.field(NONNEGATIVE_NUMBER_FIELD, fields.REQUIRED_NUMBER),
-      weightless: fields.BOOLEAN_FIELD
-    };
   }
 }

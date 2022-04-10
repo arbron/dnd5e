@@ -1,51 +1,33 @@
-import { DocumentData } from "/common/abstract/module.mjs";
+import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { defaultData, mergeObjects } from "./base.mjs";
+import { mergeObjects } from "./base.mjs";
 import * as common from "./common.mjs";
 
 
 /**
  * Data definition for Feature items.
- * @extends DocumentData
  * @see common.ItemDescriptionData
  * @see common.ActivatedEffectData
  * @see common.ActionData
  *
- * @property {string} requirements    Actor details required to use this feature.
- * @property {RechargeData} recharge  Details on how a feature can roll for recharges.
+ * @property {string} requirements       Actor details required to use this feature.
+ * @property {object} recharge           Details on how a feature can roll for recharges.
+ * @property {number} recharge.value     Minimum number needed to roll on a d6 to recharge this feature.
+ * @property {boolean} recharge.charged  Does this feature have a charge remaining?
  */
-export class ItemFeatData extends DocumentData {
+export class ItemFeatData extends DataModel {
   static defineSchema() {
     return mergeObjects(
       common.ItemDescriptionData.defineSchema(),
       common.ActivatedEffectData.defineSchema(),
       common.ActionData.defineSchema(),
       {
-        requirements: fields.BLANK_STRING,
-        recharge: {
-          type: RechargeData,
-          required: true,
-          nullable: false,
-          default: defaultData("feat.recharge")
-        }
+        requirements: new fields.StringField({required: true, label: ""}),
+        recharge: new fields.SchemaField({
+          value: new fields.NumberField({required: true, integer: true, positive: true, label: ""}),
+          charged: new fields.BooleanField({required: true, label: ""})
+        }, {label: ""})
       }
     );
-  }
-}
-
-/**
- * An embedded data structure for feature charges.
- * @extends DocumentData
- * @see ItemFeatData
- *
- * @property {number} value     Minimum number needed to roll on a d6 to recharge this feature.
- * @property {boolean} charged  Does this feature have a charge remaining?
- */
-class RechargeData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.field(fields.POSITIVE_INTEGER_FIELD, { default: null }),
-      charged: fields.BOOLEAN_FIELD
-    };
   }
 }

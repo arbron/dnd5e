@@ -1,59 +1,32 @@
-import { DocumentData } from "/common/abstract/module.mjs";
+import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { DETERMINISTIC_FORMULA_FIELD, FORMULA_FIELD, NONNEGATIVE_NUMBER_FIELD, NULLABLE_STRING } from "../fields.mjs";
-import { defaultData } from "./base.mjs";
+import { FormulaField } from "../fields.mjs";
 
-
-/* -------------------------------------------- */
-/*  Item Description                            */
-/* -------------------------------------------- */
 
 /**
  * An embedded data structure for item description & source.
- * @extends DocumentData
  *
- * @property {DescriptionData} description  Various item descriptions.
- * @property {string} source                Adventure or sourcebook where this item originated.
+ * @property {object} description               Various item descriptions.
+ * @property {string} description.value         Full item description.
+ * @property {string} description.chat          Description displayed in chat card.
+ * @property {string} description.unidentified  Description displayed if item is unidentified.
+ * @property {string} source                    Adventure or sourcebook where this item originated.
  */
-export class ItemDescriptionData extends DocumentData {
+export class ItemDescriptionData extends DataModel {
   static defineSchema() {
     return {
-      description: {
-        type: DescriptionData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.itemDescription.description")
-      },
-      source: fields.BLANK_STRING
+      description: new fields.SchemaField({
+        value: new fields.StringField({required: true, label: "DND5E.Description"}),
+        chat: new fields.StringField({required: true, label: ""}),
+        unidentified: new fields.StringField({required: true, label: ""})
+      }, {label: "DND5E.Description"}),
+      source: new fields.StringField({required: true, label: "DND5E.Source"})
     };
   }
 }
-
-/**
- * An embedded data structure for various item descriptions.
- * @extends DocumentData
- *
- * @property {string} value         Full item description.
- * @property {string} chat          Description displayed in chat card.
- * @property {string} unidentified  Description displayed if item is unidentified.
- */
-export class DescriptionData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.BLANK_STRING,
-      chat: fields.BLANK_STRING,
-      unidentified: fields.BLANK_STRING
-    };
-  }
-}
-
-/* -------------------------------------------- */
-/*  PhysicalItem                                */
-/* -------------------------------------------- */
 
 /**
  * An embedded data structure containing information on physical items.
- * @extends DocumentData
  *
  * @property {number} quantity     Number of items in a stack.
  * @property {number} weight       Item's weight in pounds or kilograms (depending on system setting).
@@ -63,363 +36,192 @@ export class DescriptionData extends DocumentData {
  * @property {string} rarity       Item rarity as defined in `DND5E.itemRarity`.
  * @property {boolean} identified  Has this item been identified?
  */
-export class PhysicalItemData extends DocumentData {
+export class PhysicalItemData extends DataModel {
   static defineSchema() {
     return {
-      quantity: fields.field(fields.POSITIVE_INTEGER_FIELD, {
-        required: true,
-        nullable: false,
-        default: 1
+      quantity: new fields.NumberField({
+        required: true, nullable: false, integer: true, positive: true, initial: 1, label: "DND5E.Quantity"
       }),
-      weight: fields.field(NONNEGATIVE_NUMBER_FIELD, fields.REQUIRED_NUMBER),
-      price: fields.field(NONNEGATIVE_NUMBER_FIELD, fields.REQUIRED_NUMBER),
-      attunement: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      equipped: fields.BOOLEAN_FIELD,
-      rarity: fields.BLANK_STRING,
-      identified: fields.field(fields.BOOLEAN_FIELD, { default: true })
+      weight: new fields.NumberField({
+        required: true, nullable: false, initial: 0, min: 0, label: "DND5E.Weight"
+      }),
+      price: new fields.NumberField({
+        required: true, nullable: false, initial: 0, min: 0, label: "DND5E.Price"
+      }),
+      attunement: new fields.NumberField({
+        required: true, integer: true, initial: CONFIG.DND5E.attunementTypes.NONE,
+        choices: Object.values(CONFIG.DND5E.attunementTypes), label: "DND5E.Attunement"
+      }),
+      equipped: new fields.BooleanField({required: true, label: "DND5E.Equipped"}),
+      rarity: new fields.StringField({required: true, label: "DND5E.Rarity"}),
+      identified: new fields.BooleanField({required: true, initial: true, label: "DND5E.Identified"})
     };
   }
 }
-
-/* -------------------------------------------- */
-/*  Activated Effect                            */
-/* -------------------------------------------- */
 
 /**
  * An embedded data structure for items that can be used as some sort of action.
- * @extends DocumentData
  *
- * @property {ActivationData} activation  Effect's activation conditions.
- * @property {DurationData} duration      Effect's duration.
- * @property {TargetData} target          Effect's valid targets.
- * @property {RangeData} range            Effect's range.
- * @property {UsesData} uses              Effect's limited uses.
- * @property {ConsumeData} consume        Effect's resource consumption.
+ * @property {object} activation            Effect's activation conditions.
+ * @property {string} activation.type       Activation type as defined in `DND5E.abilityActivationTypes`.
+ * @property {number} activation.cost       How much of the activation type is needed to use this item's effect.
+ * @property {string} activation.condition  Special conditions required to activate the item.
+ * @property {object} duration              Effect's duration.
+ * @property {number} duration.value        How long the effect lasts.
+ * @property {string} duration.units        Time duration period as defined in `DND5E.timePeriods`.
+ * @property {object} target                Effect's valid targets.
+ * @property {number} target.value          Length or radius of target depending on targeting mode selected.
+ * @property {number} target.width          Width of line when line type is selected.
+ * @property {string} target.units          Units used for value and width as defined in `DND5E.distanceUnits`.
+ * @property {string} target.type           Targeting mode as defined in `DND5E.targetTypes`.
+ * @property {object} range                 Effect's range.
+ * @property {number} range.value           Regular targeting distance for item's effect.
+ * @property {number} range.long            Maximum targeting distance for features that have a separate long range.
+ * @property {string} range.units           Units used for value and long as defined in `DND5E.distanceUnits`.
+ * @property {object} uses                  Effect's limited uses.
+ * @property {number} uses.value            Current available uses.
+ * @property {string} uses.max              Maximum possible uses or a formula to derive that number.
+ * @property {string} uses.per              Recharge time for limited uses as defined in `DND5E.limitedUsePeriods`.
+ * @property {object} consume               Effect's resource consumption.
+ * @property {string} consume.type          Type of resource to consume as defined in `DND5E.abilityConsumptionTypes`.
+ * @property {string} consume.target        Item ID or resource key path of resource to consume.
+ * @property {number} consume.amount        Quantity of the resource to consume per use.
  */
-export class ActivatedEffectData extends DocumentData {
+export class ActivatedEffectData extends DataModel {
   static defineSchema() {
     return {
-      activation: {
-        type: ActivationData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.activatedEffect.activation")
-      },
-      duration: {
-        type: DurationData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.activatedEffect.duration")
-      },
-      target: {
-        type: TargetData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.activatedEffect.target")
-      },
-      range: {
-        type: RangeData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.activatedEffect.range")
-      },
-      uses: {
-        type: UsesData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.activatedEffect.uses")
-      },
-      consume: {
-        type: ConsumeData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.activatedEffect.consume")
-      }
+      activation: new fields.SchemaField({
+        type: new fields.StringField({
+          required: true, blank: true, choices: CONFIG.DND5E.abilityActivationTypes, label: ""
+        }),
+        cost: new fields.NumberField({required: true, nullable: false, initial: 0, label: "DND5E.ItemActivationCost"}),
+        condition: new fields.StringField({required: true, label: "DND5E.ItemActivationCondition"})
+      }, {label: ""}),
+      duration: new fields.SchemaField({
+        value: new fields.NumberField({required: true, min: 0, label: ""}),
+        units: new fields.StringField({
+          required: true, blank: true, choices: CONFIG.DND5E.timePeriods, label: ""
+        })
+      }, {label: ""}),
+      target: new fields.SchemaField({
+        value: new fields.NumberField({required: true, min: 0, label: ""}),
+        width: new fields.NumberField({required: true, min: 0, label: ""}),
+        units: new fields.StringField({
+          required: true, blank: true, choices: CONFIG.DND5E.distanceUnits, label: ""
+        }),
+        type: new fields.StringField({
+          required: true, blank: true, choices: CONFIG.DND5E.targetTypes, label: ""
+        })
+      }, {label: ""}),
+      range: new fields.SchemaField({
+        value: new fields.NumberField({required: true, min: 0, label: ""}),
+        long: new fields.NumberField({required: true, min: 0, label: ""}),
+        units: new fields.StringField({
+          required: true, blank: true, choices: CONFIG.DND5E.distanceUnits, label: ""
+        })
+      }, {label: ""}),
+      uses: new fields.SchemaField({
+        value: new fields.NumberField({required: true, min: 0, label: ""}),
+        max: new FormulaField({required: true, deterministic: true, label: ""}),
+        per: new fields.StringField({required: true, blank: false, nullable: true, initial: null, label: ""})
+      }, {label: ""}),
+      consume: new fields.SchemaField({
+        type: new fields.StringField({
+          required: true, blank: true, choices: CONFIG.DND5E.abilityConsumptionTypes, label: ""
+        }),
+        target: new fields.StringField({
+          required: true, blank: false, nullable: true, initial: null, label: ""
+        }),
+        amount: new fields.NumberField({required: true, label: ""})
+      }, {label: ""})
     };
   }
 }
-
-/**
- * An embedded data structure for item activation details.
- * @extends DocumentData
- * @see ActivatedEffectData
- *
- * @property {string} type       Activation type as defined in `DND5E.abilityActivationTypes`.
- * @property {number} cost       How much of the activation type is needed to use this item's effect.
- * @property {string} condition  Special conditions required to activate the item.
- */
-export class ActivationData extends DocumentData {
-  static defineSchema() {
-    return {
-      type: fields.BLANK_STRING,
-      cost: fields.REQUIRED_NUMBER,
-      condition: fields.BLANK_STRING
-    };
-  }
-}
-
-/**
- * An embedded data structure for item usage duration.
- * @extends DocumentData
- * @see ActivatedEffectData
- *
- * @property {number} value  How long the effect lasts.
- * @property {string} units  Time duration period as defined in `DND5E.timePeriods`.
- */
-export class DurationData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.field(NONNEGATIVE_NUMBER_FIELD, { default: null }),
-      units: fields.BLANK_STRING
-    };
-  }
-}
-
-/**
- * An embedded data structure for item targeting.
- * @extends DocumentData
- * @see ActivatedEffectData
- *
- * @property {number} value  Length or radius of target depending on targeting mode selected.
- * @property {number} width  Width of line when line type is selected.
- * @property {string} units  Units used for value and width as defined in `DND5E.distanceUnits`.
- * @property {string} type   Targeting mode as defined in `DND5E.targetTypes`.
- */
-export class TargetData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.field(NONNEGATIVE_NUMBER_FIELD, { default: null }),
-      width: fields.field(NONNEGATIVE_NUMBER_FIELD, { default: null }),
-      units: fields.BLANK_STRING,
-      type: fields.BLANK_STRING
-    };
-  }
-}
-
-/**
- * An embedded data structure for item range.
- * @extends DocumentData
- * @see ActivatedEffectData
- *
- * @property {number} value  Regular targeting distance for item's effect.
- * @property {number} long   Maximum targeting distance for features that have a separate long range.
- * @property {string} units  Units used for value and long as defined in `DND5E.distanceUnits`.
- */
-export class RangeData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.field(NONNEGATIVE_NUMBER_FIELD, { default: null }),
-      long: fields.field(NONNEGATIVE_NUMBER_FIELD, { default: null }),
-      units: fields.BLANK_STRING
-    };
-  }
-}
-
-/**
- * An embedded data structure for item limited uses.
- * @extends DocumentData
- * @see ActivatedEffectData
- *
- * @property {number} value  Current available uses.
- * @property {string} max    Maximum possible uses or a formula to derive that number.
- * @property {string} per    Recharge time for limited uses as defined in `DND5E.limitedUsePeriods`.
- */
-export class UsesData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, { default: null }),
-      max: DETERMINISTIC_FORMULA_FIELD,
-      per: NULLABLE_STRING
-    };
-  }
-}
-
-/**
- * An embedded data structure for items that consume resources.
- * @extends DocumentData
- * @see ActivatedEffectData
- *
- * @property {string} type    Type of resource to consume as defined in `DND5E.abilityConsumptionTypes`.
- * @property {string} target  Item ID or resource key path of resource to consume.
- * @property {number} amount  Quantity of the resource to consume per use.
- */
-export class ConsumeData extends DocumentData {
-  static defineSchema() {
-    return {
-      type: fields.BLANK_STRING,
-      target: NULLABLE_STRING,
-      amount: fields.field(fields.NUMERIC_FIELD, { default: null })
-    };
-  }
-}
-
-/* -------------------------------------------- */
-/*  Action                                      */
-/* -------------------------------------------- */
 
 /**
  * An embedded data structure for item actions.
- * @extends DocumentData
  *
- * @property {string} ability         Ability score to use when determining modifier.
- * @property {string} actionType      Action type as defined in `DND5E.itemActionTypes`.
- * @property {string} attackBonus     Numeric or dice bonus to attack rolls.
- * @property {string} chatFlavor      Extra text displayed in chat.
- * @property {CriticalData} critical  Information on how critical hits are handled.
- * @property {DamageData} damage      Item damage formulas.
- * @property {string} formula         Other roll formula.
- * @property {SaveData} save          Item saving throw data.
+ * @property {string} ability             Ability score to use when determining modifier.
+ * @property {string} actionType          Action type as defined in `DND5E.itemActionTypes`.
+ * @property {string} attackBonus         Numeric or dice bonus to attack rolls.
+ * @property {string} chatFlavor          Extra text displayed in chat.
+ * @property {object} critical            Information on how critical hits are handled.
+ * @property {number} critical.threshold  Minimum number on the dice to roll a critical hit.
+ * @property {string} critical.damage     Extra damage on critical hit.
+ * @property {object} damage              Item damage formulas.
+ * @property {string[][]} damage.parts    Array of damage formula and types.
+ * @property {string} damage.versatile    Special versatile damage formula.
+ * @property {string} formula             Other roll formula.
+ * @property {object} save                Item saving throw data.
+ * @property {string} save.ability        Ability required for the save.
+ * @property {number} save.dc             Custom saving throw value.
+ * @property {string} save.scaling        Method for automatically determining saving throw DC.
  */
-export class ActionData extends DocumentData {
+export class ActionData extends DataModel {
   static defineSchema() {
     return {
-      ability: fields.field(NULLABLE_STRING, { default: defaultData("templates.action.ability") }),
-      actionType: fields.field(NULLABLE_STRING, { default: defaultData("templates.action.actionType") }),
-      attackBonus: fields.field(NULLABLE_STRING, { default: defaultData("templates.action.attackBonus") }),
-      chatFlavor: fields.BLANK_STRING,
-      critical: {
-        type: CriticalData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.action.critical")
-      },
-      damage: {
-        type: DamageData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.action.damage")
-      },
-      formula: fields.BLANK_STRING,
-      save: {
-        type: SaveData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.action.save")
-      }
+      ability: new fields.StringField({
+        required: true, nullable: true, initial: null, choices: CONFIG.DND5E.abilities, label: ""
+      }),
+      actionType: new fields.StringField({
+        required: true, nullable: true, initial: null, choices: CONFIG.DND5E.itemActionTypes,
+        label: "DND5E.ItemActionType"
+      }),
+      attackBonus: new FormulaField({required: true, label: "DND5E.ItemAttackBonus"}),
+      chatFlavor: new fields.StringField({required: true, label: "DND5E.ChatFlavor"}),
+      critical: new fields.SchemaField({
+        threshold: new fields.NumberField({
+          required: true, integer: true, initial: null, positive: true, label: "DND5E.ItemCritThreshold"
+        }),
+        damage: new FormulaField({required: true, label: "DND5E.ItemCritExtraDamage"})
+      }, {label: ""}),
+      damage: new fields.SchemaField({
+        parts: new fields.ArrayField(new fields.StringField({label: ""}), {required: true, label: ""}),
+        versatile: new FormulaField({required: true, label: "DND5E.VersatileDamage"})
+      }, {label: "DND5E.Damage"}),
+      formula: new FormulaField({required: true, label: "DND5E.OtherFormula"}),
+      save: new fields.SchemaField({
+        ability: new fields.StringField({
+          required: true, choices: CONFIG.DND5E.abilities, label: ""
+        }),
+        dc: new fields.NumberField({required: true, min: 0, label: "DND5E.AbbreviationDC"}),
+        scaling: new fields.StringField({
+          required: true, blank: false, initial: "spell", label: "DND5E.ScalingFormula"
+        })
+      }, {label: "DND5E.SavingThrow"})
     };
   }
 }
-
-/**
- * An embedded data structure for item critical hit configuration.
- * @extends DocumentData
- * @see ActionData
- *
- * @property {number} threshold  Minimum number on the dice to roll a critical hit.
- * @property {string} [damage]   Extra damage on critical hit.
- */
-export class CriticalData extends DocumentData {
-  static defineSchema() {
-    return {
-      threshold: fields.field(fields.POSITIVE_INTEGER_FIELD, { default: null }),
-      damage: NULLABLE_STRING
-    };
-  }
-}
-
-/**
- * An embedded data structure for item damages.
- * @extends DocumentData
- * @see ActionData
- *
- * @property {string[][]} parts  Array of damage formula and types.
- * @property {string} versatile  Special versatile damage formula.
- */
-export class DamageData extends DocumentData {
-  static defineSchema() {
-    return {
-      parts: {
-        type: Array, // TODO: Figure out if there is any way to validate this properly (should be [[String]])
-        required: true,
-        nullable: false,
-        default: []
-      },
-      versatile: FORMULA_FIELD
-    };
-  }
-}
-
-/**
- * An embedded data structure for item saving throws.
- * @extends DocumentData
- * @see ActionData
- *
- * @property {string} ability  Ability required for the save.
- * @property {number} [dc]     Custom saving throw value.
- * @property {string} scaling  Method for automatically determining saving throw DC.
- */
-export class SaveData extends DocumentData {
-  static defineSchema() {
-    return {
-      ability: fields.BLANK_STRING,
-      dc: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, { default: null }),
-      scaling: fields.field(fields.REQUIRED_STRING, { default: defaultData("templates.action.save.scaling") })
-    };
-  }
-}
-
-/* -------------------------------------------- */
-/*  Mountable                                   */
-/* -------------------------------------------- */
 
 /**
  * An embedded data structure for equipment that can be mounted on a vehicle.
- * @extends DocumentData
  *
- * @property {ArmorData} armor  Equipment's armor class.
- * @property {HPData} hp        Equipment's hit points.
+ * @property {object} armor          Equipment's armor class.
+ * @property {number} armor.value    Armor class value for equipment.
+ * @property {object} hp             Equipment's hit points.
+ * @property {number} hp.value       Current hit point value.
+ * @property {number} hp.max         Max hit points.
+ * @property {number} hp.dt          Damage threshold.
+ * @property {string} hp.conditions  Conditions that are triggered when this equipment takes damage.
  */
-export class MountableData extends DocumentData {
+export class MountableData extends DataModel {
   static defineSchema() {
     return {
-      armor: {
-        type: ArmorData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.mountable.armor")
-      },
-      hp: {
-        type: HPData,
-        required: true,
-        nullable: false,
-        default: defaultData("templates.mountable.hp")
-      }
-    };
-  }
-}
-
-/**
- * An embedded data structure for mountable equipment armor class.
- * @extends DocumentData
- * @see ActivatedEffectData
- *
- * @property {number} value  Armor class value for equipment.
- */
-export class ArmorData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, { default: defaultData("templates.mountable.armor.value") })
-    };
-  }
-}
-
-/**
- * An embedded data structure for mountable equipment hit points.
- * @extends DocumentData
- * @see ActivatedEffectData
- *
- * @property {number} value       Current hit point value.
- * @property {number} max         Max hit points.
- * @property {number} [dt]        Damage threshold.
- * @property {string} conditions  Conditions that are triggered when this equipment takes damage.
- */
-export class HPData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      max: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      dt: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, { default: null }),
-      conditions: fields.BLANK_STRING
+      armor: new fields.SchemaField({
+        value: new fields.NumberField({
+          required: true, nullable: false, integer: true, initial: 10, min: 0, label: "DND5E.ArmorClass"
+        })
+      }, {label: "DND5E.ArmorClass"}),
+      hp: new fields.SchemaField({
+        value: new fields.NumberField({
+          required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.HitPointsCurrent"
+        }),
+        max: new fields.NumberField({
+          required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.HitPointsMax"
+        }),
+        dt: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.DamageThreshold"}),
+        conditions: new fields.StringField({required: true, label: "DND5E.HealthConditions"})
+      }, {label: "DND5E.HitPoints"})
     };
   }
 }

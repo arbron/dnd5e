@@ -1,17 +1,15 @@
-import { DocumentData } from "/common/abstract/module.mjs";
-import { mergeObject } from "/common/utils/helpers.mjs";
+import { DataModel } from "/common/abstract/module.mjs";
 import * as common from "./common.mjs";
 
 
 /**
  * Data definition for Loot items.
- * @extends DocumentData
  * @see common.ItemDescriptionData
  * @see common.PhysicalItemData
  */
-export class ItemLootData extends DocumentData {
+export class ItemLootData extends DataModel {
   static defineSchema() {
-    return mergeObject(
+    return foundry.utils.mergeObject(
       common.ItemDescriptionData.defineSchema(),
       common.PhysicalItemData.defineSchema()
     );

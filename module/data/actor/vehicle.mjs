@@ -1,176 +1,119 @@
-import { DocumentData } from "/common/abstract/module.mjs";
+import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
 import { mergeObject } from "/common/utils/helpers.mjs";
-import { defaultData } from "./base.mjs";
+import { FormulaField } from "../../fields.mjs";
 import * as common from "./common.mjs";
 
 
 /**
  * Data definition for Vehicles.
- * @extends creature.CommonData
  *
- * @property {string} vehicleType        Type of vehicle as defined in `DND5E.vehicleTypes`.
- * @property {AttributeData} attributes  Extended attributes with additional vehicle information.
- * @property {TraitsData} traits         Extended traits with vehicle dimensions.
- * @property {CargoData} cargo           Details on this vehicle's crew and cargo capacities.
+ * @property {string} vehicleType                Type of vehicle as defined in `DND5E.vehicleTypes`.
+ * @property {AttributeData} attributes          Extended attributes with additional vehicle information.
+ * @property {TraitsData} traits                 Extended traits with vehicle dimensions.
+ * @property {object} cargo                      Details on this vehicle's crew and cargo capacities.
+ * @property {PassengerData[]} cargo.crew        Creatures responsible for operating the vehicle.
+ * @property {PassengerData[]} cargo.passengers  Creatures just takin' a ride.
  */
 export class ActorVehicleData extends common.CommonData {
   static defineSchema() {
     return mergeObject(super.defineSchema(), {
-      vehicleType: fields.field(fields.REQUIRED_STRING, { default: defaultData("vehicle.vehicleType") }),
-      abilities: { default: defaultData("vehicle.abilities") },
-      attributes: { type: AttributeData, default: defaultData("vehicle.attributes") },
-      traits: { type: TraitsData, default: defaultData("vehicle.traits") },
-      cargo: {
-        type: CargoData,
-        required: true,
-        nullable: false,
-        default: defaultData("vehicle.cargo")
-      }
+      vehicleType: new fields.StringField({
+        required: true, initial: "water", choices: CONFIG.DND5E.vehicleTypes, label: "DND5E.VehicleType"
+      }),
+      attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
+      traits: new fields.EmbeddedDataField(TraitsData, {label: "DND5E.Traits"}),
+      cargo: new fields.SchemaField({
+        crew: new fields.ArrayField(
+          new fields.EmbeddedDataField(PassengerData), {label: "DND5E.VehicleCrew"}
+        ),
+        passengers: new fields.ArrayField(
+          new fields.EmbeddedDataField(PassengerData), {label: "DND5E.VehiclePassengers"}
+        )
+      }, {label: "DND5E.VehicleCrewPassengers"})
     });
   }
 }
 
-/* -------------------------------------------- */
-/*  Attributes                                  */
-/* -------------------------------------------- */
-
 /**
  * An embedded data structure for extra attribute data used by vehicles.
- * @extends common.AttributeData
  * @see ActorVehicleData
  *
- * @property {ACData} ac              Vehicle's armor class with extra properties.
- * @property {ActionData} actions     Information on how the vehicle performs actions.
- * @property {HPData} hp              Vehicle's hit points with extra properties.
- * @property {CapacityData} capacity  Information on the vehicle's carrying capacity.
+ * @property {object} ac                    Data used to calculate vehicle's armor class.
+ * @property {number} ac.flat               Flat value used for flat or natural armor calculation.
+ * @property {string} ac.calc               Name of one of the built-in formulas to use.
+ * @property {string} ac.formula            Custom formula to use.
+ * @property {string} ac.motionless         Changes to vehicle AC when not moving.
+ * @property {object} actions               Information on how the vehicle performs actions.
+ * @property {boolean} actions.stations     Does this vehicle rely on action stations that required individual
+ *                                          crewing rather than general crew thresholds?
+ * @property {number} actions.value         Maximum number of actions available with full crewing.
+ * @property {object} actions.thresholds    Crew thresholds needed to perform various actions.
+ * @property {number} actions.thresholds.2  Minimum crew needed to take full action complement.
+ * @property {number} actions.thresholds.1  Minimum crew needed to take reduced action complement.
+ * @property {number} actions.thresholds.0  Minimum crew needed to perform any actions.
+ * @property {object} hp                    Vehicle's hit point data.
+ * @property {number} hp.value              Current hit points.
+ * @property {number} hp.min                Minimum allowed HP value.
+ * @property {number} hp.max                Maximum allowed HP value.
+ * @property {number} hp.temp               Temporary HP applied on top of value.
+ * @property {number} hp.tempmax            Temporary change to the maximum HP.
+ * @property {number} hp.dt                 Damage threshold.
+ * @property {number} hp.mt                 Mishap threshold.
+ * @property {object} capacity              Information on the vehicle's carrying capacity.
+ * @property {string} capacity.creature     Description of the number of creatures the vehicle can carry.
+ * @property {number} capacity.cargo        Cargo carrying capacity measured in tons.
  */
 class AttributeData extends common.AttributeData {
   static defineSchema() {
     return mergeObject(super.defineSchema(), {
-      ac: { type: ACData, default: defaultData("vehicle.attributes.ac") },
-      actions: {
-        type: ActionData,
-        required: true,
-        nullable: false,
-        default: defaultData("vehicle.attributes.actions")
-      },
-      hp: { type: HPData, default: defaultData("vehicle.attributes.hp") },
-      capacity: {
-        type: CapacityData,
-        required: true,
-        nullable: false,
-        default: defaultData("vehicle.attributes.capacity")
-      }
+      ac: new fields.SchemaField({
+        flat: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.ArmorClassFlat"}),
+        calc: new fields.StringField({required: true, initial: "flat", label: "DND5E.ArmorClassCalculation"}),
+        formula: new FormulaField({required: true, deterministic: true, label: "DND5E.ArmorClassFormula"}),
+        motionless: new fields.StringField({required: true, label: "DND5E.ArmorClassMotionless"})
+      }, { label: "DND5E.ArmorClass" }),
+      action: new fields.SchemaField({
+        stations: new fields.BooleanField({required: true, label: "DND5E.VehicleActionStations"}),
+        value: new fields.NumberField({
+          ...common.REQUIRED_INTEGER, initial: 0, min: 0, label: "DND5E.VehicleActionMax"
+        }),
+        thresholds: new fields.SchemaField({
+          2: new fields.NumberField({
+            required: true, integer: true, min: 0, label: "DND5E.VehicleActionThresholdsFull"
+          }),
+          1: new fields.NumberField({
+            required: true, integer: true, min: 0, label: "DND5E.VehicleActionThresholdsMid"
+          }),
+          0: new fields.NumberField({
+            required: true, integer: true, min: 0, label: "DND5E.VehicleActionThresholdsMin"
+          })
+        }, {label: "DND5E.VehicleActionThresholds"})
+      }, {label: "DND5E.VehicleActions"}),
+      hp: new fields.SchemaField({
+        value: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.HitPointsCurrent"}),
+        min: new fields.NumberField({...common.REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.HitPointsMin"}),
+        max: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.HitPointsMax"}),
+        temp: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.HitPointsTemp"}),
+        tempmax: new fields.NumberField({required: true, integer: true, label: "DND5E.HitPointsTempMax"}),
+        dt: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.DamageThreshold"}),
+        mt: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.VehicleMishapThreshold"})
+      }, {
+        label: "DND5E.HitPoints", validate: d => d.min <= d.max,
+        validationError: "HP minimum must be less than HP maximum"
+      }),
+      capacity: new fields.SchemaField({
+        creature: new fields.StringField({required: true, label: "DND5E.VehicleCreatureCapacity"}),
+        cargo: new fields.NumberField({
+          ...common.REQUIRED_INTEGER, initial: 0, min: 0, label: "DND5E.VehicleCargoCapacity"
+        })
+      }, {label: "DND5E.VehicleCargoCrew"})
     });
   }
 }
-
-/**
- * An embedded data structure for vehicle's armor class.
- * @extends common.ACData
- * @see AttributeData
- *
- * @property {number} [value]     Vehicle's armor class.
- * @property {string} motionless  Changes to vehicle AC when not moving.
- */
-class ACData extends common.ACData {
-  static defineSchema() {
-    return mergeObject(super.defineSchema(), {
-      motionless: fields.BLANK_STRING
-    });
-  }
-}
-
-/**
- * An embedded data structure that details how the vehicle performs actions.
- * @extends DocumentData
- * @see AttributeData
- *
- * @property {boolean} stations                   Does this vehicle rely on action stations that required individual
- *                                                crewing rather than general crew thresholds?
- * @property {number} value                       Maximum number of actions available with full crewing.
- * @property {object<string, number>} thresholds  Crew thresholds needed to perform various actions.
- */
-class ActionData extends DocumentData {
-  static defineSchema() {
-    return {
-      stations: fields.BOOLEAN_FIELD,
-      value: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-      thresholds: {
-        type: ThresholdData,
-        required: true,
-        nullable: false,
-        default: defaultData("vehicle.attributes.actions.thresholds")
-      }
-    };
-  }
-}
-
-/**
- * An embedded data structure defining vehicle crew action thresholds.
- * @extends DocumentData
- * @see ActionData
- *
- * @property {number} 2  Minimum crew needed to take full action complement.
- * @property {number} 1  Minimum crew needed to take reduced action complement.
- * @property {number} 0  Minimum crew needed to perform any actions.
- */
-class ThresholdData extends DocumentData {
-  static defineSchema() {
-    return {
-      2: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, { default: null }),
-      1: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, { default: null }),
-      0: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, { default: null })
-    };
-  }
-}
-
-/**
- * An embedded data structure for vehicle's hit points.
- * @extends common.HPData
- * @see AttributeData
- *
- * @property {number} [value]  Current hit points.
- * @property {number} [max]    Maximum allowed HP value.
- * @property {number} [dt]     Damage threshold.
- * @property {number} [mt]     Mishap threshold.
- */
-class HPData extends common.HPData {
-  static defineSchema() {
-    return mergeObject(super.defineSchema(), {
-      value: { nullable: true, default: null },
-      max: { nullable: true, default: null },
-      dt: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, { default: null }),
-      mt: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, { default: null })
-    });
-  }
-}
-
-/**
- * An embedded data structure that defines the vehicle's carrying capacity.
- * @extends DocumentData
- * @see AttributeData
- *
- * @property {string} creature  Description of the number of creatures the vehicle can carry.
- * @property {number} cargo     Cargo carrying capacity measured in tons.
- */
-class CapacityData extends DocumentData {
-  static defineSchema() {
-    return {
-      creature: fields.BLANK_STRING,
-      cargo: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER)
-    };
-  }
-}
-
-/* -------------------------------------------- */
-/*  Traits                                      */
-/* -------------------------------------------- */
 
 /**
  * An embedded data structure for extra trait data used by vehicles.
- * @extends common.TraitsData
  * @see ActorVehicleData
  *
  * @property {string} dimensions  Description of the vehicle's size.
@@ -178,55 +121,25 @@ class CapacityData extends DocumentData {
 class TraitsData extends common.TraitsData {
   static defineSchema() {
     return mergeObject(super.defineSchema(), {
-      dimensions: fields.BLANK_STRING
+      dimensions: new fields.StringField({required: true, label: "DND5E.Dimensions"})
     });
-  }
-}
-
-/* -------------------------------------------- */
-/*  Cargo                                       */
-/* -------------------------------------------- */
-
-/**
- * An embedded data structure for vehicle crew and passengers.
- * @extends DocumentData
- * @see ActorVehicleData
- *
- * @property {PassengerData[]} crew        Creatures responsible for operating the vehicle.
- * @property {PassengerData[]} passengers  Creatures just takin' a ride.
- */
-class CargoData extends DocumentData {
-  static defineSchema() {
-    return {
-      crew: {
-        type: [PassengerData],
-        required: true,
-        nullable: false,
-        default: []
-      },
-      passengers: {
-        type: [PassengerData], // TODO: Figure out why this is being turned into a PassengerData object rather than raw object
-        required: true,
-        nullable: false,
-        default: []
-      }
-    };
   }
 }
 
 /**
  * An embedded data structure representing an entry in the crew or passenger lists.
- * @extends DocumentData
  * @see CargoData
  *
  * @property {string} name      Name of individual or type of creature.
  * @property {number} quantity  How many of this creature are onboard?
  */
-class PassengerData extends DocumentData {
+class PassengerData extends DataModel {
   static defineSchema() {
     return {
-      name: fields.BLANK_STRING,
-      quantity: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER)
+      name: new fields.StringField({required: true, label: "DND5E.VehiclePassengerName"}),
+      quantity: new fields.NumberField({
+        ...common.REQUIRED_INTEGER, intial: 0, min: 0, label: "DND5E.VehiclePassengerQuantity"
+      })
     };
   }
 }

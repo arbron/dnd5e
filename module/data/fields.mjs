@@ -1,83 +1,88 @@
-/**
- * A field that contains a rollable formula.
- * @type {DocumentField}
- */
-export const FORMULA_FIELD = {
-  type: String,
-  required: true,
-  nullable: false,
-  default: "",
-  formula: true,
-  deterministic: false
-};
+import { DataModel } from "/common/abstract/module.mjs";
+import { ObjectField, StringField } from "/common/data/fields.mjs";
+
 
 /**
- * A field that contains a deterministic formula.
- * @type {DocumentField}
+ * @typedef {StringFieldOptions} FormulaFieldOptions
+ * @property {boolean} [deterministic=false]  Is this formula not allowed to have dice values?
  */
-export const DETERMINISTIC_FORMULA_FIELD = {
-  type: String,
-  required: true,
-  nullable: false,
-  default: "",
-  formula: true,
-  deterministic: true,
-  validate: d => {
-    if ( !Roll ) return true;
-    const roll = new Roll(d);
-    return roll.isDeterministic;
-  },
-  validationError: "{name} {field} does not contain a valid formula without dice terms."
-};
 
 /**
- * Create a mapping field that allows objects referenced by keys (e.g. an actor's skills).
- * @param {object} options
- * @param {DocumentData} options.type  Type of the objects embedded in the mapping field.
- * @returns {DocumentField}            Created mapping field.
+ * A subclass of StringField which represents a formula.
+ * @param {FormulaFieldOptions} [options={}]  Options which configure the behavior of the field.
+ *
+ * @property {boolean} deterministic=false    Is this formula not allowed to have dice values?
  */
-export function mappingField(options) {
-  return {
-    type: Object,
-    required: options.required ?? false,
-    nullable: options.nullable ?? true,
-    default: options.default || {},
-    clean: d => {
-      return Object.fromEntries(Object.entries(d).map(([k, e]) => {
-        const d = new options.type(e);
-        return [k, d.toObject(false)];
-      }));
-    },
-    validate: d => {
-      if ( !(d instanceof Object) ) return false;
-      return Object.values(d).every(e => {
-        const d = new options.type(e);
-        return d.validate();
-      });
-    },
-    validationError: `{name} {field} does not contain valid ${options.type.name} entries`
-  };
+export class FormulaField extends StringField {
+
+  /** @inheritdoc */
+  static get _defaults() {
+    return foundry.utils.mergeObject(super._defaults, {
+      deterministic: false
+    });
+  }
+
+  /** @inheritdoc */
+  _validator(value) {
+    const roll = new Roll(value);
+    roll.evaluate({async: false});
+    if ( this.deterministic && !roll.isDeterministic ) throw new Error("must not contain dice terms");
+    super._validator(value);
+  }
+
 }
 
-/**
- * A non-negative number field which may be used in a Document.
- * @type {DocumentField}
- */
-export const NONNEGATIVE_NUMBER_FIELD = {
-  type: Number,
-  required: false,
-  validate: n => Number.isFinite(n) && (n >= 0),
-  validationError: '{name} {field} "{value}" does not have an non-negative value'
-};
+/* -------------------------------------------- */
 
 /**
- * A string field that defaults to null to be used in a Document.
- * @type {DocumentField}
+ * A subclass of ObjectField that represents a mapping of keys to the provided DataModel type.
+ * @param {DataModel} type                 The class of DataModel which should be embedded in this field
+ * @param {DataFieldOptions} [options={}]  Options which configure the behavior of the field
  */
-export const NULLABLE_STRING = {
-  type: String,
-  required: true,
-  nullable: true,
-  clean: v => v ? String(v).trim() : null,
-  default: null
-};
+export class MappingField extends ObjectField {
+
+  constructor(model, options) {
+    // TODO: Should this also allow the validation of keys?
+    super(options);
+    if ( !isSubclass(model, DataModel) ) {
+      throw new Error("An EmbeddedDataField must specify a DataModel class as its type");
+    }
+    /**
+     * The embedded DataModel definition which is contained in this field.
+     * @type {*}
+     */
+    this.model = model;
+  }
+
+  /** @override */
+  clean(value, data, options) {
+    value = this._cast(value);
+    for ( let v of Object.values(value) ) {
+      if ( this.options.clean instanceof Function ) v = this.options.clean.call(this, v);
+      v = this.model.cleanData(this.model.schema, v, options);
+    }
+    return value;
+  }
+
+  /** @override */
+  validate(value, options={}) {
+    const errors = {};
+    for ( const [k, v] of Object.entries(value) ) {
+      const err = this.model.validateSchema(this.model.schema, v, options);
+      if ( !foundry.utils.isEmpty(err) ) errors[k] = err;
+    }
+    if ( !foundry.utils.isEmpty(errors) ) throw new Error(DataModel.formatValidationErrors(errors));
+    return super.validate(value, options);
+  }
+
+  /** @override */
+  initialize(model, name, value) {
+    if ( !value ) return value;
+    value = foundry.utils.deepClone(value);
+    for ( let v of Object.values(value) ) {
+      v = new this.model(v, {parent: model});
+    }
+    return value;
+  }
+
+}

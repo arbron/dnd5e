@@ -1,27 +1,31 @@
-import { DocumentData } from "/common/abstract/module.mjs";
+import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { NONNEGATIVE_NUMBER_FIELD } from "../fields.mjs";
-import { defaultData, mergeObjects } from "./base.mjs";
+import { mergeObjects } from "./base.mjs";
 import * as common from "./common.mjs";
 
 
 /**
  * Data definition for Equipment items.
- * @extends DocumentData
  * @see common.ItemDescriptionData
  * @see common.PhysicalItemData
  * @see common.ActivatedEffectData
  * @see common.ActionData
  * @see common.MountableData
  *
- * @property {ArmorData} armor     Armor details and equipment type information.
- * @property {string} baseItem     Base armor as defined in `DND5E.armorIds` for determining proficiency.
- * @property {SpeedData} speed     Speed granted by a piece of vehicle equipment.
- * @property {number} strength     Minimum strength required to use a piece of armor.
- * @property {boolean} stealth     Does this equipment grant disadvantage on stealth checks when used?
- * @property {boolean} proficient  Does the owner have proficiency in this piece of equipment?
+ * @property {object} armor             Armor details and equipment type information.
+ * @property {string} armor.type        Equipment type as defined in `DND5E.equipmentTypes`.
+ * @property {number} armor.value       Base armor class or shield bonus.
+ * @property {number} armor.dex         Maximum dex bonus added to armor class.
+ * @property {string} baseItem          Base armor as defined in `DND5E.armorIds` for determining proficiency.
+ * @property {object} speed             Speed granted by a piece of vehicle equipment.
+ * @property {number} speed.value       Speed granted by this piece of equipment measured in feet or meters
+ *                                      depending on system setting.
+ * @property {string} speed.conditions  Conditions that may affect item's speed.
+ * @property {number} strength          Minimum strength required to use a piece of armor.
+ * @property {boolean} stealth          Does this equipment grant disadvantage on stealth checks when used?
+ * @property {boolean} proficient       Does the owner have proficiency in this piece of equipment?
  */
-export class ItemEquipmentData extends DocumentData {
+export class ItemEquipmentData extends DataModel {
   static defineSchema() {
     return mergeObjects(
       common.ItemDescriptionData.defineSchema(),
@@ -30,60 +34,26 @@ export class ItemEquipmentData extends DocumentData {
       common.ActionData.defineSchema(),
       common.MountableData.defineSchema(),
       {
-        armor: {
-          type: ArmorData,
-          required: true,
-          nullable: false,
-          default: defaultData("equipment.armor")
-        },
-        baseItem: fields.BLANK_STRING,
-        speed: {
-          type: SpeedData,
-          required: true,
-          nullable: false,
-          default: defaultData("equipment.speed")
-        },
-        strength: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, fields.REQUIRED_NUMBER),
-        stealth: fields.BOOLEAN_FIELD,
-        proficient: fields.field(fields.BOOLEAN_FIELD, { default: true })
+        armor: new fields.SchemaField({
+          type: new fields.StringField({
+            required: true, initial: "light", choices: CONFIG.DND5E.equipmentTypes, label: ""
+          }),
+          value: new fields.NumberField({required: true, integer: true, min: 0, label: ""}),
+          dex: new fields.NumberField({required: true, integer: true, label: ""})
+        }, {label: ""}),
+        baseItem: new fields.StringField({
+          required: true, blank: true, choices: CONFIG.DND5E.armorIds, label: ""
+        }),
+        speed: new fields.SchemaField({
+          value: new fields.NumberField({required: true, min: 0, label: ""}),
+          conditions: new fields.StringField({required: true, label: ""})
+        }, {label: ""}),
+        strength: new fields.NumberField({
+          required: true, nullable: false, integer: true, initial: 0, min: 0, label: ""
+        }),
+        stealth: new fields.BooleanField({required: true, label: ""}),
+        proficient: new fields.BooleanField({required: true, initial: true, label: ""})
       }
     );
-  }
-}
-
-/**
- * An embedded data structure for equipment armor class and related properties.
- * @extends DocumentData
- * @see ItemEquipmentData
- *
- * @property {string} type   Equipment type as defined in `DND5E.equipmentTypes`.
- * @property {number} value  Base armor class or shield bonus.
- * @property {number} dex    Maximum dex bonus added to armor class.
- */
-class ArmorData extends DocumentData {
-  static defineSchema() {
-    return {
-      type: fields.field(fields.REQUIRED_STRING, { default: defaultData("equipment.armor.type") }),
-      value: fields.field(fields.NONNEGATIVE_INTEGER_FIELD, { default: null }),
-      dex: fields.field(fields.INTEGER_FIELD, { default: null })
-    };
-  }
-}
-
-/**
- * An embedded data structure for vehicle equipment's speed.
- * @extends DocumentData
- * @see ItemEquipmentData
- *
- * @property {number} value       Speed granted by this piece of equipment measured in feet or meters
- *                                depending on system setting.
- * @property {string} conditions  Conditions that may affect item's speed.
- */
-class SpeedData extends DocumentData {
-  static defineSchema() {
-    return {
-      value: fields.field(NONNEGATIVE_NUMBER_FIELD, { default: null }),
-      conditions: fields.BLANK_STRING
-    };
   }
 }

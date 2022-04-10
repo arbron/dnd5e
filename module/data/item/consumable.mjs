@@ -1,21 +1,21 @@
-import { DocumentData } from "/common/abstract/module.mjs";
+import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { defaultData, mergeObjects } from "./base.mjs";
+import { mergeObjects } from "./base.mjs";
 import * as common from "./common.mjs";
 
 
 /**
  * Data definition for Consumable items.
- * @extends DocumentData
  * @see common.ItemDescriptionData
  * @see common.PhysicalItemData
  * @see common.ActivatedEffectData
  * @see common.ActionData
  *
- * @property {string} consumableType  Type of consumable as defined in `DND5E.consumableTypes`.
- * @property {UsesData} uses          Information on how the consumable can be used and destroyed.
+ * @property {string} consumableType     Type of consumable as defined in `DND5E.consumableTypes`.
+ * @property {object} uses               Information on how the consumable can be used and destroyed.
+ * @property {boolean} uses.autoDestroy  Should this item be destroyed when it runs out of uses.
  */
-export class ItemConsumableData extends DocumentData {
+export class ItemConsumableData extends DataModel {
   static defineSchema() {
     return mergeObjects(
       common.ItemDescriptionData.defineSchema(),
@@ -23,24 +23,14 @@ export class ItemConsumableData extends DocumentData {
       common.ActivatedEffectData.defineSchema(),
       common.ActionData.defineSchema(),
       {
-        consumableType: fields.field(fields.REQUIRED_STRING, { default: defaultData("consumable.consumableType") }),
-        uses: { type: UsesData }
+        consumableType: new fields.StringField({
+          required: true, initial: "potion", choices: CONFIG.DND5E.consumableTypes, label: ""
+        }),
+        uses: new fields.SchemaField({
+          ...common.ActivatedEffectData.schema.uses.schema,
+          autoDestroy: new fields.BooleanField({required: true, label: ""})
+        })
       }
     );
-  }
-}
-
-/**
- * An embedded data structure for consumable's auto destroy behavior.
- * @extends common.UsesData
- * @see ItemConsumableData
- *
- * @property {boolean} autoDestroy  Should this item be destroyed when it runs out of uses.
- */
-class UsesData extends common.UsesData {
-  static defineSchema() {
-    return mergeObjects(super.defineSchema(), {
-      autoDestroy: fields.BOOLEAN_FIELD
-    });
   }
 }
