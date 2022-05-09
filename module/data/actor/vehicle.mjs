@@ -15,7 +15,7 @@ import * as common from "./common.mjs";
  * @property {PassengerData[]} cargo.crew        Creatures responsible for operating the vehicle.
  * @property {PassengerData[]} cargo.passengers  Creatures just takin' a ride.
  */
-export class ActorVehicleData extends common.CommonData {
+export default class ActorVehicleData extends common.CommonData {
   static defineSchema() {
     return mergeObject(super.defineSchema(), {
       vehicleType: new fields.StringField({

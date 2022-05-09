@@ -11,7 +11,7 @@ import * as creature from "./creature.mjs";
  * @property {DetailsData} details      NPC type, environment, CR, and other extended details.
  * @property {ResourcesData} resources  NPC's legendary and lair resources.
  */
-export class ActorNPCData extends creature.CreatureData {
+export default class ActorNPCData extends creature.CreatureData {
   static defineSchema() {
     return mergeObject(super.defineSchema(), {
       details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),

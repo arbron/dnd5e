@@ -16,7 +16,7 @@ import { REQUIRED_INTEGER } from "./common.mjs";
  * @property {ResourceData} resources.tertiary   Resource number three.
  * @property {TraitsData} traits                 Extended traits with character's proficiencies.
  */
-export class ActorCharacterData extends creature.CreatureData {
+export default class ActorCharacterData extends creature.CreatureData {
   static defineSchema() {
     return mergeObject(super.defineSchema(), {
       attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
