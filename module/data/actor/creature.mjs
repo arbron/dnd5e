@@ -20,7 +20,8 @@ export class CreatureData extends common.CommonData {
     return mergeObject(super.defineSchema(), {
       attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
       details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
-      skills: new MappingField(SkillData, {label: "DND5E.Skills"}),
+      // TODO: Default abilities for skills are not filled properly
+      skills: new MappingField(SkillData, {initialKeys: CONFIG.DND5E.skills, label: "DND5E.Skills"}),
       traits: new fields.EmbeddedDataField(TraitsData, {label: "DND5E.Traits"}),
       spells: new MappingField(SpellData, {label: "DND5E.SpellLevels"}),
       bonuses: new fields.EmbeddedDataField(BonusesData, {label: "DND5E.Bonuses"})

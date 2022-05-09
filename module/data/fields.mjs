@@ -1,5 +1,5 @@
 import { DataModel } from "/common/abstract/module.mjs";
-import { ObjectField, StringField } from "/common/data/fields.mjs";
+import { ObjectField, SchemaField, StringField } from "/common/data/fields.mjs";
 
 
 /**
@@ -54,21 +54,33 @@ export class MappingField extends ObjectField {
     this.model = model;
   }
 
-  /** @override */
+  /** @inheritdoc */
   clean(value, data, options) {
-    value = this._cast(value);
+    value = super.clean(value, data, options);
     for ( let v of Object.values(value) ) {
       if ( this.options.clean instanceof Function ) v = this.options.clean.call(this, v);
-      v = this.model.cleanData(this.model.schema, v, options);
+      v = this.model.cleanData(v, options);
     }
     return value;
+  }
+
+  /** @inheritdoc */
+  getInitialValue(data) {
+    let keys = this.options.initialKeys;
+    if ( !keys || !foundry.utils.isObjectEmpty(this.initial) ) return super.getInitialValue(data);
+    if ( !(keys instanceof Array) ) keys = Object.keys(keys);
+    const initial = {};
+    for ( const key of keys ) {
+      initial[key] = {};
+    }
+    return initial;
   }
 
   /** @override */
   validate(value, options={}) {
     const errors = {};
     for ( const [k, v] of Object.entries(value) ) {
-      const err = this.model.validateSchema(this.model.schema, v, options);
+      const err = SchemaField.validateSchema(this.model.schema, v, options);
       if ( !foundry.utils.isEmpty(err) ) errors[k] = err;
     }
     if ( !foundry.utils.isEmpty(errors) ) throw new Error(DataModel.formatValidationErrors(errors));
