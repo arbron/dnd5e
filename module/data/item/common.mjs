@@ -182,7 +182,7 @@ export class ActionData extends DataModel {
       formula: new FormulaField({required: true, label: "DND5E.OtherFormula"}),
       save: new fields.SchemaField({
         ability: new fields.StringField({
-          required: true, choices: CONFIG.DND5E.abilities, label: ""
+          required: true, blank: true, choices: CONFIG.DND5E.abilities, label: ""
         }),
         dc: new fields.NumberField({required: true, min: 0, label: "DND5E.AbbreviationDC"}),
         scaling: new fields.StringField({

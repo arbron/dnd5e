@@ -8,10 +8,11 @@ import * as common from "./common.mjs";
  * Data definition for Class items.
  * @see common.ItemDescriptionData
  *
+ * @property {string} identifier        Identifier slug for this class.
  * @property {number} levels            Current number of levels in this class.
- * @property {string} subclass          Name of subclass chosen.
  * @property {string} hitDice           Denomination of hit dice available as defined in `DND5E.hitDieTypes`.
  * @property {number} hitDiceUsed       Number of hit dice consumed.
+ * @property {object[]} advancement     Advancement objects for this class.
  * @property {string[]} saves           Savings throws in which this class grants proficiency.
  * @property {object} skills            Available class skills and selected skills.
  * @property {number} skills.number     Number of skills selectable by the player.
@@ -31,7 +32,6 @@ export default class ItemClassData extends DataModel {
         levels: new fields.NumberField({
           required: true, nullable: false, integer: true, positive: true, initial: 1, label: ""
         }),
-        subclass: new fields.StringField({required: true, label: ""}),
         hitDice: new fields.StringField({required: true, initial: "d6", choices: CONFIG.DND5E.hitDieTypes, label: ""}),
         hitDiceUsed: new fields.NumberField({
           required: true, nullable: false, integer: true, initial: 0, min: 0, label: ""
