@@ -15,7 +15,7 @@ import * as common from "./common.mjs";
  * @property {number} recharge.value     Minimum number needed to roll on a d6 to recharge this feature.
  * @property {boolean} recharge.charged  Does this feature have a charge remaining?
  */
-export class ItemFeatData extends DataModel {
+export default class ItemFeatData extends DataModel {
   static defineSchema() {
     return mergeObjects(
       common.ItemDescriptionData.defineSchema(),

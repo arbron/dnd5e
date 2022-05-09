@@ -18,7 +18,7 @@ import * as common from "./common.mjs";
  * @property {number} proficient  Level of proficiency in this tool as defined in `DND5E.proficiencyLevels`.
  * @property {string} bonus       Bonus formula added to tool rolls.
  */
-export class ItemToolData extends DocumentData {
+export default class ItemToolData extends DocumentData {
   static defineSchema() {
     return mergeObjects(
       common.ItemDescriptionData.defineSchema(),

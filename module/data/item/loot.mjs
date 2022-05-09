@@ -7,7 +7,7 @@ import * as common from "./common.mjs";
  * @see common.ItemDescriptionData
  * @see common.PhysicalItemData
  */
-export class ItemLootData extends DataModel {
+export default class ItemLootData extends DataModel {
   static defineSchema() {
     return foundry.utils.mergeObject(
       common.ItemDescriptionData.defineSchema(),

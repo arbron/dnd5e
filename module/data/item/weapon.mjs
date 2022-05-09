@@ -18,7 +18,7 @@ import * as common from "./common.mjs";
  * @property {object} properties   Mapping of various weapon property booleans.
  * @property {boolean} proficient  Does the weapon's owner have proficiency?
  */
-export class ItemWeaponData extends DocumentData {
+export default class ItemWeaponData extends DocumentData {
   static defineSchema() {
     return mergeObjects(
       common.ItemDescriptionData.defineSchema(),

@@ -19,7 +19,7 @@ import * as common from "./common.mjs";
  * @property {PreparationData} preparation  Details on how this spell is prepared.
  * @property {ScalingData} scaling          Details on how casting at higher levels affects this spell.
  */
-export class ItemSpellData extends DocumentData {
+export default class ItemSpellData extends DocumentData {
   static defineSchema() {
     return mergeObjects(
       common.ItemDescriptionData.defineSchema(),

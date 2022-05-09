@@ -21,7 +21,7 @@ import * as common from "./common.mjs";
  * @property {string} spellcasting.progression  Spell progression granted by class as from `DND5E.spellProgression`.
  * @property {string} spellcasting.ability      Ability score to use for spellcasting.
  */
-export class ItemClassData extends DataModel {
+export default class ItemClassData extends DataModel {
   static defineSchema() {
     return mergeObjects(
       common.ItemDescriptionData.defineSchema(),

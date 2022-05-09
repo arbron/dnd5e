@@ -15,7 +15,7 @@ import * as common from "./common.mjs";
  * @property {object} uses               Information on how the consumable can be used and destroyed.
  * @property {boolean} uses.autoDestroy  Should this item be destroyed when it runs out of uses.
  */
-export class ItemConsumableData extends DataModel {
+export default class ItemConsumableData extends DataModel {
   static defineSchema() {
     return mergeObjects(
       common.ItemDescriptionData.defineSchema(),

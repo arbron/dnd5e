@@ -16,7 +16,7 @@ import { CurrencyData } from "../actor/common.mjs";
  * @property {boolean} capacity.weightless  Does the weight of the items in the container carry over to the actor?
  * @property {CurrencyData} currency        Amount of currency currently held by the container.
  */
-export class ItemBackpackData extends DataModel {
+export default class ItemBackpackData extends DataModel {
   static defineSchema() {
     return mergeObjects(
       common.ItemDescriptionData.defineSchema(),
