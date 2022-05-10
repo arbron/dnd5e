@@ -112,28 +112,30 @@ export class ActivatedEffectData extends DataModel {
         type: new fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.targetTypes, label: ""
         })
-      }, {label: ""}),
+      }, {label: "DND5E.Target"}),
       range: new fields.SchemaField({
-        value: new fields.NumberField({required: true, min: 0, label: ""}),
-        long: new fields.NumberField({required: true, min: 0, label: ""}),
+        value: new fields.NumberField({required: true, min: 0, label: "DND5E.RangeNormal"}),
+        long: new fields.NumberField({required: true, min: 0, label: "DND5E.RangeLong"}),
         units: new fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.distanceUnits, label: ""
+          required: true, blank: true, choices: CONFIG.DND5E.distanceUnits, label: "DND5E.RangeUnits"
         })
-      }, {label: ""}),
+      }, {label: "DND5E.Range"}),
       uses: new fields.SchemaField({
-        value: new fields.NumberField({required: true, min: 0, label: ""}),
-        max: new FormulaField({required: true, deterministic: true, label: ""}),
-        per: new fields.StringField({required: true, blank: false, nullable: true, initial: null, label: ""})
-      }, {label: ""}),
+        value: new fields.NumberField({required: true, min: 0, label: "DND5E.LimitedUsesAvailable"}),
+        max: new FormulaField({required: true, deterministic: true, label: "DND5E.LimitedUsesMax"}),
+        per: new fields.StringField({
+          required: true, blank: false, nullable: true, initial: null, label: "DND5E.LimitedUsesPer"
+        })
+      }, {label: "DND5E.LimitedUses"}),
       consume: new fields.SchemaField({
         type: new fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.abilityConsumptionTypes, label: ""
+          required: true, blank: true, choices: CONFIG.DND5E.abilityConsumptionTypes, label: "DND5E.ConsumeType"
         }),
         target: new fields.StringField({
-          required: true, blank: false, nullable: true, initial: null, label: ""
+          required: true, blank: false, nullable: true, initial: null, label: "DND5E.ConsumeTarget"
         }),
-        amount: new fields.NumberField({required: true, label: ""})
-      }, {label: ""})
+        amount: new fields.NumberField({required: true, label: "DND5E.ConsumeAmount"})
+      }, {label: "DND5E.ConsumeTitle"})
     };
   }
 }

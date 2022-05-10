@@ -17,7 +17,7 @@ export default class ItemBackgroundData extends DataModel {
       {
         // TODO: Create advancement data
         advancement: new fields.ArrayField(
-          new fields.ObjectField({label: ""}), {label: ""}
+          new fields.ObjectField(), {label: "DND5E.AdvancementTitle"}
         )
       }
     );

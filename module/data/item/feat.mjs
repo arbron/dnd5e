@@ -22,11 +22,13 @@ export default class ItemFeatData extends DataModel {
       common.ActivatedEffectData.defineSchema(),
       common.ActionData.defineSchema(),
       {
-        requirements: new fields.StringField({required: true, label: ""}),
+        requirements: new fields.StringField({required: true, label: "DND5E.Requirements"}),
         recharge: new fields.SchemaField({
-          value: new fields.NumberField({required: true, integer: true, positive: true, label: ""}),
-          charged: new fields.BooleanField({required: true, label: ""})
-        }, {label: ""})
+          value: new fields.NumberField({
+            required: true, integer: true, positive: true, label: "DND5E.FeatureRechargeOn"
+          }),
+          charged: new fields.BooleanField({required: true, label: "DND5E.Charged"})
+        }, {label: "DND5E.FeatureActionRecharge"})
       }
     );
   }

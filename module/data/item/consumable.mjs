@@ -24,12 +24,12 @@ export default class ItemConsumableData extends DataModel {
       common.ActionData.defineSchema(),
       {
         consumableType: new fields.StringField({
-          required: true, initial: "potion", choices: CONFIG.DND5E.consumableTypes, label: ""
+          required: true, initial: "potion", choices: CONFIG.DND5E.consumableTypes, label: "DND5E.ItemConsumableType"
         }),
         uses: new fields.SchemaField({
           ...common.ActivatedEffectData.schema.uses.schema,
-          autoDestroy: new fields.BooleanField({required: true, label: ""})
-        })
+          autoDestroy: new fields.BooleanField({required: true, label: "DND5E.ItemDestroyEmpty"})
+        }, {label: "DND5E.LimitedUses"})
       }
     );
   }

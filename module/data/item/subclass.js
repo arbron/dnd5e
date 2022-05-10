@@ -21,18 +21,22 @@ export default class ItemSubclassData extends DataModel {
       common.ItemDescriptionData.defineSchema(),
       {
         // TODO: Ensure this is a valid slug
-        identifier: new fields.StringField({required: true, label: ""}),
-        classIdentifier: new fields.StringField({required: true, label: ""}),
+        identifier: new fields.StringField({required: true, label: "DND5E.Identifier"}),
+        classIdentifier: new fields.StringField({
+          required: true, label: "DND5E.ClassIdentifier", hint: "DND5E.ClassIdentifierHint"
+        }),
         // TODO: Create advancement data
         advancement: new fields.ArrayField(
-          new fields.ObjectField({label: ""}), {label: ""}
+          new fields.ObjectField(), {label: "DND5E.AdvancementTitle"}
         ),
         spellcasting: new fields.SchemaField({
           progression: new fields.StringField({
-            required: true, initial: "none", choices: CONFIG.DND5E.spellProgression, label: ""
+            required: true, initial: "none", choices: CONFIG.DND5E.spellProgression, label: "DND5E.SpellProgression"
           }),
-          ability: new fields.StringField({required: true, blank: true, choices: CONFIG.DND5E.abilities, label: ""})
-        }, {label: ""})
+          ability: new fields.StringField({
+            required: true, blank: true, choices: CONFIG.DND5E.abilities, label: "DND5E.SpellAbility"
+          })
+        }, {label: "DND5E.Spellcasting"})
       }
     );
   }
