@@ -17,7 +17,8 @@ import * as common from "./common.mjs";
  */
 export class CreatureData extends common.CommonData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
       attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
       details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
       // TODO: Default abilities for skills are not filled properly
@@ -25,7 +26,7 @@ export class CreatureData extends common.CommonData {
       traits: new fields.EmbeddedDataField(TraitsData, {label: "DND5E.Traits"}),
       spells: new MappingField(SpellData, {label: "DND5E.SpellLevels"}),
       bonuses: new fields.EmbeddedDataField(BonusesData, {label: "DND5E.Bonuses"})
-    });
+    };
   }
 }
 
@@ -46,7 +47,8 @@ export class CreatureData extends common.CommonData {
  */
 export class AttributeData extends common.AttributeData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
       attunement: new fields.SchemaField({
         max: new fields.NumberField({...common.REQUIRED_INTEGER, min: 0, initial: 3, label: "DND5E.AttunementMax"})
       }, {label: "DND5E.Attunement"}),
@@ -71,7 +73,7 @@ export class AttributeData extends common.AttributeData {
       spellcasting: new fields.StringField({
         required: true, blank: true, initial: "int", choices: CONFIG.DND5E.abilities, label: "DND5E.SpellAbility"
       })
-    });
+    };
   }
 }
 
@@ -84,10 +86,11 @@ export class AttributeData extends common.AttributeData {
  */
 export class DetailsData extends common.DetailsData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
       alignment: new fields.StringField({required: true, label: "DND5E.Alignment"}),
       race: new fields.StringField({required: true, label: "DND5E.Race"})
-    });
+    };
   }
 }
 
@@ -128,14 +131,15 @@ export class SkillData extends DataModel {
  */
 export class TraitsData extends common.TraitsData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
       languages: new fields.SchemaField({
         value: new fields.ArrayField(new fields.StringField({
           blank: false, choices: CONFIG.DND5E.languages
         }), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.Languages"})
-    });
+    };
   }
 }
 

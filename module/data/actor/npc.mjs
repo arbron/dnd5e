@@ -1,6 +1,5 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { mergeObject } from "/common/utils/helpers.mjs";
 import { REQUIRED_INTEGER } from "./common.mjs";
 import * as creature from "./creature.mjs";
 
@@ -13,10 +12,12 @@ import * as creature from "./creature.mjs";
  */
 export default class ActorNPCData extends creature.CreatureData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
+      // TODO: Add hp.formula
       details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
       resources: new fields.EmbeddedDataField(ResourcesData, {label: "DND5E.Resources"})
-    });
+    };
   }
 }
 
@@ -36,7 +37,8 @@ export default class ActorNPCData extends creature.CreatureData {
  */
 export class DetailsData extends creature.DetailsData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
       type: new fields.SchemaField({
         value: new fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.creatureTypes, label: "DND5E.CreatureType"
@@ -51,7 +53,7 @@ export class DetailsData extends creature.DetailsData {
       cr: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 1, label: "DND5E.ChallengeRating"}),
       spellLevel: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.SpellcasterLevel"}),
       source: new fields.StringField({required: true, label: "DND5E.Source"})
-    });
+    };
   }
 }
 

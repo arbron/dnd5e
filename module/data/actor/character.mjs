@@ -1,6 +1,5 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { mergeObject } from "/common/utils/helpers.mjs";
 import * as creature from "./creature.mjs";
 import { REQUIRED_INTEGER } from "./common.mjs";
 
@@ -18,7 +17,8 @@ import { REQUIRED_INTEGER } from "./common.mjs";
  */
 export default class ActorCharacterData extends creature.CreatureData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
       attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
       details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
       resources: new fields.SchemaField({
@@ -27,7 +27,7 @@ export default class ActorCharacterData extends creature.CreatureData {
         tertiary: new fields.EmbeddedDataField(ResourceData, {label: "DND5E.ResourceTertiary"})
       }, {label: "DND5E.Resources"}),
       traits: new fields.EmbeddedDataField(TraitsData, {label: "DND5E.Traits"})
-    });
+    };
   }
 }
 
@@ -43,14 +43,16 @@ export default class ActorCharacterData extends creature.CreatureData {
  */
 export class AttributeData extends creature.AttributeData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
       death: new fields.SchemaField({
         success: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.DeathSaveSuccesses"}),
         failure: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.DeathSaveFailures"})
       }, {label: "DND5E.DeathSave"}),
+      // TODO: hp.value & hp.max should be defaulted to 0 for characters
       exhaustion: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.Exhaustion"}),
       inspiration: new fields.BooleanField({required: true, label: "DND5E.Inspiration"})
-    });
+    };
   }
 }
 
@@ -72,7 +74,8 @@ export class AttributeData extends creature.AttributeData {
  */
 export class DetailsData extends creature.DetailsData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
       background: new fields.StringField({required: true, label: "DND5E.Background"}),
       originalClass: new fields.StringField({required: true, label: "DND5E.ClassOriginal"}),
       xp: new fields.SchemaField({
@@ -90,7 +93,7 @@ export class DetailsData extends creature.DetailsData {
       ideal: new fields.StringField({required: true, label: "DND5E.Ideals"}),
       bond: new fields.StringField({required: true, label: "DND5E.Bonds"}),
       flaw: new fields.StringField({required: true, label: "DND5E.Flaws"})
-    });
+    };
   }
 }
 
@@ -132,7 +135,8 @@ export class ResourceData extends DataModel {
  */
 export class TraitsData extends creature.TraitsData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
       weaponProf: new fields.SchemaField({
         value: new fields.ArrayField(new fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
@@ -145,6 +149,6 @@ export class TraitsData extends creature.TraitsData {
         value: new fields.ArrayField(new fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.TraitToolProf"})
-    });
+    };
   }
 }

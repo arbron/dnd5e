@@ -1,7 +1,6 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { mergeObject } from "/common/utils/helpers.mjs";
-import { FormulaField } from "../../fields.mjs";
+import { FormulaField } from "../fields.mjs";
 import * as common from "./common.mjs";
 
 
@@ -17,10 +16,12 @@ import * as common from "./common.mjs";
  */
 export default class ActorVehicleData extends common.CommonData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
       vehicleType: new fields.StringField({
         required: true, initial: "water", choices: CONFIG.DND5E.vehicleTypes, label: "DND5E.VehicleType"
       }),
+      // TODO: Mental abilities should default to zero
       attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
       traits: new fields.EmbeddedDataField(TraitsData, {label: "DND5E.Traits"}),
       cargo: new fields.SchemaField({
@@ -31,7 +32,7 @@ export default class ActorVehicleData extends common.CommonData {
           new fields.EmbeddedDataField(PassengerData), {label: "DND5E.VehiclePassengers"}
         )
       }, {label: "DND5E.VehicleCrewPassengers"})
-    });
+    };
   }
 }
 
@@ -66,7 +67,8 @@ export default class ActorVehicleData extends common.CommonData {
  */
 export class AttributeData extends common.AttributeData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
       ac: new fields.SchemaField({
         flat: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.ArmorClassFlat"}),
         calc: new fields.StringField({required: true, initial: "flat", label: "DND5E.ArmorClassCalculation"}),
@@ -108,7 +110,7 @@ export class AttributeData extends common.AttributeData {
           ...common.REQUIRED_INTEGER, initial: 0, min: 0, label: "DND5E.VehicleCargoCapacity"
         })
       }, {label: "DND5E.VehicleCargoCrew"})
-    });
+    };
   }
 }
 
@@ -120,9 +122,12 @@ export class AttributeData extends common.AttributeData {
  */
 export class TraitsData extends common.TraitsData {
   static defineSchema() {
-    return mergeObject(super.defineSchema(), {
+    return {
+      ...super.defineSchema(),
+      // TODO: Size should default to large
+      // TODO: Damage immunities & condition immunities need defaults
       dimensions: new fields.StringField({required: true, label: "DND5E.Dimensions"})
-    });
+    };
   }
 }
 

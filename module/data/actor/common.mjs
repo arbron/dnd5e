@@ -160,25 +160,25 @@ export class TraitsData extends DataModel {
         required: true, initial: "med", choices: CONFIG.DND5E.actorSizes, label: "DND5E.Size"
       }),
       di: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({
+        value: new fields.ArrayField(new fields.StringField({ // TODO: Change to SetField
           blank: false, choices: CONFIG.DND5E.damageResistanceTypes
         }), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamImm"}),
       dr: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({
+        value: new fields.ArrayField(new fields.StringField({ // TODO: Change to SetField
           blank: false, choices: CONFIG.DND5E.damageResistanceTypes
         }), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamRes"}),
       dv: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({
+        value: new fields.ArrayField(new fields.StringField({ // TODO: Change to SetField
           blank: false, choices: CONFIG.DND5E.damageResistanceTypes
         }), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamVuln"}),
       ci: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({
+        value: new fields.ArrayField(new fields.StringField({ // TODO: Change to SetField
           blank: false, choices: CONFIG.DND5E.conditionTypes
         }), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
