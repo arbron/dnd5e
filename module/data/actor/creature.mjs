@@ -1,6 +1,5 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { mergeObject } from "/common/utils/helpers.mjs";
 import { FormulaField, MappingField } from "../fields.mjs";
 import * as common from "./common.mjs";
 
@@ -50,20 +49,22 @@ export class AttributeData extends common.AttributeData {
     return {
       ...super.defineSchema(),
       attunement: new fields.SchemaField({
-        max: new fields.NumberField({...common.REQUIRED_INTEGER, min: 0, initial: 3, label: "DND5E.AttunementMax"})
+        max: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 3, label: "DND5E.AttunementMax"
+        })
       }, {label: "DND5E.Attunement"}),
       senses: new fields.SchemaField({
         darkvision: new fields.NumberField({
-          ...common.REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.SenseDarkvision"
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SenseDarkvision"
         }),
         blindsight: new fields.NumberField({
-          ...common.REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.SenseBlindsight"
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SenseBlindsight"
         }),
         tremorsense: new fields.NumberField({
-          ...common.REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.SenseTremorsense"
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SenseTremorsense"
         }),
         truesight: new fields.NumberField({
-          ...common.REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.SenseTruesight"
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SenseTruesight"
         }),
         units: new fields.StringField({
           required: true, initial: "ft", choices: CONFIG.DND5E.movementUnits, label: "DND5E.SenseUnits"
@@ -134,7 +135,7 @@ export class TraitsData extends common.TraitsData {
     return {
       ...super.defineSchema(),
       languages: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({
+        value: new fields.SetField(new fields.StringField({
           blank: false, choices: CONFIG.DND5E.languages
         }), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
@@ -154,7 +155,7 @@ export class SpellData extends DataModel {
   static defineSchema() {
     return {
       value: new fields.NumberField({
-        ...common.REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.SpellProgAvailable"
+        required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SpellProgAvailable"
       }),
       override: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.SpellProgOverride"})
     };

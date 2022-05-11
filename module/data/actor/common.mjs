@@ -3,8 +3,6 @@ import * as fields from "/common/data/fields.mjs";
 import { FormulaField, MappingField } from "../fields.mjs";
 
 
-export const REQUIRED_INTEGER = {required: true, nullable: false, integer: true};
-
 /**
  * Data definition for common data template.
  *
@@ -39,7 +37,9 @@ export class CommonData extends DataModel {
 export class AbilityData extends DataModel {
   static defineSchema() {
     return {
-      value: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 10, label: "DND5E.AbilityScore"}),
+      value: new fields.NumberField({
+        required: true, nullable: false, integer: true, min: 0, initial: 10, label: "DND5E.AbilityScore"
+      }),
       proficient: new fields.NumberField({
         required: true, initial: 0, choices: CONFIG.DND5E.proficiencyLevels, label: "DND5E.ProficiencyLevel"
       }),
@@ -86,32 +86,54 @@ export class AttributeData extends DataModel {
         formula: new FormulaField({required: true, deterministic: true, label: "DND5E.ArmorClassFormula"})
       }, { label: "DND5E.ArmorClass" }),
       hp: new fields.SchemaField({
-        value: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 10, label: "DND5E.HitPointsCurrent"}),
-        min: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.HitPointsMin"}),
-        max: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 10, label: "DND5E.HitPointsMax"}),
+        value: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 10, label: "DND5E.HitPointsCurrent"
+        }),
+        min: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.HitPointsMin"
+        }),
+        max: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 10, label: "DND5E.HitPointsMax"
+        }),
         temp: new fields.NumberField({
           required: true, integer: true, initial: 0, min: 0, label: "DND5E.HitPointsTemp"
         }),
-        tempmax: new fields.NumberField({required: true, integer: true, initial: 0, label: "DND5E.HitPointsTempMax"})
+        tempmax: new fields.NumberField({
+          required: true, integer: true, initial: 0, label: "DND5E.HitPointsTempMax"
+        })
       }, {
         label: "DND5E.HitPoints", validate: d => d.min <= d.max,
         validationError: "HP minimum must be less than HP maximum"
       }),
       init: new fields.SchemaField({
-        value: new fields.NumberField({...REQUIRED_INTEGER, initial: 0, label: "DND5E.Initiative"}),
-        bonus: new fields.NumberField({...REQUIRED_INTEGER, initial: 0, label: "DND5E.InitiativeBonus"})
+        value: new fields.NumberField({
+          required: true, nullable: false, integer: true, initial: 0, label: "DND5E.Initiative"
+        }),
+        bonus: new fields.NumberField({
+          required: true, nullable: false, integer: true, initial: 0, label: "DND5E.InitiativeBonus"
+        })
       }, { label: "DND5E.Initiative" }),
       movement: new fields.SchemaField({
-        burrow: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.MovementBurrow"}),
-        climb: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.MovementClimb"}),
-        fly: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.MovementFly"}),
-        swim: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.MovementSwim"}),
-        walk: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 30, label: "DND5E.MovementWalk"}),
+        burrow: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.MovementBurrow"
+        }),
+        climb: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.MovementClimb"
+        }),
+        fly: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.MovementFly"
+        }),
+        swim: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.MovementSwim"
+        }),
+        walk: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 30, label: "DND5E.MovementWalk"
+        }),
         units: new fields.StringField({
           required: true, initial: "ft", choices: CONFIG.DND5E.movementUnits, label: "DND5E.MovementUnits"
         }),
         hover: new fields.BooleanField({label: "DND5E.MovementHover"})
-      }, { label: "DND5E.Movement" })
+      }, {label: "DND5E.Movement"})
     };
   }
 }
@@ -128,9 +150,9 @@ export class DetailsData extends DataModel {
   static defineSchema() {
     return {
       biography: new fields.SchemaField({
-        value: new fields.StringField({ blank: true, label: "DND5E.Biography" }),
-        public: new fields.StringField({ blank: true, label: "DND5E.BiographyPublic" })
-      }, { label: "DND5E.Biography" })
+        value: new fields.StringField({blank: true, label: "DND5E.Biography"}),
+        public: new fields.StringField({blank: true, label: "DND5E.BiographyPublic"})
+      }, {label: "DND5E.Biography"})
     };
   }
 }
@@ -160,25 +182,25 @@ export class TraitsData extends DataModel {
         required: true, initial: "med", choices: CONFIG.DND5E.actorSizes, label: "DND5E.Size"
       }),
       di: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({ // TODO: Change to SetField
+        value: new fields.SetField(new fields.StringField({
           blank: false, choices: CONFIG.DND5E.damageResistanceTypes
         }), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamImm"}),
       dr: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({ // TODO: Change to SetField
+        value: new fields.SetField(new fields.StringField({
           blank: false, choices: CONFIG.DND5E.damageResistanceTypes
         }), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamRes"}),
       dv: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({ // TODO: Change to SetField
+        value: new fields.SetField(new fields.StringField({
           blank: false, choices: CONFIG.DND5E.damageResistanceTypes
         }), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamVuln"}),
       ci: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({ // TODO: Change to SetField
+        value: new fields.SetField(new fields.StringField({
           blank: false, choices: CONFIG.DND5E.conditionTypes
         }), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
@@ -200,11 +222,21 @@ export class TraitsData extends DataModel {
 export class CurrencyData extends DataModel {
   static defineSchema() {
     return {
-      pp: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.CurrencyPP"}),
-      gp: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.CurrencyGP"}),
-      ep: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.CurrencyEP"}),
-      sp: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.CurrencySP"}),
-      cp: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.CurrencyCP"})
+      pp: new fields.NumberField({
+        required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CurrencyPP"
+      }),
+      gp: new fields.NumberField({
+        required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CurrencyGP"
+      }),
+      ep: new fields.NumberField({
+        required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CurrencyEP"
+      }),
+      sp: new fields.NumberField({
+        required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CurrencySP"
+      }),
+      cp: new fields.NumberField({
+        required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CurrencyCP"
+      })
     };
   }
 }

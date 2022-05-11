@@ -78,7 +78,7 @@ export class AttributeData extends common.AttributeData {
       action: new fields.SchemaField({
         stations: new fields.BooleanField({required: true, label: "DND5E.VehicleActionStations"}),
         value: new fields.NumberField({
-          ...common.REQUIRED_INTEGER, initial: 0, min: 0, label: "DND5E.VehicleActionMax"
+          required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.VehicleActionMax"
         }),
         thresholds: new fields.SchemaField({
           2: new fields.NumberField({
@@ -94,7 +94,9 @@ export class AttributeData extends common.AttributeData {
       }, {label: "DND5E.VehicleActions"}),
       hp: new fields.SchemaField({
         value: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.HitPointsCurrent"}),
-        min: new fields.NumberField({...common.REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.HitPointsMin"}),
+        min: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.HitPointsMin"
+        }),
         max: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.HitPointsMax"}),
         temp: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.HitPointsTemp"}),
         tempmax: new fields.NumberField({required: true, integer: true, label: "DND5E.HitPointsTempMax"}),
@@ -107,7 +109,7 @@ export class AttributeData extends common.AttributeData {
       capacity: new fields.SchemaField({
         creature: new fields.StringField({required: true, label: "DND5E.VehicleCreatureCapacity"}),
         cargo: new fields.NumberField({
-          ...common.REQUIRED_INTEGER, initial: 0, min: 0, label: "DND5E.VehicleCargoCapacity"
+          required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.VehicleCargoCapacity"
         })
       }, {label: "DND5E.VehicleCargoCrew"})
     };
@@ -143,7 +145,7 @@ export class PassengerData extends DataModel {
     return {
       name: new fields.StringField({required: true, label: "DND5E.VehiclePassengerName"}),
       quantity: new fields.NumberField({
-        ...common.REQUIRED_INTEGER, intial: 0, min: 0, label: "DND5E.VehiclePassengerQuantity"
+        required: true, nullable: false, integer: true, intial: 0, min: 0, label: "DND5E.VehiclePassengerQuantity"
       })
     };
   }

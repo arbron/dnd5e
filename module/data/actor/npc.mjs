@@ -1,6 +1,5 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { REQUIRED_INTEGER } from "./common.mjs";
 import * as creature from "./creature.mjs";
 
 
@@ -50,8 +49,12 @@ export class DetailsData extends creature.DetailsData {
         custom: new fields.StringField({required: true, label: "DND5E.CreatureTypeSelectorCustom"})
       }, {label: "DND5E.CreatureType"}),
       environment: new fields.StringField({required: true, label: "DND5E.Environment"}),
-      cr: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 1, label: "DND5E.ChallengeRating"}),
-      spellLevel: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.SpellcasterLevel"}),
+      cr: new fields.NumberField({
+        required: true, nullable: false, integer: true, min: 0, initial: 1, label: "DND5E.ChallengeRating"
+      }),
+      spellLevel: new fields.NumberField({
+        required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SpellcasterLevel"
+      }),
       source: new fields.StringField({required: true, label: "DND5E.Source"})
     };
   }
@@ -75,12 +78,20 @@ export class ResourcesData extends DataModel {
   static defineSchema() {
     return {
       legact: new fields.SchemaField({
-        value: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.LegActRemaining"}),
-        max: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.LegActMax"})
+        value: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.LegActRemaining"
+        }),
+        max: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.LegActMax"
+        })
       }, {label: "DND5E.LegAct"}),
       legres: new fields.SchemaField({
-        value: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.LegResRemaining"}),
-        max: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.LegResMax"})
+        value: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.LegResRemaining"
+        }),
+        max: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.LegResMax"
+        })
       }, {label: "DND5E.LegRes"}),
       lair: new fields.SchemaField({
         value: new fields.BooleanField({required: true, label: "DND5E.LairAct"}),

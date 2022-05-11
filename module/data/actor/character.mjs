@@ -1,7 +1,6 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
 import * as creature from "./creature.mjs";
-import { REQUIRED_INTEGER } from "./common.mjs";
 
 
 /**
@@ -46,11 +45,17 @@ export class AttributeData extends creature.AttributeData {
     return {
       ...super.defineSchema(),
       death: new fields.SchemaField({
-        success: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.DeathSaveSuccesses"}),
-        failure: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.DeathSaveFailures"})
+        success: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.DeathSaveSuccesses"
+        }),
+        failure: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.DeathSaveFailures"
+        })
       }, {label: "DND5E.DeathSave"}),
       // TODO: hp.value & hp.max should be defaulted to 0 for characters
-      exhaustion: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.Exhaustion"}),
+      exhaustion: new fields.NumberField({
+        required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.Exhaustion"
+      }),
       inspiration: new fields.BooleanField({required: true, label: "DND5E.Inspiration"})
     };
   }
@@ -80,10 +85,14 @@ export class DetailsData extends creature.DetailsData {
       originalClass: new fields.StringField({required: true, label: "DND5E.ClassOriginal"}),
       xp: new fields.SchemaField({
         value: new fields.NumberField({
-          ...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.ExperiencePointsCurrent"
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.ExperiencePointsCurrent"
         }),
-        min: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.ExperiencePointsMin"}),
-        max: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 300, label: "DND5E.ExperiencePointsMax"})
+        min: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.ExperiencePointsMin"
+        }),
+        max: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 300, label: "DND5E.ExperiencePointsMax"
+        })
       }, {
         label: "DND5E.ExperiencePoints", validate: d => d.min <= d.max,
         validationError: "XP minimum must be less than XP maximum"
@@ -138,15 +147,15 @@ export class TraitsData extends creature.TraitsData {
     return {
       ...super.defineSchema(),
       weaponProf: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}),
+        value: new fields.SetField(new fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.TraitWeaponProf"}),
       armorProf: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}),
+        value: new fields.SetField(new fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.TraitArmorProf"}),
       toolProf: new fields.SchemaField({
-        value: new fields.ArrayField(new fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}),
+        value: new fields.SetField(new fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}),
         custom: new fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.TraitToolProf"})
     };
