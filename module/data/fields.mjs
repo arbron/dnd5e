@@ -91,8 +91,8 @@ export class MappingField extends ObjectField {
   initialize(model, name, value) {
     if ( !value ) return value;
     value = foundry.utils.deepClone(value);
-    for ( let v of Object.values(value) ) {
-      v = new this.model(v, {parent: model});
+    for ( let [k, v] of Object.entries(value) ) {
+      v = new this.model(v, {parent: model, parentKey: k });
     }
     return value;
   }

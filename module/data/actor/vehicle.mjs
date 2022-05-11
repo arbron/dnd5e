@@ -67,8 +67,15 @@ export default class ActorVehicleData extends common.CommonData {
  */
 export class AttributeData extends common.AttributeData {
   static defineSchema() {
+    const schema = super.defineSchema();
+    schema.hp.schema.value.nullable = true;
+    schema.hp.schema.value.initial = null;
+    schema.hp.schema.max.nullable = true;
+    schema.hp.schema.max.initial = null;
+    schema.hp.schema.temp.initial = null;
+    schema.hp.schema.tempmax.initial = null;
     return {
-      ...super.defineSchema(),
+      ...schema,
       ac: new fields.SchemaField({
         flat: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.ArmorClassFlat"}),
         calc: new fields.StringField({required: true, initial: "flat", label: "DND5E.ArmorClassCalculation"}),
@@ -93,19 +100,10 @@ export class AttributeData extends common.AttributeData {
         }, {label: "DND5E.VehicleActionThresholds"})
       }, {label: "DND5E.VehicleActions"}),
       hp: new fields.SchemaField({
-        value: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.HitPointsCurrent"}),
-        min: new fields.NumberField({
-          required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.HitPointsMin"
-        }),
-        max: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.HitPointsMax"}),
-        temp: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.HitPointsTemp"}),
-        tempmax: new fields.NumberField({required: true, integer: true, label: "DND5E.HitPointsTempMax"}),
+        ...schema.hp.schema,
         dt: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.DamageThreshold"}),
         mt: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.VehicleMishapThreshold"})
-      }, {
-        label: "DND5E.HitPoints", validate: d => d.min <= d.max,
-        validationError: "HP minimum must be less than HP maximum"
-      }),
+      }, schema.hp.options),
       capacity: new fields.SchemaField({
         creature: new fields.StringField({required: true, label: "DND5E.VehicleCreatureCapacity"}),
         cargo: new fields.NumberField({
@@ -124,10 +122,15 @@ export class AttributeData extends common.AttributeData {
  */
 export class TraitsData extends common.TraitsData {
   static defineSchema() {
+    const schema = super.defineSchema();
+    const { size, di, ci } = super.defineSchema();
+    schema.size.initial = "lg";
+    schema.di.schema.value.initial = ["poison", "psychic"];
+    schema.ci.schema.value.initial = [
+      "blinded", "charmed", "deafened", "frightened", "paralyzed", "petrified", "poisoned", "stunned", "unconscious"
+    ];
     return {
-      ...super.defineSchema(),
-      // TODO: Size should default to large
-      // TODO: Damage immunities & condition immunities need defaults
+      ...schema,
       dimensions: new fields.StringField({required: true, label: "DND5E.Dimensions"})
     };
   }

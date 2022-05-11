@@ -42,8 +42,11 @@ export default class ActorCharacterData extends creature.CreatureData {
  */
 export class AttributeData extends creature.AttributeData {
   static defineSchema() {
+    const schema = super.defineSchema();
+    schema.hp.schema.value.initial = 0;
+    schema.hp.schema.max.initial = 0;
     return {
-      ...super.defineSchema(),
+      ...schema,
       death: new fields.SchemaField({
         success: new fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.DeathSaveSuccesses"
@@ -52,7 +55,6 @@ export class AttributeData extends creature.AttributeData {
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.DeathSaveFailures"
         })
       }, {label: "DND5E.DeathSave"}),
-      // TODO: hp.value & hp.max should be defaulted to 0 for characters
       exhaustion: new fields.NumberField({
         required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.Exhaustion"
       }),

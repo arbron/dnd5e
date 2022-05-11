@@ -13,9 +13,30 @@ export default class ActorNPCData extends creature.CreatureData {
   static defineSchema() {
     return {
       ...super.defineSchema(),
-      // TODO: Add hp.formula
+      attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
       details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
       resources: new fields.EmbeddedDataField(ResourcesData, {label: "DND5E.Resources"})
+    };
+  }
+}
+
+/**
+ * An embedded data structure for extra attribute data used by NPCs.
+ * @extends creature.AttributeData
+ * @see ActorNPCData
+ *
+ * @property {object} hp                    NPC's hit point data.
+ * @property {string} hp.formula            Formula used to determine hit points.
+ */
+export class AttributeData extends creature.AttributeData {
+  static defineSchema() {
+    const { hp } = super.defineSchema();
+    return {
+      ...super.defineSchema(),
+      hp: new fields.SchemaField({
+        ...hp.schema,
+        formula: new fields.StringField({required: true, label: ""})
+      }, hp.options)
     };
   }
 }

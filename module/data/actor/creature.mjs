@@ -20,12 +20,21 @@ export class CreatureData extends common.CommonData {
       ...super.defineSchema(),
       attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
       details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
-      // TODO: Default abilities for skills are not filled properly
       skills: new MappingField(SkillData, {initialKeys: CONFIG.DND5E.skills, label: "DND5E.Skills"}),
       traits: new fields.EmbeddedDataField(TraitsData, {label: "DND5E.Traits"}),
-      spells: new MappingField(SpellData, {label: "DND5E.SpellLevels"}),
+      spells: new MappingField(SpellData, {initialKeys: this._spellLevels, label: "DND5E.SpellLevels"}),
       bonuses: new fields.EmbeddedDataField(BonusesData, {label: "DND5E.Bonuses"})
     };
+  }
+
+  /**
+   * Helper for building the default list of spell levels.
+   * @type {string[]}
+   * @private
+   */
+  static get _spellLevels() {
+    const levels = Object.keys(DND5E.spellLevels).filter(a => a !== "0").map(l => `spell${l}`);
+    return [...levels, "pact"];
   }
 }
 
@@ -111,6 +120,7 @@ export class SkillData extends DataModel {
       value: new fields.NumberField({
         required: true, initial: 0, choices: CONFIG.DND5E.proficiencyLevels, label: "DND5E.ProficiencyLevel"
       }),
+      // TODO: Default abilities for skills are not filled properly
       ability: new fields.StringField({
         required: true, initial: "dex", choices: CONFIG.DND5E.abilities, label: "DND5E.Ability"
       }),
