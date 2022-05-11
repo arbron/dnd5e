@@ -89,8 +89,10 @@ export class AttributeData extends DataModel {
         value: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 10, label: "DND5E.HitPointsCurrent"}),
         min: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 0, label: "DND5E.HitPointsMin"}),
         max: new fields.NumberField({...REQUIRED_INTEGER, min: 0, initial: 10, label: "DND5E.HitPointsMax"}),
-        temp: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.HitPointsTemp"}),
-        tempmax: new fields.NumberField({required: true, integer: true, label: "DND5E.HitPointsTempMax"})
+        temp: new fields.NumberField({
+          required: true, integer: true, initial: 0, min: 0, label: "DND5E.HitPointsTemp"
+        }),
+        tempmax: new fields.NumberField({required: true, integer: true, initial: 0, label: "DND5E.HitPointsTempMax"})
       }, {
         label: "DND5E.HitPoints", validate: d => d.min <= d.max,
         validationError: "HP minimum must be less than HP maximum"

@@ -69,7 +69,7 @@ export class DetailsData extends creature.DetailsData {
  * @property {boolean} lair.value      Does this NPC use lair actions.
  * @property {number} lair.initiative  Initiative count when lair actions are triggered.
  */
-class ResourcesData extends DataModel {
+export class ResourcesData extends DataModel {
   static defineSchema() {
     return {
       legact: new fields.SchemaField({

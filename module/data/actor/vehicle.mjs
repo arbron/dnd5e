@@ -64,7 +64,7 @@ export default class ActorVehicleData extends common.CommonData {
  * @property {string} capacity.creature     Description of the number of creatures the vehicle can carry.
  * @property {number} capacity.cargo        Cargo carrying capacity measured in tons.
  */
-class AttributeData extends common.AttributeData {
+export class AttributeData extends common.AttributeData {
   static defineSchema() {
     return mergeObject(super.defineSchema(), {
       ac: new fields.SchemaField({
@@ -118,7 +118,7 @@ class AttributeData extends common.AttributeData {
  *
  * @property {string} dimensions  Description of the vehicle's size.
  */
-class TraitsData extends common.TraitsData {
+export class TraitsData extends common.TraitsData {
   static defineSchema() {
     return mergeObject(super.defineSchema(), {
       dimensions: new fields.StringField({required: true, label: "DND5E.Dimensions"})
@@ -133,7 +133,7 @@ class TraitsData extends common.TraitsData {
  * @property {string} name      Name of individual or type of creature.
  * @property {number} quantity  How many of this creature are onboard?
  */
-class PassengerData extends DataModel {
+export class PassengerData extends DataModel {
   static defineSchema() {
     return {
       name: new fields.StringField({required: true, label: "DND5E.VehiclePassengerName"}),

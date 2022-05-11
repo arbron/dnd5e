@@ -41,7 +41,7 @@ export default class ActorCharacterData extends creature.CreatureData {
  * @property {number} exhaustion   Number of levels of exhaustion.
  * @property {number} inspiration  Does this character have inspiration?
  */
-class AttributeData extends creature.AttributeData {
+export class AttributeData extends creature.AttributeData {
   static defineSchema() {
     return mergeObject(super.defineSchema(), {
       death: new fields.SchemaField({
@@ -104,7 +104,7 @@ export class DetailsData extends creature.DetailsData {
  * @property {boolean} lr    Does this resource recover on a long rest?
  * @property {string} label  Displayed name.
  */
-class ResourceData extends DataModel {
+export class ResourceData extends DataModel {
   static defineSchema() {
     return {
       value: new fields.NumberField({required: true, integer: true, initial: 0, labels: "DND5E.ResourceValue"}),
@@ -130,7 +130,7 @@ class ResourceData extends DataModel {
  * @property {string[]} toolProf.value     Currently selected tool proficiencies.
  * @property {string} toolProf.custom      Semicolon-separated list of custom tool proficiencies.
  */
-class TraitsData extends creature.TraitsData {
+export class TraitsData extends creature.TraitsData {
   static defineSchema() {
     return mergeObject(super.defineSchema(), {
       weaponProf: new fields.SchemaField({
