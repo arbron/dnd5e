@@ -1,6 +1,5 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { mergeObjects } from "./base.mjs";
 import * as common from "./common.mjs";
 
 
@@ -12,14 +11,12 @@ import * as common from "./common.mjs";
  */
 export default class ItemBackgroundData extends DataModel {
   static defineSchema() {
-    return mergeObjects(
-      common.ItemDescriptionData.defineSchema(),
-      {
-        // TODO: Create advancement data
-        advancement: new fields.ArrayField(
-          new fields.ObjectField(), {label: "DND5E.AdvancementTitle"}
-        )
-      }
-    );
+    return {
+      ...common.ItemDescriptionData.defineSchema(),
+      // TODO: Create advancement data
+      advancement: new fields.ArrayField(
+        new fields.ObjectField(), {label: "DND5E.AdvancementTitle"}
+      )
+    };
   }
 }

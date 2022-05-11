@@ -9,9 +9,9 @@ import * as common from "./common.mjs";
  */
 export default class ItemLootData extends DataModel {
   static defineSchema() {
-    return foundry.utils.mergeObject(
-      common.ItemDescriptionData.defineSchema(),
-      common.PhysicalItemData.defineSchema()
-    );
+    return {
+      ...common.ItemDescriptionData.defineSchema(),
+      ...common.PhysicalItemData.defineSchema()
+    };
   }
 }

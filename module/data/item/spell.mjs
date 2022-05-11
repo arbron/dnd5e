@@ -1,7 +1,6 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
 import { FormulaField } from "../fields.mjs";
-import { mergeObjects } from "./base.mjs";
 import * as common from "./common.mjs";
 
 
@@ -33,40 +32,38 @@ import * as common from "./common.mjs";
  */
 export default class ItemSpellData extends DataModel {
   static defineSchema() {
-    return mergeObjects(
-      common.ItemDescriptionData.defineSchema(),
-      common.ActivatedEffectData.defineSchema(),
-      common.ActionData.defineSchema(),
-      {
-        level: new fields.NumberField({required: true, integer: true, initial: 1, min: 0, label: "DND5E.SpellLevel"}),
-        school: new fields.StringField({required: true, label: "DND5E.SpellSchool"}),
-        components: new fields.SchemaField({ // TODO: This should be a MappingField to support custom components
-          vocal: new fields.BooleanField({required: true, label: ""}),
-          somantic: new fields.BooleanField({required: true, label: ""}),
-          material: new fields.BooleanField({required: true, label: ""}),
-          ritual: new fields.BooleanField({required: true, label: ""}),
-          concentration: new fields.BooleanField({required: true, label: ""})
-        }, {label: "DND5E.SpellComponents"}),
-        materials: new fields.SchemaField({
-          value: new fields.StringField({required: true, label: "DND5E.SpellMaterialsDescription"}),
-          consumed: new fields.BooleanField({required: true, label: "DND5E.SpellMaterialsConsumed"}),
-          cost: new fields.NumberField({required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsCost"}),
-          supply: new fields.NumberField({required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsSupply"})
-        }, {label: "DND5E.SpellMaterials"}),
-        preparation: new fields.SchemaField({
-          mode: new fields.StringField({
-            required: true, initial: "prepared", choices: DND5E.spellPreparationModes,
-            label: "DND5E.SpellPreparationMode"
-          }),
-          prepared: new fields.BooleanField({required: true, label: "DND5E.SpellPrepared"})
-        }, {label: "DND5E.SpellPreparation"}),
-        scaling: new fields.SchemaField({
-          mode: new fields.StringField({
-            required: true, initial: "none", choices: DND5E.spellScalingModes, label: "DND5E.ScalingMode"
-          }),
-          formula: new FormulaField({required: true, nullable: true, initial: null, label: "DND5E.ScalingFormula"})
-        }, {label: "DND5E.LevelScaling"})
-      }
-    );
+    return {
+      ...common.ItemDescriptionData.defineSchema(),
+      ...common.ActivatedEffectData.defineSchema(),
+      ...common.ActionData.defineSchema(),
+      level: new fields.NumberField({required: true, integer: true, initial: 1, min: 0, label: "DND5E.SpellLevel"}),
+      school: new fields.StringField({required: true, label: "DND5E.SpellSchool"}),
+      components: new fields.SchemaField({ // TODO: This should be a MappingField to support custom components
+        vocal: new fields.BooleanField({required: true, label: ""}),
+        somantic: new fields.BooleanField({required: true, label: ""}),
+        material: new fields.BooleanField({required: true, label: ""}),
+        ritual: new fields.BooleanField({required: true, label: ""}),
+        concentration: new fields.BooleanField({required: true, label: ""})
+      }, {label: "DND5E.SpellComponents"}),
+      materials: new fields.SchemaField({
+        value: new fields.StringField({required: true, label: "DND5E.SpellMaterialsDescription"}),
+        consumed: new fields.BooleanField({required: true, label: "DND5E.SpellMaterialsConsumed"}),
+        cost: new fields.NumberField({required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsCost"}),
+        supply: new fields.NumberField({required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsSupply"})
+      }, {label: "DND5E.SpellMaterials"}),
+      preparation: new fields.SchemaField({
+        mode: new fields.StringField({
+          required: true, initial: "prepared", choices: CONFIG.DND5E.spellPreparationModes,
+          label: "DND5E.SpellPreparationMode"
+        }),
+        prepared: new fields.BooleanField({required: true, label: "DND5E.SpellPrepared"})
+      }, {label: "DND5E.SpellPreparation"}),
+      scaling: new fields.SchemaField({
+        mode: new fields.StringField({
+          required: true, initial: "none", choices: CONFIG.DND5E.spellScalingModes, label: "DND5E.ScalingMode"
+        }),
+        formula: new FormulaField({required: true, nullable: true, initial: null, label: "DND5E.ScalingFormula"})
+      }, {label: "DND5E.LevelScaling"})
+    };
   }
 }

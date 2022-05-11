@@ -1,6 +1,5 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { mergeObjects } from "./base.mjs";
 import * as common from "./common.mjs";
 
 
@@ -19,23 +18,21 @@ import * as common from "./common.mjs";
  */
 export default class ItemWeaponData extends DataModel {
   static defineSchema() {
-    return mergeObjects(
-      common.ItemDescriptionData.defineSchema(),
-      common.PhysicalItemData.defineSchema(),
-      common.ActivatedEffectData.defineSchema(),
-      common.ActionData.defineSchema(),
-      common.MountableData.defineSchema(),
-      {
-        weaponType: new fields.StringField({
-          required: true, initial: "simpleM", choices: CONFIG.DND5E.weaponTypes, label: "DND5E.ItemWeaponType"
-        }),
-        baseItem: new fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.weaponIds, label: "DND5E.ItemWeaponBase"
-        }),
-        // TODO: Replace with MappingField
-        properties: new fields.ObjectField({required: true, label: "DND5E.ItemWeaponProperties"}),
-        proficient: new fields.BooleanField({required: true, initial: true, label: "DND5E.Proficient"})
-      }
-    );
+    return {
+      ...common.ItemDescriptionData.defineSchema(),
+      ...common.PhysicalItemData.defineSchema(),
+      ...common.ActivatedEffectData.defineSchema(),
+      ...common.ActionData.defineSchema(),
+      ...common.MountableData.defineSchema(),
+      weaponType: new fields.StringField({
+        required: true, initial: "simpleM", choices: CONFIG.DND5E.weaponTypes, label: "DND5E.ItemWeaponType"
+      }),
+      baseItem: new fields.StringField({
+        required: true, blank: true, choices: CONFIG.DND5E.weaponIds, label: "DND5E.ItemWeaponBase"
+      }),
+      // TODO: Replace with MappingField
+      properties: new fields.ObjectField({required: true, label: "DND5E.ItemWeaponProperties"}),
+      proficient: new fields.BooleanField({required: true, initial: true, label: "DND5E.Proficient"})
+    };
   }
 }

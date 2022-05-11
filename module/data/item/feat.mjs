@@ -1,6 +1,5 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { mergeObjects } from "./base.mjs";
 import * as common from "./common.mjs";
 
 
@@ -17,19 +16,17 @@ import * as common from "./common.mjs";
  */
 export default class ItemFeatData extends DataModel {
   static defineSchema() {
-    return mergeObjects(
-      common.ItemDescriptionData.defineSchema(),
-      common.ActivatedEffectData.defineSchema(),
-      common.ActionData.defineSchema(),
-      {
-        requirements: new fields.StringField({required: true, label: "DND5E.Requirements"}),
-        recharge: new fields.SchemaField({
-          value: new fields.NumberField({
-            required: true, integer: true, positive: true, label: "DND5E.FeatureRechargeOn"
-          }),
-          charged: new fields.BooleanField({required: true, label: "DND5E.Charged"})
-        }, {label: "DND5E.FeatureActionRecharge"})
-      }
-    );
+    return {
+      ...common.ItemDescriptionData.defineSchema(),
+      ...common.ActivatedEffectData.defineSchema(),
+      ...common.ActionData.defineSchema(),
+      requirements: new fields.StringField({required: true, label: "DND5E.Requirements"}),
+      recharge: new fields.SchemaField({
+        value: new fields.NumberField({
+          required: true, integer: true, positive: true, label: "DND5E.FeatureRechargeOn"
+        }),
+        charged: new fields.BooleanField({required: true, label: "DND5E.Charged"})
+      }, {label: "DND5E.FeatureActionRecharge"})
+    };
   }
 }

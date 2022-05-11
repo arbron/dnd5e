@@ -1,6 +1,5 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { mergeObjects } from "./base.mjs";
 import * as common from "./common.mjs";
 
 
@@ -24,51 +23,49 @@ import * as common from "./common.mjs";
  */
 export default class ItemClassData extends DataModel {
   static defineSchema() {
-    return mergeObjects(
-      common.ItemDescriptionData.defineSchema(),
-      {
-        // TODO: Ensure this is a valid slug
-        identifier: new fields.StringField({required: true, label: "DND5E.Identifier"}),
-        levels: new fields.NumberField({
-          required: true, nullable: false, integer: true, positive: true, initial: 1, label: "DND5E.ClassLevels"
+    return {
+      ...common.ItemDescriptionData.defineSchema(),
+      // TODO: Ensure this is a valid slug
+      identifier: new fields.StringField({required: true, label: "DND5E.Identifier"}),
+      levels: new fields.NumberField({
+        required: true, nullable: false, integer: true, positive: true, initial: 1, label: "DND5E.ClassLevels"
+      }),
+      hitDice: new fields.StringField({
+        required: true, initial: "d6", choices: CONFIG.DND5E.hitDieTypes, label: "DND5E.HitDice"
+      }),
+      hitDiceUsed: new fields.NumberField({
+        required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.HitDiceUsed"
+      }),
+      // TODO: Create advancement data
+      advancement: new fields.ArrayField(
+        new fields.ObjectField(), {label: "DND5E.AdvancementTitle"}
+      ),
+      saves: new fields.ArrayField(
+        new fields.StringField({choices: CONFIG.DND5E.abilities, label: "DND5E.Ability"}), {label: "DND5E.ClassSaves"}
+      ),
+      skills: new fields.SchemaField({
+        number: new fields.NumberField({
+          required: true, nullable: false, integer: true, min: 0, initial: 2, label: "DND5E.ClassSkillsNumber"
         }),
-        hitDice: new fields.StringField({
-          required: true, initial: "d6", choices: CONFIG.DND5E.hitDieTypes, label: "DND5E.HitDice"
-        }),
-        hitDiceUsed: new fields.NumberField({
-          required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.HitDiceUsed"
-        }),
-        // TODO: Create advancement data
-        advancement: new fields.ArrayField(
-          new fields.ObjectField(), {label: "DND5E.AdvancementTitle"}
+        choices: new fields.ArrayField(
+          new fields.StringField({
+            choices: CONFIG.DND5E.skills, label: "DND5E.Skill"
+          }), {label: "DND5E.ClassSkillsEligible"}
         ),
-        saves: new fields.ArrayField(
-          new fields.StringField({choices: CONFIGDND5E.abilities, label: "DND5E.Ability"}), {label: "DND5E.ClassSaves"}
-        ),
-        skills: new fields.SchemaField({
-          number: new fields.NumberField({
-            required: true, nullable: false, integer: true, min: 0, initial: 2, label: "DND5E.ClassSkillsNumber"
-          }),
-          choices: new fields.ArrayField(
-            new fields.StringField({
-              choices: CONFIG.DND5E.skills, label: "DND5E.Skill"
-            }), {label: "DND5E.ClassSkillsEligible"}
-          ),
-          value: new fields.ArrayField(
-            new fields.StringField({
-              choices: CONFIG.DND5E.skills, label: "DND5E.Skill"
-            }), {label: "DND5E.ClassSkillsChosen"}
-          )
-        }, {label: "DND5E.Skills"}),
-        spellcasting: new fields.SchemaField({
-          progression: new fields.StringField({
-            required: true, initial: "none", choices: CONFIG.DND5E.spellProgression, label: "DND5E.SpellProgression"
-          }),
-          ability: new fields.StringField({
-            required: true, blank: true, choices: CONFIG.DND5E.abilities, label: "DND5E.SpellAbility"
-          })
-        }, {label: "DND5E.Spellcasting"})
-      }
-    );
+        value: new fields.ArrayField(
+          new fields.StringField({
+            choices: CONFIG.DND5E.skills, label: "DND5E.Skill"
+          }), {label: "DND5E.ClassSkillsChosen"}
+        )
+      }, {label: "DND5E.Skills"}),
+      spellcasting: new fields.SchemaField({
+        progression: new fields.StringField({
+          required: true, initial: "none", choices: CONFIG.DND5E.spellProgression, label: "DND5E.SpellProgression"
+        }),
+        ability: new fields.StringField({
+          required: true, blank: true, choices: CONFIG.DND5E.abilities, label: "DND5E.SpellAbility"
+        })
+      }, {label: "DND5E.Spellcasting"})
+    };
   }
 }

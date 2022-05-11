@@ -1,6 +1,5 @@
 import { DataModel } from "/common/abstract/module.mjs";
 import * as fields from "/common/data/fields.mjs";
-import { mergeObjects } from "./base.mjs";
 import * as common from "./common.mjs";
 import { CurrencyData } from "../actor/common.mjs";
 
@@ -18,22 +17,20 @@ import { CurrencyData } from "../actor/common.mjs";
  */
 export default class ItemBackpackData extends DataModel {
   static defineSchema() {
-    return mergeObjects(
-      common.ItemDescriptionData.defineSchema(),
-      common.PhysicalItemData.defineSchema(),
-      {
-        capacity: new fields.SchemaField({
-          type: new fields.StringField({
-            required: true, initial: "weight", choices: CONFIG.DND5E.itemCapacityTypes,
-            label: "DND5E.ItemContainerCapacityType"
-          }),
-          value: new fields.NumberField({
-            required: true, nullable: false, initial: 0, min: 0, label: "DND5E.ItemContainerCapacityMax"
-          }),
-          weightless: new fields.BooleanField({required: true, label: "DND5E.ItemContainerWeightless"})
-        }, {label: "DND5E.ItemContainerCapacity"}),
-        currency: new fields.EmbeddedDataField(CurrencyData, {label: "DND5E.Currency"})
-      }
-    );
+    return {
+      ...common.ItemDescriptionData.defineSchema(),
+      ...common.PhysicalItemData.defineSchema(),
+      capacity: new fields.SchemaField({
+        type: new fields.StringField({
+          required: true, initial: "weight", choices: CONFIG.DND5E.itemCapacityTypes,
+          label: "DND5E.ItemContainerCapacityType"
+        }),
+        value: new fields.NumberField({
+          required: true, nullable: false, initial: 0, min: 0, label: "DND5E.ItemContainerCapacityMax"
+        }),
+        weightless: new fields.BooleanField({required: true, label: "DND5E.ItemContainerWeightless"})
+      }, {label: "DND5E.ItemContainerCapacity"}),
+      currency: new fields.EmbeddedDataField(CurrencyData, {label: "DND5E.Currency"})
+    };
   }
 }
