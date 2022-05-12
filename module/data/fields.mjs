@@ -67,7 +67,7 @@ export class MappingField extends ObjectField {
   /** @inheritdoc */
   getInitialValue(data) {
     let keys = this.options.initialKeys;
-    if ( !keys || !foundry.utils.isObjectEmpty(this.initial) ) return super.getInitialValue(data);
+    if ( !keys || !foundry.utils.isEmpty(this.initial) ) return super.getInitialValue(data);
     if ( !(keys instanceof Array) ) keys = Object.keys(keys);
     const initial = {};
     for ( const key of keys ) {
@@ -90,11 +90,9 @@ export class MappingField extends ObjectField {
   /** @override */
   initialize(model, name, value) {
     if ( !value ) return value;
-    value = foundry.utils.deepClone(value);
-    for ( let [k, v] of Object.entries(value) ) {
-      v = new this.model(v, {parent: model, parentKey: k });
-    }
-    return value;
+    return Object.fromEntries(
+      Object.entries(value).map(([k, v]) => [k, new this.model(v, {parent: model})])
+    );
   }
 
 }

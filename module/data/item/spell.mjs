@@ -40,7 +40,7 @@ export default class ItemSpellData extends DataModel {
       school: new fields.StringField({required: true, label: "DND5E.SpellSchool"}),
       components: new fields.SchemaField({ // TODO: This should be a MappingField to support custom components
         vocal: new fields.BooleanField({required: true, label: ""}),
-        somantic: new fields.BooleanField({required: true, label: ""}),
+        somatic: new fields.BooleanField({required: true, label: ""}),
         material: new fields.BooleanField({required: true, label: ""}),
         ritual: new fields.BooleanField({required: true, label: ""}),
         concentration: new fields.BooleanField({required: true, label: ""})

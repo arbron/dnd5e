@@ -178,6 +178,7 @@ export class ActionData extends DataModel {
         damage: new FormulaField({required: true, label: "DND5E.ItemCritExtraDamage"})
       }, {label: ""}),
       damage: new fields.SchemaField({
+        // TODO: This doesn't work correctly
         parts: new fields.ArrayField(new fields.StringField({label: ""}), {required: true, label: ""}),
         versatile: new FormulaField({required: true, label: "DND5E.VersatileDamage"})
       }, {label: "DND5E.Damage"}),
