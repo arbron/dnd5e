@@ -1,10 +1,11 @@
-const parsedArgs = require("yargs").argv;
+import eslint from "gulp-eslint7";
+import gulp from "gulp";
+import gulpIf from "gulp-if";
+import mergeStream from "merge-stream";
+import yargs from "yargs";
 
-const eslint = require("gulp-eslint7");
-const gulp = require("gulp");
-const gulpIf = require("gulp-if");
-const mergeStream = require("merge-stream");
 
+const parsedArgs = yargs.argv;
 
 /**
  * Paths of javascript files that should be linted.
@@ -21,15 +22,15 @@ const LINTING_PATHS = ["./dnd5e.js", "./module/"];
  */
 function lintJavascript() {
   const applyFixes = !!parsedArgs.fix;
-  const tasks = LINTING_PATHS.map((path) => {
+  const tasks = LINTING_PATHS.map(path => {
     const src = path.endsWith("/") ? `${path}**/*.js` : path;
     const dest = path.endsWith("/") ? path : `${path.split("/").slice(0, -1).join("/")}/`;
     return gulp
       .src(src)
-      .pipe(eslint({"fix": applyFixes}))
+      .pipe(eslint({fix: applyFixes}))
       .pipe(eslint.format())
-      .pipe(gulpIf((file) => file.eslint != null && file.eslint.fixed, gulp.dest(dest)));
+      .pipe(gulpIf(file => file.eslint != null && file.eslint.fixed, gulp.dest(dest)));
   });
-  return mergeStream.call(null, tasks);
+  return mergeStream(null, tasks);
 }
-exports.lint = lintJavascript;
+export const lint = lintJavascript;

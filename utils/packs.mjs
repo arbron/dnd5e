@@ -1,12 +1,13 @@
-const parsedArgs = require("yargs").argv;
+import Datastore from "nedb";
+import fs from "fs";
+import gulp from "gulp";
+import mergeStream from "merge-stream";
+import path from "path";
+import through2 from "through2";
+import yargs from "yargs";
 
-const Datastore = require("nedb");
-const fs = require("fs");
-const gulp = require("gulp");
-const mergeStream = require("merge-stream");
-const path = require("path");
-const through2 = require("through2");
 
+const parsedArgs = yargs.argv;
 
 /**
  * Folder where the compiled compendium packs should be located relative to the
@@ -23,7 +24,7 @@ const PACK_SRC = "packs/src";
 
 /**
  * Cache of DBs so they aren't loaded repeatedly when determining IDs.
- * @type {Object.<string,Datastore>}
+ * @type {object<string,Datastore>}
  */
 const DB_CACHE = {};
 
@@ -36,10 +37,10 @@ const DB_CACHE = {};
  * Removes unwanted flags, permissions, and other data from entries before extracting or compiling.
  * @param {object} data  Data for a single entry to clean.
  * @param {object} [options]
- * @param {boolean} [clearSourceId]  Should the core sourceId flag be deleted.
+ * @param {boolean} [options.clearSourceId=true]  Should the core sourceId flag be deleted?
  */
 function cleanPackEntry(data, { clearSourceId=true }={}) {
-  if ( data.permission ) data.permission = { "default": 0 };
+  if ( data.permission ) data.permission = { default: 0 };
   if ( clearSourceId ) delete data.flags?.core?.sourceId;
   delete data.flags?.importSource;
   delete data.flags?.exportSource;
@@ -50,8 +51,8 @@ function cleanPackEntry(data, { clearSourceId=true }={}) {
     if ( Object.keys(contents).length === 0 ) delete data.flags[key];
   });
 
-  if ( data.effects ) data.effects.forEach((i) => cleanPackEntry(i, { clearSourceId: false }));
-  if ( data.items ) data.items.forEach((i) => cleanPackEntry(i, { clearSourceId: false }));
+  if ( data.effects ) data.effects.forEach(i => cleanPackEntry(i, { clearSourceId: false }));
+  if ( data.items ) data.items.forEach(i => cleanPackEntry(i, { clearSourceId: false }));
   if ( data.data?.description?.value ) data.data.description.value = cleanString(data.data.description.value);
   if ( data.label ) data.label = cleanString(data.label);
   if ( data.name ) data.name = cleanString(data.name);
@@ -62,7 +63,7 @@ function cleanPackEntry(data, { clearSourceId=true }={}) {
  * Attempts to find an existing matching ID for an item of this name, otherwise generates a new unique ID.
  * @param {object} data  Data for the entry that needs an ID.
  * @param {string} pack  Name of the pack to which this item belongs.
- * @return {Promise.<string>}  Resolves once the ID is determined.
+ * @returns {Promise<string>}  Resolves once the ID is determined.
  */
 function determineId(data, pack) {
   const db_path = path.join(PACK_DEST, `${pack}.db`);
@@ -83,8 +84,9 @@ function determineId(data, pack) {
   });
 }
 
+
 /**
- * Removes invisible whitespace characters and normalises single- and double-quotes.
+ * Removes invisible whitespace characters and normalizes single- and double-quotes.
  * @param {string} str  The string to be cleaned.
  * @returns {string}    The cleaned string.
  */
@@ -101,10 +103,10 @@ function cleanString(str) {
  * - `gulp cleanPacks --pack classes` - Only clean the source files for the specified compendium.
  * - `gulp cleanPacks --pack classes --name Barbarian` - Only clean a single item from the specified compendium.
  */
-function clean() {
+export function cleanPacks() {
   const packName = parsedArgs.pack;
   const entryName = parsedArgs.name?.toLowerCase();
-  const folders = fs.readdirSync(PACK_SRC, { withFileTypes: true }).filter((file) =>
+  const folders = fs.readdirSync(PACK_SRC, { withFileTypes: true }).filter(file =>
     file.isDirectory() && ( !packName || (packName === file.name) )
   );
 
@@ -124,7 +126,7 @@ function clean() {
 
   return mergeStream.call(null, packs);
 }
-exports.clean = clean;
+export const clean = cleanPacks;
 
 
 /* ----------------------------------------- */
@@ -137,14 +139,14 @@ exports.clean = clean;
  * - `gulp compilePacks` - Compile all JSON files into their NEDB files.
  * - `gulp compilePacks --pack classes` - Only compile the specified pack.
  */
-function compile() {
+function compilePacks() {
   const packName = parsedArgs.pack;
   // Determine which source folders to process
-  const folders = fs.readdirSync(PACK_SRC, { withFileTypes: true }).filter((file) =>
+  const folders = fs.readdirSync(PACK_SRC, { withFileTypes: true }).filter(file =>
     file.isDirectory() && ( !packName || (packName === file.name) )
   );
 
-  const packs = folders.map((folder) => {
+  const packs = folders.map(folder => {
     const filePath = path.join(PACK_DEST, `${folder.name}.db`);
     fs.rmSync(filePath, { force: true });
     const db = fs.createWriteStream(filePath, { flags: "a", mode: 0o664 });
@@ -155,7 +157,7 @@ function compile() {
         cleanPackEntry(json);
         data.push(json);
         callback(null, file);
-      }, (callback) => {
+      }, callback => {
         data.sort((lhs, rhs) => lhs._id > rhs._id ? 1 : -1);
         data.forEach(entry => db.write(JSON.stringify(entry) + "\n"));
         callback();
@@ -163,7 +165,7 @@ function compile() {
   });
   return mergeStream.call(null, packs);
 }
-exports.compile = compile;
+export const compile = compilePacks;
 
 
 /* ----------------------------------------- */
@@ -177,7 +179,7 @@ exports.compile = compile;
  * - `gulp extractPacks --pack classes` - Only extract the contents of the specified compendium.
  * - `gulp extractPacks --pack classes --name Barbarian` - Only extract a single item from the specified compendium.
  */
-function extract() {
+export function extractPacks() {
   const packName = parsedArgs.pack ?? "*";
   const entryName = parsedArgs.name?.toLowerCase();
   const packs = gulp.src(`${PACK_DEST}/**/${packName}.db`)
@@ -195,7 +197,11 @@ function extract() {
           if ( entryName && (entryName !== name) ) return;
           cleanPackEntry(entry);
           const output = JSON.stringify(entry, null, 2) + "\n";
-          const outputName = name.replace("'", "").replace(/[^a-z0-9]+/gi, " ").trim().replace(/\s+|-{2,}/g, "-");
+          const outputName = cleanString(name)
+            .replace("'", "")
+            .replace(/[^a-z0-9]+/gi, " ")
+            .trim()
+            .replace(/\s+|-{2,}/g, "-");
           const subfolder = path.join(folder, _getSubfolderName(entry, filename));
           if ( !fs.existsSync(subfolder) ) fs.mkdirSync(subfolder, { recursive: true, mode: 0o775 });
           fs.writeFileSync(path.join(subfolder, `${outputName}.json`), output, { mode: 0o664 });
@@ -207,14 +213,14 @@ function extract() {
 
   return mergeStream.call(null, packs);
 }
-exports.extract = extract;
+export const extract = extractPacks;
 
 
 /**
  * Determine a subfolder name based on which pack is being extracted.
  * @param {object} data  Data for the entry being extracted.
  * @param {string} pack  Name of the pack.
- * @return {string}      Subfolder name the entry into which the entry should be created. An empty string if none.
+ * @returns {string}     Subfolder name the entry into which the entry should be created. An empty string if none.
  * @private
  */
 function _getSubfolderName(data, pack) {
