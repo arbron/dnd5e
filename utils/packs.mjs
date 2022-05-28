@@ -124,7 +124,7 @@ export function cleanPacks() {
       }));
   });
 
-  return mergeStream.call(null, packs);
+  return mergeStream(packs);
 }
 export const clean = cleanPacks;
 
@@ -163,7 +163,7 @@ function compilePacks() {
         callback();
       }));
   });
-  return mergeStream.call(null, packs);
+  return mergeStream(packs);
 }
 export const compile = compilePacks;
 
@@ -211,7 +211,7 @@ export function extractPacks() {
       callback(null, file);
     }));
 
-  return mergeStream.call(null, packs);
+  return mergeStream(packs);
 }
 export const extract = extractPacks;
 

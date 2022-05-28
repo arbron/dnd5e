@@ -13,7 +13,8 @@ export const css = gulp.series(CSS.compile);
 export const cleanPacks = gulp.series(packs.clean);
 export const compilePacks = gulp.series(packs.compile);
 export const extractPacks = gulp.series(packs.extract);
-export const lint = gulp.series(linting.lint);
+// export const lint = gulp.series(linting.lintJavascript);
+export const lint = gulp.series(linting.lintTemplates);
 export const buildAll = gulp.parallel(
   CSS.compile,
   packs.compile

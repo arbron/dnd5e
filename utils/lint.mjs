@@ -1,7 +1,9 @@
 import eslint from "gulp-eslint7";
 import gulp from "gulp";
 import gulpIf from "gulp-if";
+import htmlLint from "gulp-html-lint";
 import mergeStream from "merge-stream";
+import through2 from "through2";
 import yargs from "yargs";
 
 
@@ -11,7 +13,13 @@ const parsedArgs = yargs.argv;
  * Paths of javascript files that should be linted.
  * @type {string[]}
  */
-const LINTING_PATHS = ["./dnd5e.js", "./module/"];
+const JAVASCRIPT_LINTING_PATHS = ["./dnd5e.js", "./module/"];
+
+/**
+ * Paths of template files that should be linted.
+ * @type {string[]}
+ */
+const TEMPLATE_LINTING_PATHS = ["./templates/"];
 
 
 /**
@@ -20,9 +28,9 @@ const LINTING_PATHS = ["./dnd5e.js", "./module/"];
  * - `gulp lint` - Lint all javascript files.
  * - `gulp lint --fix` - Lint and apply available fixes automatically.
  */
-function lintJavascript() {
+export function lintJavascript() {
   const applyFixes = !!parsedArgs.fix;
-  const tasks = LINTING_PATHS.map(path => {
+  const tasks = JAVASCRIPT_LINTING_PATHS.map(path => {
     const src = path.endsWith("/") ? `${path}**/*.js` : path;
     const dest = path.endsWith("/") ? path : `${path.split("/").slice(0, -1).join("/")}/`;
     return gulp
@@ -31,6 +39,15 @@ function lintJavascript() {
       .pipe(eslint.format())
       .pipe(gulpIf(file => file.eslint != null && file.eslint.fixed, gulp.dest(dest)));
   });
-  return mergeStream(null, tasks);
+  return mergeStream(tasks);
 }
-export const lint = lintJavascript;
+
+
+export async function lintTemplates(cb) {
+  return gulp
+    // .src("./templates/chat/item-card.html")
+    .src("./templates/**/*.html")
+    .pipe(htmlLint({ htmllintrc: ".htmllintrc.json" }))
+    .pipe(htmlLint.format())
+    .pipe(htmlLint.failOnError());
+}
