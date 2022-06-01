@@ -35,4 +35,12 @@ export default class ItemToolData extends DataModel {
       bonus: new FormulaField({required: true, label: "DND5E.ItemToolBonus"})
     };
   }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  static migrateData(source) {
+    common.PhysicalItemData.migrateData(source);
+    return super.migrateData(source);
+  }
 }

@@ -53,4 +53,25 @@ export default class ItemEquipmentData extends DataModel {
       proficient: new fields.BooleanField({required: true, initial: true, label: "DND5E.Proficient"})
     };
   }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  static migrateData(source) {
+    common.PhysicalItemData.migrateData(source);
+    this.migrateArmorTypeData(source);
+    return super.migrateData(source);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Migrate "bonus" armor subtypes to "trinket".
+   * @param {object} source  The candidate source data from which the model will be constructed.
+   */
+  static migrateArmorTypeData(source) {
+    if ( source.armor?.type !== "bonus" ) return;
+    source.armor ??= {};
+    source.armor.type = "trinket";
+  }
 }

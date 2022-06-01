@@ -14,4 +14,12 @@ export default class ItemLootData extends DataModel {
       ...common.PhysicalItemData.defineSchema()
     };
   }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  static migrateData(source) {
+    common.PhysicalItemData.migrateData(source);
+    return super.migrateData(source);
+  }
 }

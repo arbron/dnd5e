@@ -33,4 +33,12 @@ export default class ItemBackpackData extends DataModel {
       currency: new fields.EmbeddedDataField(CurrencyData, {label: "DND5E.Currency"})
     };
   }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  static migrateData(source) {
+    common.PhysicalItemData.migrateData(source);
+    return super.migrateData(source);
+  }
 }

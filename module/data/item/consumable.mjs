@@ -30,4 +30,12 @@ export default class ItemConsumableData extends DataModel {
       }, {label: "DND5E.LimitedUses"})
     };
   }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  static migrateData(source) {
+    common.PhysicalItemData.migrateData(source);
+    return super.migrateData(source);
+  }
 }

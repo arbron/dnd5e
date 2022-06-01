@@ -53,9 +53,42 @@ export class PhysicalItemData extends DataModel {
         choices: Object.values(CONFIG.DND5E.attunementTypes), label: "DND5E.Attunement"
       }),
       equipped: new fields.BooleanField({required: true, label: "DND5E.Equipped"}),
-      rarity: new fields.StringField({required: true, label: "DND5E.Rarity"}),
+      rarity: new fields.StringField({required: true, blank: true, choices: DND5E.itemRarity, label: "DND5E.Rarity"}),
       identified: new fields.BooleanField({required: true, initial: true, label: "DND5E.Identified"})
     };
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  static migrateData(source) {
+    this.migrateAttunementData(source);
+    this.migrateRaritydata(source);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Migrate the item's attuned boolean to attunement string.
+   * @param {object} source  The candidate source data from which the model will be constructed.
+   */
+  static migrateAttunementData(source) {
+    if ( (source.attuned === undefined) || (source.attunement !== undefined) ) return;
+    source.attunement = source.attuned ? DND5E.attunementTypes.ATTUNED : DND5E.attunementTypes.NONE;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Migrate the item's rarity from freeform string to enum value.
+   * @param {object} source  The candidate source data from which the model will be constructed.
+   */
+  static migrateRaritydata(source) {
+    if ( !source.rarity ) return;
+    const rarity = Object.keys(DND5E.itemRarity).find(key =>
+      (DND5E.itemRarity[key].toLowerCase() === source.rarity.toLowerCase()) || (key === source.rarity)
+    );
+    if ( rarity ) source.rarity = rarity;
   }
 }
 

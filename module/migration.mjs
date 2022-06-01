@@ -134,6 +134,8 @@ export const migrateCompendium = async function(pack) {
   console.log(`Migrated all ${documentName} documents from Compendium ${pack.collection}`);
 };
 
+/* -------------------------------------------- */
+
 /**
  * Apply 'smart' AC migration to a given Actor compendium. This will perform the normal AC migration but additionally
  * check to see if the actor has armor already equipped, and opt to use that instead.
@@ -157,6 +159,7 @@ export const migrateArmorClass = async function(pack) {
 
       // Perform the normal migration.
       _migrateActorAC(src, update);
+      // TODO: See if AC migration within DataModel is enough to handle this
       updates.push(update);
 
       // CASE 1: Armor is equipped
@@ -192,12 +195,6 @@ export const migrateArmorClass = async function(pack) {
 export const migrateActorData = function(actor, migrationData) {
   const updateData = {};
   _migrateTokenImage(actor, updateData);
-
-  // Actor Data Updates
-  _migrateActorMovement(actor, updateData);
-  _migrateActorSenses(actor, updateData);
-  _migrateActorType(actor, updateData);
-  _migrateActorAC(actor, updateData);
 
   // Migrate embedded effects
   if ( actor.effects ) {
@@ -235,33 +232,6 @@ export const migrateActorData = function(actor, migrationData) {
 /* -------------------------------------------- */
 
 /**
- * Scrub an Actor's system data, removing all keys which are not explicitly defined in the system template
- * @param {object} actorData    The data object for an Actor
- * @returns {object}            The scrubbed Actor data
- */
-function cleanActorData(actorData) {
-
-  // Scrub system data
-  const model = game.system.model.Actor[actorData.type];
-  actorData.system = foundry.utils.filterObject(actorData.system, model);
-
-  // Scrub system flags
-  const allowedFlags = CONFIG.DND5E.allowedActorFlags.reduce((obj, f) => {
-    obj[f] = null;
-    return obj;
-  }, {});
-  if ( actorData.flags.dnd5e ) {
-    actorData.flags.dnd5e = foundry.utils.filterObject(actorData.flags.dnd5e, allowedFlags);
-  }
-
-  // Return the scrubbed data
-  return actorData;
-}
-
-
-/* -------------------------------------------- */
-
-/**
  * Migrate a single Item document to incorporate latest data model changes
  *
  * @param {object} item             Item data to migrate
@@ -270,11 +240,6 @@ function cleanActorData(actorData) {
  */
 export const migrateItemData = function(item, migrationData) {
   const updateData = {};
-  _migrateItemAttunement(item, updateData);
-  _migrateItemRarity(item, updateData);
-  _migrateItemSpellcasting(item, updateData);
-  _migrateArmorType(item, updateData);
-  _migrateItemCriticalData(item, updateData);
   _migrateDocumentIcon(item, updateData, migrationData);
 
   // Migrate embedded effects
@@ -399,140 +364,7 @@ export const getMigrationData = async function() {
 };
 
 /* -------------------------------------------- */
-/*  Low level migration utilities
-/* -------------------------------------------- */
-
-/**
- * Migrate the actor speed string to movement object
- * @param {object} actorData   Actor data being migrated.
- * @param {object} updateData  Existing updates being applied to actor. *Will be mutated.*
- * @returns {object}           Modified version of update data.
- * @private
- */
-function _migrateActorMovement(actorData, updateData) {
-  const attrs = actorData.system?.attributes || {};
-
-  // Work is needed if old data is present
-  const old = actorData.type === "vehicle" ? attrs.speed : attrs.speed?.value;
-  const hasOld = old !== undefined;
-  if ( hasOld ) {
-
-    // If new data is not present, migrate the old data
-    const hasNew = attrs.movement?.walk !== undefined;
-    if ( !hasNew && (typeof old === "string") ) {
-      const s = (old || "").split(" ");
-      if ( s.length > 0 ) updateData["system.attributes.movement.walk"] = Number.isNumeric(s[0]) ? parseInt(s[0]) : null;
-    }
-
-    // Remove the old attribute
-    updateData["system.attributes.-=speed"] = null;
-  }
-  return updateData;
-}
-
-/* -------------------------------------------- */
-
-/**
- * Migrate the actor traits.senses string to attributes.senses object
- * @param {object} actor       Actor data being migrated.
- * @param {object} updateData  Existing updates being applied to actor. *Will be mutated.*
- * @returns {object}           Modified version of update data.
- * @private
- */
-function _migrateActorSenses(actor, updateData) {
-  const oldSenses = actor.system?.traits?.senses;
-  if ( oldSenses === undefined ) return;
-  if ( typeof oldSenses !== "string" ) return;
-
-  // Try to match old senses with the format like "Darkvision 60 ft, Blindsight 30 ft"
-  const pattern = /([A-z]+)\s?([0-9]+)\s?([A-z]+)?/;
-  let wasMatched = false;
-
-  // Match each comma-separated term
-  for ( let s of oldSenses.split(",") ) {
-    s = s.trim();
-    const match = s.match(pattern);
-    if ( !match ) continue;
-    const type = match[1].toLowerCase();
-    if ( type in CONFIG.DND5E.senses ) {
-      updateData[`system.attributes.senses.${type}`] = Number(match[2]).toNearest(0.5);
-      wasMatched = true;
-    }
-  }
-
-  // If nothing was matched, but there was an old string - put the whole thing in "special"
-  if ( !wasMatched && oldSenses ) {
-    updateData["system.attributes.senses.special"] = oldSenses;
-  }
-
-  // Remove the old traits.senses string once the migration is complete
-  updateData["system.traits.-=senses"] = null;
-  return updateData;
-}
-
-/* -------------------------------------------- */
-
-/**
- * Migrate the actor details.type string to object
- * @param {object} actor       Actor data being migrated.
- * @param {object} updateData  Existing updates being applied to actor. *Will be mutated.*
- * @returns {object}           Modified version of update data.
- * @private
- */
-function _migrateActorType(actor, updateData) {
-  const original = actor.system?.details?.type;
-  if ( typeof original !== "string" ) return;
-
-  // New default data structure
-  let actorTypeData = {
-    value: "",
-    subtype: "",
-    swarm: "",
-    custom: ""
-  };
-
-  // Match the existing string
-  const pattern = /^(?:swarm of (?<size>[\w-]+) )?(?<type>[^(]+?)(?:\((?<subtype>[^)]+)\))?$/i;
-  const match = original.trim().match(pattern);
-  if ( match ) {
-
-    // Match a known creature type
-    const typeLc = match.groups.type.trim().toLowerCase();
-    const typeMatch = Object.entries(CONFIG.DND5E.creatureTypes).find(([k, v]) => {
-      return (typeLc === k)
-        || (typeLc === game.i18n.localize(v).toLowerCase())
-        || (typeLc === game.i18n.localize(`${v}Pl`).toLowerCase());
-    });
-    if (typeMatch) actorTypeData.value = typeMatch[0];
-    else {
-      actorTypeData.value = "custom";
-      actorTypeData.custom = match.groups.type.trim().titleCase();
-    }
-    actorTypeData.subtype = match.groups.subtype?.trim().titleCase() || "";
-
-    // Match a swarm
-    const isNamedSwarm = actor.name?.startsWith(game.i18n.localize("DND5E.CreatureSwarm"));
-    if ( match.groups.size || isNamedSwarm ) {
-      const sizeLc = match.groups.size ? match.groups.size.trim().toLowerCase() : "tiny";
-      const sizeMatch = Object.entries(CONFIG.DND5E.actorSizes).find(([k, v]) => {
-        return (sizeLc === k) || (sizeLc === game.i18n.localize(v).toLowerCase());
-      });
-      actorTypeData.swarm = sizeMatch ? sizeMatch[0] : "tiny";
-    }
-    else actorTypeData.swarm = "";
-  }
-
-  // No match found
-  else {
-    actorTypeData.value = "custom";
-    actorTypeData.custom = original;
-  }
-
-  // Update the actor data
-  updateData["system.details.type"] = actorTypeData;
-  return updateData;
-}
-
+/*  Low level migration utilities               */
 /* -------------------------------------------- */
 
 /**
@@ -583,92 +415,6 @@ function _migrateTokenImage(actorData, updateData) {
       updateData[path] = `systems/dnd5e/tokens/${type}/${fileName}.webp`;
     }
   }
-  return updateData;
-}
-
-/* -------------------------------------------- */
-
-/**
- * Delete the old data.attuned boolean.
- * @param {object} item        Item data to migrate
- * @param {object} updateData  Existing update to expand upon
- * @returns {object}           The updateData to apply
- * @private
- */
-function _migrateItemAttunement(item, updateData) {
-  if ( item.system?.attuned === undefined ) return updateData;
-  updateData["system.attunement"] = CONFIG.DND5E.attunementTypes.NONE;
-  updateData["system.-=attuned"] = null;
-  return updateData;
-}
-
-/* -------------------------------------------- */
-
-/**
- * Attempt to migrate item rarity from freeform string to enum value.
- * @param {object} item        Item data to migrate.
- * @param {object} updateData  Existing update to expand upon.
- * @returns {object}           The updateData to apply.
- * @private
- */
-function _migrateItemRarity(item, updateData) {
-  if ( item.system?.rarity === undefined ) return updateData;
-  const rarity = Object.keys(CONFIG.DND5E.itemRarity).find(key =>
-    (CONFIG.DND5E.itemRarity[key].toLowerCase() === item.system.rarity.toLowerCase()) || (key === item.system.rarity)
-  );
-  updateData["system.rarity"] = rarity ?? "";
-  return updateData;
-}
-
-/* -------------------------------------------- */
-
-/**
- * Replace class spellcasting string to object.
- * @param {object} item        Item data to migrate.
- * @param {object} updateData  Existing update to expand upon.
- * @returns {object}           The updateData to apply.
- * @private
- */
-function _migrateItemSpellcasting(item, updateData) {
-  if ( item.type !== "class" || (foundry.utils.getType(item.system.spellcasting) === "Object") ) return updateData;
-  updateData["system.spellcasting"] = {
-    progression: item.system.spellcasting,
-    ability: ""
-  };
-  return updateData;
-}
-
-/* --------------------------------------------- */
-
-/**
- * Convert equipment items of type 'bonus' to 'trinket'.
- * @param {object} item        Item data to migrate.
- * @param {object} updateData  Existing update to expand upon.
- * @returns {object}           The updateData to apply.
- * @private
- */
-function _migrateArmorType(item, updateData) {
-  if ( item.type !== "equipment" ) return updateData;
-  if ( item.system?.armor?.type === "bonus" ) updateData["system.armor.type"] = "trinket";
-  return updateData;
-}
-
-/* -------------------------------------------- */
-
-/**
- * Set the item's `critical` property to a proper object value.
- * @param {object} item        Item data to migrate.
- * @param {object} updateData  Existing update to expand upon.
- * @returns {object}           The updateData to apply.
- * @private
- */
-function _migrateItemCriticalData(item, updateData) {
-  const hasCritData = game.system.template.Item[item.type]?.templates?.includes("action");
-  if ( !hasCritData || (foundry.utils.getType(item.system.critical) === "Object") ) return updateData;
-  updateData["system.critical"] = {
-    threshold: null,
-    damage: null
-  };
   return updateData;
 }
 

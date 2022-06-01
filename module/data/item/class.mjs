@@ -68,4 +68,26 @@ export default class ItemClassData extends DataModel {
       }, {label: "DND5E.Spellcasting"})
     };
   }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  static migrateData(source) {
+    this.migrateSpellcastingData(source);
+    return super.migrateData(source);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Migrate the class's spellcasting string to object.
+   * @param {object} source  The candidate source data from which the model will be constructed.
+   */
+  static migrateSpellcastingData(source) {
+    if ( typeof source.spellcasting !== "string" ) return;
+    source.spellcasting = {
+      progression: source.spellcasting,
+      ability: ""
+    };
+  }
 }

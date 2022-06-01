@@ -35,4 +35,12 @@ export default class ItemWeaponData extends DataModel {
       proficient: new fields.BooleanField({required: true, initial: true, label: "DND5E.Proficient"})
     };
   }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  static migrateData(source) {
+    common.PhysicalItemData.migrateData(source);
+    return super.migrateData(source);
+  }
 }
