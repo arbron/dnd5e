@@ -23,7 +23,7 @@ export default class ItemFeatData extends DataModel {
       requirements: new fields.StringField({required: true, label: "DND5E.Requirements"}),
       recharge: new fields.SchemaField({
         value: new fields.NumberField({
-          required: true, integer: true, positive: true, label: "DND5E.FeatureRechargeOn"
+          required: true, integer: true, minimum: 1, label: "DND5E.FeatureRechargeOn"
         }),
         charged: new fields.BooleanField({required: true, label: "DND5E.Charged"})
       }, {label: "DND5E.FeatureActionRecharge"})

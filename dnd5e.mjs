@@ -115,6 +115,10 @@ Hooks.once("init", function() {
   CONFIG.Dice.rolls.push(dice.D20Roll);
   CONFIG.Dice.rolls.push(dice.DamageRoll);
 
+  // Hook up system data types
+  // CONFIG.Actor.systemDataModels = dataModels.actor.config;
+  // CONFIG.Item.systemDataModels = dataModels.item.config;
+
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
   Actors.registerSheet("dnd5e", applications.actor.ActorSheet5eCharacter, {
