@@ -43,8 +43,8 @@ export default class ActorCharacterData extends creature.CreatureData {
 export class AttributeData extends creature.AttributeData {
   static defineSchema() {
     const schema = super.defineSchema();
-    schema.hp.schema.value.initial = 0;
-    schema.hp.schema.max.initial = 0;
+    schema.hp.fields.value.initial = 0;
+    schema.hp.fields.max.initial = 0;
     return {
       ...schema,
       death: new fields.SchemaField({

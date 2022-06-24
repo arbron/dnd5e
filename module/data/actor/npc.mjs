@@ -30,13 +30,15 @@ export default class ActorNPCData extends creature.CreatureData {
  */
 export class AttributeData extends creature.AttributeData {
   static defineSchema() {
-    const { hp } = super.defineSchema();
+    const schema = super.defineSchema();
+    const hpFields = foundry.utils.deepClone(schema.hp.fields);
+    Object.values(hpFields).forEach(v => v.parent = undefined);
     return {
-      ...super.defineSchema(),
+      ...schema,
       hp: new fields.SchemaField({
-        ...hp.schema,
+        ...hpFields,
         formula: new fields.StringField({required: true, label: ""})
-      }, hp.options)
+      }, schema.hp.options)
     };
   }
 }

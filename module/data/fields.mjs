@@ -1,5 +1,5 @@
 import { DataModel } from "/common/abstract/module.mjs";
-import { ObjectField, SchemaField, StringField } from "/common/data/fields.mjs";
+import { DataField, ModelValidationError, ObjectField, StringField } from "/common/data/fields.mjs";
 
 
 /**
@@ -40,12 +40,11 @@ export class FormulaField extends StringField {
  * @param {DataFieldOptions} [options={}]  Options which configure the behavior of the field
  */
 export class MappingField extends ObjectField {
-
   constructor(model, options) {
     // TODO: Should this also allow the validation of keys?
     super(options);
-    if ( !isSubclass(model, DataModel) ) {
-      throw new Error("An EmbeddedDataField must specify a DataModel class as its type");
+    if ( !(model instanceof DataField) ) {
+      throw new Error(`${this.name} must have a DataField as its contained element`);
     }
     /**
      * The embedded DataModel definition which is contained in this field.
@@ -54,15 +53,15 @@ export class MappingField extends ObjectField {
     this.model = model;
   }
 
+  /* -------------------------------------------- */
+
   /** @inheritdoc */
-  clean(value, data, options) {
-    value = super.clean(value, data, options);
-    for ( let v of Object.values(value) ) {
-      if ( this.options.clean instanceof Function ) v = this.options.clean.call(this, v);
-      v = this.model.cleanData(v, options);
-    }
+  _cleanType(value, options) {
+    Object.values(value).forEach(v => this.model.clean(v, options));
     return value;
   }
+
+  /* -------------------------------------------- */
 
   /** @inheritdoc */
   getInitialValue(data) {
@@ -76,23 +75,39 @@ export class MappingField extends ObjectField {
     return initial;
   }
 
+  /* -------------------------------------------- */
+
   /** @override */
-  validate(value, options={}) {
+  _validateType(value, options={}) {
+    if ( typeof value !== "object" ) throw new Error("must by an Object");
+    const errors = this._validateValues(value, options);
+    if ( isEmpty(errors) ) throw new ModelValidationError(errors);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Validate each value of the object.
+   * @param {object} value    The object to validate.
+   * @param {object} options  Validation options.
+   * @returns {object}        An object of value-specific errors by key.
+   */
+  _validateValues(value, options) {
     const errors = {};
     for ( const [k, v] of Object.entries(value) ) {
-      const err = SchemaField.validateSchema(this.model.schema, v, options);
-      if ( !foundry.utils.isEmpty(err) ) errors[k] = err;
+      const error = this.model.validate(v, options);
+      if ( error ) errors[k] = error;
     }
-    if ( !foundry.utils.isEmpty(errors) ) throw new Error(DataModel.formatValidationErrors(errors));
-    return super.validate(value, options);
+    return errors;
   }
+
+  /* -------------------------------------------- */
 
   /** @override */
   initialize(model, name, value) {
     if ( !value ) return value;
-    return Object.fromEntries(
-      Object.entries(value).map(([k, v]) => [k, new this.model(v, {parent: model})])
-    );
+    Object.values(value).forEach(v => this.model.initialize(model, name, v));
+    return value;
   }
 
 }

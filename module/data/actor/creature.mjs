@@ -20,9 +20,13 @@ export class CreatureData extends common.CommonData {
       ...super.defineSchema(),
       attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
       details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
-      skills: new MappingField(SkillData, {initialKeys: CONFIG.DND5E.skills, label: "DND5E.Skills"}),
+      skills: new MappingField(new fields.EmbeddedDataField(SkillData), {
+        initialKeys: CONFIG.DND5E.skills, label: "DND5E.Skills"
+      }),
       traits: new fields.EmbeddedDataField(TraitsData, {label: "DND5E.Traits"}),
-      spells: new MappingField(SpellData, {initialKeys: this._spellLevels, label: "DND5E.SpellLevels"}),
+      spells: new MappingField(new fields.EmbeddedDataField(SpellData), {
+        initialKeys: this._spellLevels, label: "DND5E.SpellLevels"
+      }),
       bonuses: new fields.EmbeddedDataField(BonusesData, {label: "DND5E.Bonuses"})
     };
   }

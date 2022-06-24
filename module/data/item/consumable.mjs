@@ -16,6 +16,8 @@ import * as common from "./common.mjs";
  */
 export default class ItemConsumableData extends DataModel {
   static defineSchema() {
+    const usesFields = foundry.utils.deepClone(common.ActivatedEffectData.schema.fields.uses.fields);
+    Object.values(usesFields).forEach(v => v.parent = undefined);
     return {
       ...common.ItemDescriptionData.defineSchema(),
       ...common.PhysicalItemData.defineSchema(),
@@ -25,7 +27,7 @@ export default class ItemConsumableData extends DataModel {
         required: true, initial: "potion", choices: CONFIG.DND5E.consumableTypes, label: "DND5E.ItemConsumableType"
       }),
       uses: new fields.SchemaField({
-        ...common.ActivatedEffectData.schema.uses.schema,
+        ...usesFields,
         autoDestroy: new fields.BooleanField({required: true, label: "DND5E.ItemDestroyEmpty"})
       }, {label: "DND5E.LimitedUses"})
     };

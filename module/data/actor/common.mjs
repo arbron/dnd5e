@@ -15,7 +15,9 @@ import { FormulaField, MappingField } from "../fields.mjs";
 export class CommonData extends DataModel {
   static defineSchema() {
     return {
-      abilities: new MappingField(AbilityData, {initialKeys: CONFIG.DND5E.abilities, label: "DND5E.Abilities"}),
+      abilities: new MappingField(new fields.EmbeddedDataField(AbilityData), {
+        initialKeys: CONFIG.DND5E.abilities, label: "DND5E.Abilities"
+      }),
       attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
       details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
       traits: new fields.EmbeddedDataField(TraitsData, {label: "DND5E.Traits"}),

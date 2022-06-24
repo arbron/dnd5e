@@ -68,12 +68,14 @@ export default class ActorVehicleData extends common.CommonData {
 export class AttributeData extends common.AttributeData {
   static defineSchema() {
     const schema = super.defineSchema();
-    schema.hp.schema.value.nullable = true;
-    schema.hp.schema.value.initial = null;
-    schema.hp.schema.max.nullable = true;
-    schema.hp.schema.max.initial = null;
-    schema.hp.schema.temp.initial = null;
-    schema.hp.schema.tempmax.initial = null;
+    const hpFields = foundry.utils.deepClone(schema.hp.fields);
+    Object.values(hpFields).forEach(v => v.parent = undefined);
+    hpFields.value.nullable = true;
+    hpFields.value.initial = null;
+    hpFields.max.nullable = true;
+    hpFields.max.initial = null;
+    hpFields.temp.initial = null;
+    hpFields.tempmax.initial = null;
     return {
       ...schema,
       ac: new fields.SchemaField({
@@ -100,7 +102,7 @@ export class AttributeData extends common.AttributeData {
         }, {label: "DND5E.VehicleActionThresholds"})
       }, {label: "DND5E.VehicleActions"}),
       hp: new fields.SchemaField({
-        ...schema.hp.schema,
+        ...hpFields,
         dt: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.DamageThreshold"}),
         mt: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.VehicleMishapThreshold"})
       }, schema.hp.options),
@@ -123,10 +125,9 @@ export class AttributeData extends common.AttributeData {
 export class TraitsData extends common.TraitsData {
   static defineSchema() {
     const schema = super.defineSchema();
-    const { size, di, ci } = super.defineSchema();
     schema.size.initial = "lg";
-    schema.di.schema.value.initial = ["poison", "psychic"];
-    schema.ci.schema.value.initial = [
+    schema.di.fields.value.initial = ["poison", "psychic"];
+    schema.ci.fields.value.initial = [
       "blinded", "charmed", "deafened", "frightened", "paralyzed", "petrified", "poisoned", "stunned", "unconscious"
     ];
     return {
