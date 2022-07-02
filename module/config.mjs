@@ -1470,7 +1470,8 @@ DND5E.allowedActorFlags = ["isPolymorphed", "originalActor"].concat(Object.keys(
 DND5E.advancementTypes = {
   HitPoints: advancement.HitPointsAdvancement,
   ItemGrant: advancement.ItemGrantAdvancement,
-  ScaleValue: advancement.ScaleValueAdvancement
+  ScaleValue: advancement.ScaleValueAdvancement,
+  Subclass: advancement.SubclassAdvancement
 };
 
 /* -------------------------------------------- */

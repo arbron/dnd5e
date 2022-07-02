@@ -153,7 +153,7 @@ export default class AdvancementConfig extends FormApplication {
     if ( !uuidToDelete ) return;
     const items = foundry.utils.getProperty(this.advancement.configuration, this.options.dropKeyPath);
     const updates = { configuration: await this.prepareConfigurationUpdate({
-      [this.options.dropKeyPath]: items.filter(uuid => uuid !== uuidToDelete)
+      [this.options.dropKeyPath]: Array.from(items.filter(uuid => uuid !== uuidToDelete))
     }) };
     await this.advancement.update(updates);
     this.render();
@@ -195,7 +195,7 @@ export default class AdvancementConfig extends FormApplication {
     }
 
     // Abort if this uuid exists already
-    if ( existingItems.includes(item.uuid) ) {
+    if ( existingItems.includes?.(item.uuid) || existingItems.has?.(item.uuid) ) {
       return ui.notifications.warn(game.i18n.localize("DND5E.AdvancementItemGrantDuplicateWarning"));
     }
 
