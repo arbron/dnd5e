@@ -69,6 +69,7 @@ export class SubclassAdvancement extends Advancement {
       if ( !source ) return; // TODO: Something went wrong, throw an error?
       itemData = source.clone({
         _id: foundry.utils.randomID(),
+        "system.classIdentifier": this.item.identifier,
         "flags.dnd5e.sourceId": data.uuid,
         "flags.dnd5e.advancementOrigin": `${this.item.id}.${this.id}`
       }, {keepId: true}).toObject();
