@@ -105,6 +105,21 @@
         "title": "Wild Shape CR",
         "icon": "",
         "classRestriction": ""
+      },
+      {
+        "_id": "p9otj81aosxpn6wn",
+        "type": "Subclass",
+        "configuration": {
+          "allowDrops": true,
+          "pool": [
+            "Compendium.dnd5e.subclasses.4Ae2SPZRXEVbVs0M"
+          ]
+        },
+        "value": {},
+        "level": 2,
+        "title": "Druid Circle",
+        "icon": "",
+        "classRestriction": ""
       }
     ],
     "saves": [
@@ -142,10 +157,10 @@
   "flags": {},
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "2.0.0",
-    "coreVersion": "10.279",
+    "systemVersion": "2.0.3",
+    "coreVersion": "10.288",
     "createdTime": 1661787234284,
-    "modifiedTime": 1661787234284,
+    "modifiedTime": 1666205165996,
     "lastModifiedBy": "dnd5ebuilder0000"
   }
 }

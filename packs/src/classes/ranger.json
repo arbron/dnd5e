@@ -152,6 +152,21 @@
         "title": "",
         "icon": "",
         "classRestriction": ""
+      },
+      {
+        "_id": "gb53865sgbtx8xr2",
+        "type": "Subclass",
+        "configuration": {
+          "allowDrops": true,
+          "pool": [
+            "Compendium.dnd5e.subclasses.uqd2q6WjVfcsaaGb"
+          ]
+        },
+        "value": {},
+        "level": 3,
+        "title": "Ranger Archetype",
+        "icon": "",
+        "classRestriction": ""
       }
     ],
     "saves": [
@@ -189,10 +204,10 @@
   "flags": {},
   "_stats": {
     "systemId": "dnd5e",
-    "systemVersion": "2.0.0",
-    "coreVersion": "10.279",
+    "systemVersion": "2.0.3",
+    "coreVersion": "10.288",
     "createdTime": 1661787234280,
-    "modifiedTime": 1661787234280,
+    "modifiedTime": 1666205165986,
     "lastModifiedBy": "dnd5ebuilder0000"
   }
 }
