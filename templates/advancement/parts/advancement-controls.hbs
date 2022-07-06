@@ -13,6 +13,18 @@
   </div>
 </div>
 
+{{#if showIdentifier}}
+  <div class="form-group">
+    <label>{{localize "DND5E.Identifier"}}</label>
+    <div class="form-fields">
+      <input type="text" name="data.identifier" value="{{data.identifier}}" placeholder="{{default.identifier}}">
+    </div>
+    {{#if default.identifierHint}}
+      <p class="hint">{{default.identifierHint}}</p>
+    {{/if}}
+  </div>
+{{/if}}
+
 {{#if showClassRestrictions}}
   <div class="form-group">
     <label>{{localize "DND5E.AdvancementClassRestriction"}}</label>

@@ -7,9 +7,9 @@
       <p>{{advancement.data.configuration.hint}}</p>
     {{/if}}
 
-    {{#each previousLevels}}
-      <h4 class="form-header">{{localize "DND5E.AdvancementLevelHeader" level=@key}}</h4>
-      {{#each this}}
+    {{#each others}}
+      <h4 class="form-header">{{this.name}}</h4>
+      {{#each this.items}}
         <div class="item-name flexrow">
           <div class="item-image" style="background-image: url({{this.img}});"></div>
           <label class="flexrow"><h4><a data-uuid="{{this.uuid}}">{{this.name}}</a></h4></label>

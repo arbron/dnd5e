@@ -27,6 +27,8 @@ export class ItemChoiceAdvancement extends Advancement {
       icon: "systems/dnd5e/icons/svg/item-choice.svg",
       title: game.i18n.localize("DND5E.AdvancementItemChoiceTitle"),
       hint: game.i18n.localize("DND5E.AdvancementItemChoiceHint"),
+      identifier: true,
+      identifierHint: game.i18n.localize("DND5E.AdvancementItemChoiceIdentifierHint"),
       multiLevel: true,
       apps: {
         config: ItemChoiceConfig,
@@ -51,6 +53,17 @@ export class ItemChoiceAdvancement extends Advancement {
   /** @inheritdoc */
   get levels() {
     return Array.from(Object.keys(this.data.configuration.choices));
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Set of UUIDs added across all levels.
+   * @type {Set<string>|null}
+   */
+  get sharedData() {
+    if ( foundry.utils.isEmpty(this.data.value) ) return null;
+    return new Set(Object.values(this.data.value).flatMap(v => Object.values(v)));
   }
 
   /* -------------------------------------------- */
@@ -301,12 +314,26 @@ export class ItemChoiceFlow extends AdvancementFlow {
 
     const max = this.advancement.data.configuration.choices[this.level];
     const choices = { max, current: this.selected.size, full: this.selected.size >= max };
-
-    const previousLevels = {};
+    const others = [];
     const previouslySelected = new Set();
+
+    // Gather up items granted by this choice on other items
+    for ( const stored of this.advancement.actor.advancementStore[this.advancement.identifier] ?? [] ) {
+      if ( stored.advancement === this.advancement ) continue;
+      others.push({
+        name: stored.advancement.item.name,
+        items: await Promise.all(Array.from(stored.data).map(fromUuid))
+      });
+      stored.data.forEach(uuid => previouslySelected.add(uuid));
+    }
+
+    // Gather up items granted at lower levels
     for ( const [level, data] of Object.entries(this.advancement.data.value) ) {
       if ( level > this.level ) continue;
-      previousLevels[level] = await Promise.all(Object.values(data).map(fromUuid));
+      others.push({
+        name: game.i18n.format("DND5E.AdvancementLevelHeader", { level }),
+        items: await Promise.all(Object.values(data).map(fromUuid))
+      });
       Object.values(data).forEach(uuid => previouslySelected.add(uuid));
     }
 
@@ -317,7 +344,7 @@ export class ItemChoiceFlow extends AdvancementFlow {
       return items;
     }, []);
 
-    return foundry.utils.mergeObject(super.getData(), { choices, items, previousLevels });
+    return foundry.utils.mergeObject(super.getData(), { choices, items, others });
   }
 
   /* -------------------------------------------- */

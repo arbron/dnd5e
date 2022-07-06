@@ -136,6 +136,7 @@ export default class Actor5e extends Actor {
     const checkBonus = simplifyBonus(globalBonuses?.check, bonusData);
     this._prepareAbilities(bonusData, globalBonuses, checkBonus, originalSaves);
     this._prepareSkills(bonusData, globalBonuses, checkBonus, originalSkills);
+    this._prepareAdvancementStore();
     this._prepareArmorClass();
     this._prepareEncumbrance();
     this._prepareInitiative(bonusData, checkBonus);
@@ -369,6 +370,24 @@ export default class Actor5e extends Actor {
 
       // If we merged saves when transforming, take the highest bonus here.
       if ( originalSaves && abl.proficient ) abl.save = Math.max(abl.save, originalSaves[id].save);
+    }
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Prepare shared advancement data.
+   * @protected
+   */
+  _prepareAdvancementStore() {
+    this.advancementStore = {};
+    for ( const item of this.items ) {
+      for ( const advancement of Object.values(item.advancement.byId) ) {
+        const data = advancement.sharedData;
+        if ( data === null ) continue;
+        this.advancementStore[advancement.identifier] ??= [];
+        this.advancementStore[advancement.identifier].push({ advancement, data });
+      }
     }
   }
 

@@ -47,6 +47,7 @@ export default class Advancement {
    * @property {string} icon           Icon used for this advancement type if no user icon is specified.
    * @property {string} title          Title to be displayed if no user title is specified.
    * @property {string} hint           Description of this type shown in the advancement selection dialog.
+   * @property {boolean} identifier    Should the identifier be customization for this advancement type?
    * @property {boolean} multiLevel    Can this advancement affect more than one level? If this is set to true,
    *                                   the level selection control in the configuration window is hidden and the
    *                                   advancement should provide its own implementation of `Advancement#levels`
@@ -71,6 +72,7 @@ export default class Advancement {
       icon: "icons/svg/upgrade.svg",
       title: game.i18n.localize("DND5E.AdvancementTitle"),
       hint: "",
+      identifier: false,
       multiLevel: false,
       validItemTypes: new Set(["background", "class", "subclass"]),
       apps: {
@@ -136,6 +138,16 @@ export default class Advancement {
   /* -------------------------------------------- */
 
   /**
+   * Identifier for this advancement, either manually specified or derived from the title.
+   * @type {string}
+   */
+  get identifier() {
+    return this.data.identifier ?? this.title.slugify({strict: true});
+  }
+
+  /* -------------------------------------------- */
+
+  /**
    * Actor to which this advancement's item belongs, if the item is embedded.
    * @type {Actor5e|null}
    */
@@ -187,6 +199,16 @@ export default class Advancement {
     return (originalClass === null) || !this.data.classRestriction
       || (this.data.classRestriction === "primary" && originalClass)
       || (this.data.classRestriction === "secondary" && !originalClass);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Data that should be stored in the shared advancements store on the actor.
+   * @type {*|null}
+   */
+  get sharedData() {
+    return null;
   }
 
   /* -------------------------------------------- */
