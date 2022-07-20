@@ -141,6 +141,35 @@ export class ItemChoiceAdvancement extends Advancement {
     return { items };
   }
 
+  /* -------------------------------------------- */
+
+  /**
+   * Verify that the provided item can be used with this advancement based on the configuration.
+   * @param {Item5e} item  Item that needs to be tested.
+   * @throws An error if the item is invalid.
+   */
+  _verifyItemType(item) {
+    // Type restriction is set and the item type does not match the selected type
+    const restriction = this.data.configuration.type;
+    if ( restriction && (restriction !== item.type) ) {
+      const type = game.i18n.localize(`ITEM.Type${restriction.capitalize()}`);
+      throw new Error(game.i18n.format("DND5E.AdvancementItemChoiceTypeWarning", { type }));
+    }
+
+    // Item is not one of the valid types
+    if ( !this.constructor.VALID_TYPES.has(item.type) ) {
+      const type = game.i18n.localize(`ITEM.Type${item.type.capitalize()}`);
+      throw new Error(game.i18n.format("DND5E.AdvancementItemTypeInvalidWarning", { type }));
+    }
+
+    // If spell level is restricted, ensure the spell is of the appropriate level
+    const l = parseInt(this.data.configuration.spell?.level);
+    if ( (restriction === "spell") && Number.isNumeric(l) && (item.system.level !== l) ) {
+      const level = CONFIG.DND5E.spellLevels[l];
+      throw new Error(game.i18n.format("DND5E.AdvancementItemChoiceSpellLevelSpecificWarning", { level }));
+    }
+  }
+
 }
 
 
@@ -185,10 +214,7 @@ export class ItemChoiceConfig extends AdvancementConfig {
 
   /** @inheritdoc */
   _verifyDroppedItem(event, item) {
-    const type = this.advancement.data.configuration.type;
-    if ( !type || (type === item.type) ) return;
-    const typeName = game.i18n.localize(`ITEM.Type${type.capitalize()}`);
-    throw new Error(game.i18n.format("DND5E.AdvancementItemChoiceTypeWarning", { type: typeName }));
+    this.advancement._verifyItemType(item);
   }
 
 }
@@ -336,11 +362,10 @@ export class ItemChoiceFlow extends AdvancementFlow {
     if ( data.type !== "Item" ) return false;
     const item = await Item.implementation.fromDropData(data);
 
-    // If there is a type restriction, verify it against the dropped type
-    const type = this.advancement.data.configuration.type;
-    if ( type && (type !== item.type) ) {
-      const typeName = game.i18n.localize(`ITEM.Type${type.capitalize()}`);
-      return ui.notifications.warn(game.i18n.format("DND5E.AdvancementItemChoiceTypeWarning", { type: typeName }));
+    try {
+      this.advancement._verifyItemType(item);
+    } catch(err) {
+      return ui.notifications.error(err.message);
     }
 
     // If the item is already been marked as selected, no need to go further
@@ -352,19 +377,13 @@ export class ItemChoiceFlow extends AdvancementFlow {
       if ( Object.values(data).includes(item.uuid) ) return;
     }
 
-    // If spell level is restricted, ensure the spell is of the appropriate level
+    // If spell level is restricted to available level, ensure the spell is of the appropriate level
     const spellLevel = this.advancement.data.configuration.spell?.level;
-    if ( type === "spell" && spellLevel ) {
-      if ( spellLevel === "available") {
-        const maxSlot = this._maxSpellSlotLevel();
-        if ( item.system.level > maxSlot ) return ui.notifications.warn(game.i18n.format(
-          "DND5E.AdvancementItemChoiceSpellLevelAvailableWarning", { level: CONFIG.DND5E.spellLevels[maxSlot] }
-        ));
-      } else if ( item.system.level !== parseInt(spellLevel) ) {
-        return ui.notifications.warn(game.i18n.format(
-          "DND5E.AdvancementItemChoiceSpellLevelSpecificWarning", { level: CONFIG.DND5E.spellLevels[spellLevel] }
-        ));
-      }
+    if ( (this.advancement.data.configuration.type === "spell") && spellLevel === "available" ) {
+      const maxSlot = this._maxSpellSlotLevel();
+      if ( item.system.level > maxSlot ) return ui.notifications.error(game.i18n.format(
+        "DND5E.AdvancementItemChoiceSpellLevelAvailableWarning", { level: CONFIG.DND5E.spellLevels[maxSlot] }
+      ));
     }
 
     // Mark the item as selected
