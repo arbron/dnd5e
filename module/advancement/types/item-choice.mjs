@@ -145,29 +145,41 @@ export class ItemChoiceAdvancement extends Advancement {
 
   /**
    * Verify that the provided item can be used with this advancement based on the configuration.
-   * @param {Item5e} item  Item that needs to be tested.
-   * @throws An error if the item is invalid.
+   * @param {Item5e} item                  Item that needs to be tested.
+   * @param {object} config
+   * @param {string} config.restriction    Type restriction on this advancement.
+   * @param {string} config.spellLevel     Spell level limitation.
+   * @param {boolean} [config.error=true]  Should an error be thrown when an invalid type is encountered?
+   * @returns {boolean}                    Is this type valid?
+   * @throws An error if the item is invalid and warn is `true`.
    */
-  _verifyItemType(item) {
+  _verifyItemType(item, { restriction, spellLevel, error=true }={}) {
+    restriction ??= this.data.configuration.type;
+    spellLevel ??= this.data.configuration.spell?.level;
+
     // Type restriction is set and the item type does not match the selected type
-    const restriction = this.data.configuration.type;
     if ( restriction && (restriction !== item.type) ) {
       const type = game.i18n.localize(`ITEM.Type${restriction.capitalize()}`);
-      throw new Error(game.i18n.format("DND5E.AdvancementItemChoiceTypeWarning", { type }));
+      if ( error ) throw new Error(game.i18n.format("DND5E.AdvancementItemChoiceTypeWarning", { type }));
+      return false;
     }
 
     // Item is not one of the valid types
     if ( !this.constructor.VALID_TYPES.has(item.type) ) {
       const type = game.i18n.localize(`ITEM.Type${item.type.capitalize()}`);
-      throw new Error(game.i18n.format("DND5E.AdvancementItemTypeInvalidWarning", { type }));
+      if ( error ) throw new Error(game.i18n.format("DND5E.AdvancementItemTypeInvalidWarning", { type }));
+      return false;
     }
 
     // If spell level is restricted, ensure the spell is of the appropriate level
-    const l = parseInt(this.data.configuration.spell?.level);
+    const l = parseInt(spellLevel);
     if ( (restriction === "spell") && Number.isNumeric(l) && (item.system.level !== l) ) {
       const level = CONFIG.DND5E.spellLevels[l];
-      throw new Error(game.i18n.format("DND5E.AdvancementItemChoiceSpellLevelSpecificWarning", { level }));
+      if ( error ) throw new Error(game.i18n.format("DND5E.AdvancementItemChoiceSpellLevelSpecificWarning", { level }));
+      return false;
     }
+
+    return true;
   }
 
 }
@@ -205,8 +217,19 @@ export class ItemChoiceConfig extends AdvancementConfig {
   /* -------------------------------------------- */
 
   /** @inheritdoc */
-  prepareConfigurationUpdate(configuration) {
+  async prepareConfigurationUpdate(configuration) {
     if ( configuration.choices ) configuration.choices = this.constructor._cleanedObject(configuration.choices);
+
+    // Ensure items are still valid if type restriction or spell restriction are changed
+    configuration.pool ??= this.advancement.data.configuration.pool;
+    configuration.pool = await configuration.pool.reduce(async (pool, uuid) => {
+      const item = await fromUuid(uuid);
+      if ( this.advancement._verifyItemType(item, {
+        restriction: configuration.type, spellLevel: configuration.spell?.level ?? false, error: false
+      }) ) return [...await pool, uuid];
+      return pool;
+    }, []);
+
     return configuration;
   }
 

@@ -74,7 +74,7 @@ export default class AdvancementConfig extends FormApplication {
    * @param {object} configuration  Configuration object.
    * @returns {object}              Modified configuration.
    */
-  prepareConfigurationUpdate(configuration) {
+  async prepareConfigurationUpdate(configuration) {
     return configuration;
   }
 
@@ -92,7 +92,7 @@ export default class AdvancementConfig extends FormApplication {
   /** @inheritdoc */
   async _updateObject(event, formData) {
     let updates = foundry.utils.expandObject(formData).data;
-    if ( updates.configuration ) updates.configuration = this.prepareConfigurationUpdate(updates.configuration);
+    if ( updates.configuration ) updates.configuration = await this.prepareConfigurationUpdate(updates.configuration);
     await this.advancement.update(updates);
     this.render();
   }
