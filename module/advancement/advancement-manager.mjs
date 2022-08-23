@@ -33,7 +33,7 @@ export default class AdvancementManager extends Application {
      * A clone of the original actor to which the changes can be applied during the advancement process.
      * @type {Actor5e}
      */
-    this.clone = actor.clone();
+    this.clone = actor.clone({}, {keepId: true});
 
     /**
      * Individual steps that will be applied in order.

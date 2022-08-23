@@ -71,7 +71,7 @@ export class SubclassAdvancement extends Advancement {
         _id: foundry.utils.randomID(),
         "system.classIdentifier": this.item.identifier,
         "flags.dnd5e.sourceId": data.uuid,
-        "flags.dnd5e.advancementOrigin": `${this.item.id}.${this.id}`
+        "flags.dnd5e.advancementOrigin": this.uuid
       }, {keepId: true}).toObject();
     }
     this.actor.updateSource({ items: [itemData] });
