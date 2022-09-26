@@ -1,7 +1,5 @@
-import { DataModel } from "/common/abstract/module.mjs";
-import * as fields from "/common/data/fields.mjs";
+import { IdentifierField } from "../fields.mjs";
 import * as common from "./common.mjs";
-
 
 /**
  * Data definition for Class items.
@@ -21,48 +19,47 @@ import * as common from "./common.mjs";
  * @property {string} spellcasting.progression  Spell progression granted by class as from `DND5E.spellProgression`.
  * @property {string} spellcasting.ability      Ability score to use for spellcasting.
  */
-export default class ItemClassData extends DataModel {
+export default class ItemClassData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),
-      // TODO: Ensure this is a valid slug
-      identifier: new fields.StringField({required: true, label: "DND5E.Identifier"}),
-      levels: new fields.NumberField({
+      identifier: new IdentifierField({required: true, label: "DND5E.Identifier"}),
+      levels: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, positive: true, initial: 1, label: "DND5E.ClassLevels"
       }),
-      hitDice: new fields.StringField({
+      hitDice: new foundry.data.fields.StringField({
         required: true, initial: "d6", choices: CONFIG.DND5E.hitDieTypes, label: "DND5E.HitDice"
       }),
-      hitDiceUsed: new fields.NumberField({
+      hitDiceUsed: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.HitDiceUsed"
       }),
-      // TODO: Create advancement data
-      advancement: new fields.ArrayField(
-        new fields.ObjectField(), {label: "DND5E.AdvancementTitle"}
+      // TODO: Convert to proper advancement data when #1812 is merged
+      advancement: new foundry.data.fields.ArrayField(
+        new foundry.data.fields.ObjectField(), {label: "DND5E.AdvancementTitle"}
       ),
-      saves: new fields.ArrayField(
-        new fields.StringField({choices: CONFIG.DND5E.abilities, label: "DND5E.Ability"}), {label: "DND5E.ClassSaves"}
+      saves: new foundry.data.fields.ArrayField(
+        new foundry.data.fields.StringField({choices: CONFIG.DND5E.abilities, label: "DND5E.Ability"}), {label: "DND5E.ClassSaves"}
       ),
-      skills: new fields.SchemaField({
-        number: new fields.NumberField({
+      skills: new foundry.data.fields.SchemaField({
+        number: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 2, label: "DND5E.ClassSkillsNumber"
         }),
-        choices: new fields.ArrayField(
-          new fields.StringField({
+        choices: new foundry.data.fields.ArrayField(
+          new foundry.data.fields.StringField({
             choices: CONFIG.DND5E.skills, label: "DND5E.Skill"
           }), {label: "DND5E.ClassSkillsEligible"}
         ),
-        value: new fields.ArrayField(
-          new fields.StringField({
+        value: new foundry.data.fields.ArrayField(
+          new foundry.data.fields.StringField({
             choices: CONFIG.DND5E.skills, label: "DND5E.Skill"
           }), {label: "DND5E.ClassSkillsChosen"}
         )
       }, {label: "DND5E.Skills"}),
-      spellcasting: new fields.SchemaField({
-        progression: new fields.StringField({
+      spellcasting: new foundry.data.fields.SchemaField({
+        progression: new foundry.data.fields.StringField({
           required: true, initial: "none", choices: CONFIG.DND5E.spellProgression, label: "DND5E.SpellProgression"
         }),
-        ability: new fields.StringField({
+        ability: new foundry.data.fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.abilities, label: "DND5E.SpellAbility"
         })
       }, {label: "DND5E.Spellcasting"})

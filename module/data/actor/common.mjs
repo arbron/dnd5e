@@ -1,7 +1,4 @@
-import { DataModel } from "/common/abstract/module.mjs";
-import * as fields from "/common/data/fields.mjs";
 import { FormulaField, MappingField } from "../fields.mjs";
-
 
 /**
  * Data definition for common data template.
@@ -12,16 +9,16 @@ import { FormulaField, MappingField } from "../fields.mjs";
  * @property {TraitsData} traits                      Actor's size, resistances, vulnerabilities, and immunities.
  * @property {CurrencyData} currency                  Currency being held by this actor.
  */
-export class CommonData extends DataModel {
+export class CommonData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      abilities: new MappingField(new fields.EmbeddedDataField(AbilityData), {
+      abilities: new MappingField(new foundry.data.fields.EmbeddedDataField(AbilityData), {
         initialKeys: CONFIG.DND5E.abilities, label: "DND5E.Abilities"
       }),
-      attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
-      details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
-      traits: new fields.EmbeddedDataField(TraitsData, {label: "DND5E.Traits"}),
-      currency: new fields.EmbeddedDataField(CurrencyData, {label: "DND5E.Currency"})
+      attributes: new foundry.data.fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
+      details: new foundry.data.fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
+      traits: new foundry.data.fields.EmbeddedDataField(TraitsData, {label: "DND5E.Traits"}),
+      currency: new foundry.data.fields.EmbeddedDataField(CurrencyData, {label: "DND5E.Currency"})
     };
   }
 
@@ -76,16 +73,16 @@ export class CommonData extends DataModel {
  * @property {string} bonuses.check  Numeric or dice bonus to ability checks.
  * @property {string} bonuses.save   Numeric or dice bonus to ability saving throws.
  */
-export class AbilityData extends DataModel {
+export class AbilityData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      value: new fields.NumberField({
+      value: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, min: 0, initial: 10, label: "DND5E.AbilityScore"
       }),
-      proficient: new fields.NumberField({
+      proficient: new foundry.data.fields.NumberField({
         required: true, initial: 0, choices: CONFIG.DND5E.proficiencyLevels, label: "DND5E.ProficiencyLevel"
       }),
-      bonuses: new fields.SchemaField({
+      bonuses: new foundry.data.fields.SchemaField({
         check: new FormulaField({required: true, label: "DND5E.AbilityCheckBonus"}),
         save: new FormulaField({required: true, label: "DND5E.SaveBonus"})
       }, {label: "DND5E.AbilityBonuses"})
@@ -119,62 +116,64 @@ export class AbilityData extends DataModel {
  * @property {string} movement.units   Movement used to measure the various speeds.
  * @property {boolean} movement.hover  Is this flying creature able to hover in place.
  */
-export class AttributeData extends DataModel {
+export class AttributeData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      ac: new fields.SchemaField({
-        flat: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.ArmorClassFlat"}),
-        calc: new fields.StringField({required: true, initial: "default", label: "DND5E.ArmorClassCalculation"}),
+      ac: new foundry.data.fields.SchemaField({
+        flat: new foundry.data.fields.NumberField({
+          required: true, integer: true, min: 0, label: "DND5E.ArmorClassFlat"
+        }),
+        calc: new foundry.data.fields.StringField({required: true, initial: "default", label: "DND5E.ArmorClassCalculation"}),
         formula: new FormulaField({required: true, deterministic: true, label: "DND5E.ArmorClassFormula"})
       }, { label: "DND5E.ArmorClass" }),
-      hp: new fields.SchemaField({
-        value: new fields.NumberField({
+      hp: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 10, label: "DND5E.HitPointsCurrent"
         }),
-        min: new fields.NumberField({
+        min: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.HitPointsMin"
         }),
-        max: new fields.NumberField({
+        max: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 10, label: "DND5E.HitPointsMax"
         }),
-        temp: new fields.NumberField({
+        temp: new foundry.data.fields.NumberField({
           required: true, integer: true, initial: 0, min: 0, label: "DND5E.HitPointsTemp"
         }),
-        tempmax: new fields.NumberField({
+        tempmax: new foundry.data.fields.NumberField({
           required: true, integer: true, initial: 0, label: "DND5E.HitPointsTempMax"
         })
       }, {
         label: "DND5E.HitPoints", validate: d => d.min <= d.max,
         validationError: "HP minimum must be less than HP maximum"
       }),
-      init: new fields.SchemaField({
-        value: new fields.NumberField({
+      init: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, initial: 0, label: "DND5E.Initiative"
         }),
-        bonus: new fields.NumberField({
+        bonus: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, initial: 0, label: "DND5E.InitiativeBonus"
         })
       }, { label: "DND5E.Initiative" }),
-      movement: new fields.SchemaField({
-        burrow: new fields.NumberField({
+      movement: new foundry.data.fields.SchemaField({
+        burrow: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.MovementBurrow"
         }),
-        climb: new fields.NumberField({
+        climb: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.MovementClimb"
         }),
-        fly: new fields.NumberField({
+        fly: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.MovementFly"
         }),
-        swim: new fields.NumberField({
+        swim: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.MovementSwim"
         }),
-        walk: new fields.NumberField({
+        walk: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 30, label: "DND5E.MovementWalk"
         }),
-        units: new fields.StringField({
+        units: new foundry.data.fields.StringField({
           required: true, initial: "ft", choices: CONFIG.DND5E.movementUnits, label: "DND5E.MovementUnits"
         }),
-        hover: new fields.BooleanField({label: "DND5E.MovementHover"})
+        hover: new foundry.data.fields.BooleanField({label: "DND5E.MovementHover"})
       }, {label: "DND5E.Movement"})
     };
   }
@@ -235,12 +234,12 @@ export class AttributeData extends DataModel {
  * @property {string} biography.value   Full HTML biography information.
  * @property {string} biography.public  Biography that will be displayed to players with only observer privileges.
  */
-export class DetailsData extends DataModel {
+export class DetailsData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      biography: new fields.SchemaField({
-        value: new fields.StringField({blank: true, label: "DND5E.Biography"}),
-        public: new fields.StringField({blank: true, label: "DND5E.BiographyPublic"})
+      biography: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.StringField({blank: true, label: "DND5E.Biography"}),
+        public: new foundry.data.fields.StringField({blank: true, label: "DND5E.BiographyPublic"})
       }, {label: "DND5E.Biography"})
     };
   }
@@ -264,35 +263,35 @@ export class DetailsData extends DataModel {
  * @property {string[]} ci.value  Currently selected condition immunities.
  * @property {string} ci.custom   Semicolon-separated list of custom condition immunities.
  */
-export class TraitsData extends DataModel {
+export class TraitsData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      size: new fields.StringField({
+      size: new foundry.data.fields.StringField({
         required: true, initial: "med", choices: CONFIG.DND5E.actorSizes, label: "DND5E.Size"
       }),
-      di: new fields.SchemaField({
-        value: new fields.SetField(new fields.StringField({
+      di: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({
           blank: false, choices: CONFIG.DND5E.damageResistanceTypes
         }), {label: "DND5E.TraitsChosen"}),
-        custom: new fields.StringField({required: true, label: "DND5E.Special"})
+        custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamImm"}),
-      dr: new fields.SchemaField({
-        value: new fields.SetField(new fields.StringField({
+      dr: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({
           blank: false, choices: CONFIG.DND5E.damageResistanceTypes
         }), {label: "DND5E.TraitsChosen"}),
-        custom: new fields.StringField({required: true, label: "DND5E.Special"})
+        custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamRes"}),
-      dv: new fields.SchemaField({
-        value: new fields.SetField(new fields.StringField({
+      dv: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({
           blank: false, choices: CONFIG.DND5E.damageResistanceTypes
         }), {label: "DND5E.TraitsChosen"}),
-        custom: new fields.StringField({required: true, label: "DND5E.Special"})
+        custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamVuln"}),
-      ci: new fields.SchemaField({
-        value: new fields.SetField(new fields.StringField({
+      ci: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({
           blank: false, choices: CONFIG.DND5E.conditionTypes
         }), {label: "DND5E.TraitsChosen"}),
-        custom: new fields.StringField({required: true, label: "DND5E.Special"})
+        custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.ConImm"})
     };
   }
@@ -308,22 +307,22 @@ export class TraitsData extends DataModel {
  * @property {number} sp  Silver pieces.
  * @property {number} cp  Copper pieces.
  */
-export class CurrencyData extends DataModel {
+export class CurrencyData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      pp: new fields.NumberField({
+      pp: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CurrencyPP"
       }),
-      gp: new fields.NumberField({
+      gp: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CurrencyGP"
       }),
-      ep: new fields.NumberField({
+      ep: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CurrencyEP"
       }),
-      sp: new fields.NumberField({
+      sp: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CurrencySP"
       }),
-      cp: new fields.NumberField({
+      cp: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.CurrencyCP"
       })
     };

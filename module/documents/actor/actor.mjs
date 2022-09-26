@@ -312,7 +312,6 @@ export default class Actor5e extends Actor {
     }).length;
 
     // Kill Experience
-    this.sytsem.details.xp ??= {};
     this.system.details.xp.value = this.getCRExp(cr);
 
     // Proficiency

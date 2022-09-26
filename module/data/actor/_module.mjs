@@ -1,15 +1,15 @@
-import ActorCharacterData from "./character.mjs";
-import ActorNPCData from "./npc.mjs";
-import ActorVehicleData from "./vehicle.mjs";
+import { CharacterData } from "./character.mjs";
+import { NPCData } from "./npc.mjs";
+import { VehicleData } from "./vehicle.mjs";
 
-export {
-  ActorCharacterData,
-  ActorNPCData,
-  ActorVehicleData
-};
+export * from "./character.mjs";
+export * from "./common.mjs";
+export * from "./creature.mjs";
+export * from "./npc.mjs";
+export * from "./vehicle.mjs";
 
 export const config = {
-  character: ActorCharacterData,
-  npc: ActorNPCData,
-  vehicle: ActorVehicleData
+  character: CharacterData,
+  npc: NPCData,
+  vehicle: VehicleData
 };

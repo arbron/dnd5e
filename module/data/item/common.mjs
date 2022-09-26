@@ -1,7 +1,4 @@
-import { DataModel } from "/common/abstract/module.mjs";
-import * as fields from "/common/data/fields.mjs";
 import { FormulaField } from "../fields.mjs";
-
 
 /**
  * An embedded data structure for item description & source.
@@ -12,15 +9,15 @@ import { FormulaField } from "../fields.mjs";
  * @property {string} description.unidentified  Description displayed if item is unidentified.
  * @property {string} source                    Adventure or sourcebook where this item originated.
  */
-export class ItemDescriptionData extends DataModel {
+export class ItemDescriptionData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      description: new fields.SchemaField({
-        value: new fields.StringField({required: true, label: "DND5E.Description"}),
-        chat: new fields.StringField({required: true, label: ""}),
-        unidentified: new fields.StringField({required: true, label: ""})
+      description: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.StringField({required: true, label: "DND5E.Description"}),
+        chat: new foundry.data.fields.StringField({required: true, label: ""}),
+        unidentified: new foundry.data.fields.StringField({required: true, label: ""})
       }, {label: "DND5E.Description"}),
-      source: new fields.StringField({required: true, label: "DND5E.Source"})
+      source: new foundry.data.fields.StringField({required: true, label: "DND5E.Source"})
     };
   }
 }
@@ -36,25 +33,27 @@ export class ItemDescriptionData extends DataModel {
  * @property {string} rarity       Item rarity as defined in `DND5E.itemRarity`.
  * @property {boolean} identified  Has this item been identified?
  */
-export class PhysicalItemData extends DataModel {
+export class PhysicalItemData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      quantity: new fields.NumberField({
+      quantity: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, positive: true, initial: 1, label: "DND5E.Quantity"
       }),
-      weight: new fields.NumberField({
+      weight: new foundry.data.fields.NumberField({
         required: true, nullable: false, initial: 0, min: 0, label: "DND5E.Weight"
       }),
-      price: new fields.NumberField({
+      price: new foundry.data.fields.NumberField({
         required: true, nullable: false, initial: 0, min: 0, label: "DND5E.Price"
       }),
-      attunement: new fields.NumberField({
+      attunement: new foundry.data.fields.NumberField({
         required: true, integer: true, initial: CONFIG.DND5E.attunementTypes.NONE,
         choices: Object.values(CONFIG.DND5E.attunementTypes), label: "DND5E.Attunement"
       }),
-      equipped: new fields.BooleanField({required: true, label: "DND5E.Equipped"}),
-      rarity: new fields.StringField({required: true, blank: true, choices: DND5E.itemRarity, label: "DND5E.Rarity"}),
-      identified: new fields.BooleanField({required: true, initial: true, label: "DND5E.Identified"})
+      equipped: new foundry.data.fields.BooleanField({required: true, label: "DND5E.Equipped"}),
+      rarity: new foundry.data.fields.StringField({
+        required: true, blank: true, choices: CONFIG.DND5E.itemRarity, label: "DND5E.Rarity"
+      }),
+      identified: new foundry.data.fields.BooleanField({required: true, initial: true, label: "DND5E.Identified"})
     };
   }
 
@@ -120,54 +119,54 @@ export class PhysicalItemData extends DataModel {
  * @property {string} consume.target        Item ID or resource key path of resource to consume.
  * @property {number} consume.amount        Quantity of the resource to consume per use.
  */
-export class ActivatedEffectData extends DataModel {
+export class ActivatedEffectData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      activation: new fields.SchemaField({
-        type: new fields.StringField({
+      activation: new foundry.data.fields.SchemaField({
+        type: new foundry.data.fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.abilityActivationTypes, label: ""
         }),
-        cost: new fields.NumberField({required: true, nullable: false, initial: 0, label: "DND5E.ItemActivationCost"}),
-        condition: new fields.StringField({required: true, label: "DND5E.ItemActivationCondition"})
+        cost: new foundry.data.fields.NumberField({required: true, nullable: false, initial: 0, label: "DND5E.ItemActivationCost"}),
+        condition: new foundry.data.fields.StringField({required: true, label: "DND5E.ItemActivationCondition"})
       }, {label: ""}),
-      duration: new fields.SchemaField({
-        value: new fields.NumberField({required: true, min: 0, label: ""}),
-        units: new fields.StringField({
+      duration: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.NumberField({required: true, min: 0, label: ""}),
+        units: new foundry.data.fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.timePeriods, label: ""
         })
       }, {label: ""}),
-      target: new fields.SchemaField({
-        value: new fields.NumberField({required: true, min: 0, label: ""}),
-        width: new fields.NumberField({required: true, min: 0, label: ""}),
-        units: new fields.StringField({
+      target: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.NumberField({required: true, min: 0, label: ""}),
+        width: new foundry.data.fields.NumberField({required: true, min: 0, label: ""}),
+        units: new foundry.data.fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.distanceUnits, label: ""
         }),
-        type: new fields.StringField({
+        type: new foundry.data.fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.targetTypes, label: ""
         })
       }, {label: "DND5E.Target"}),
-      range: new fields.SchemaField({
-        value: new fields.NumberField({required: true, min: 0, label: "DND5E.RangeNormal"}),
-        long: new fields.NumberField({required: true, min: 0, label: "DND5E.RangeLong"}),
-        units: new fields.StringField({
+      range: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.NumberField({required: true, min: 0, label: "DND5E.RangeNormal"}),
+        long: new foundry.data.fields.NumberField({required: true, min: 0, label: "DND5E.RangeLong"}),
+        units: new foundry.data.fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.distanceUnits, label: "DND5E.RangeUnits"
         })
       }, {label: "DND5E.Range"}),
-      uses: new fields.SchemaField({
-        value: new fields.NumberField({required: true, min: 0, label: "DND5E.LimitedUsesAvailable"}),
+      uses: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.NumberField({required: true, min: 0, label: "DND5E.LimitedUsesAvailable"}),
         max: new FormulaField({required: true, deterministic: true, label: "DND5E.LimitedUsesMax"}),
-        per: new fields.StringField({
+        per: new foundry.data.fields.StringField({
           required: true, blank: false, nullable: true, initial: null, label: "DND5E.LimitedUsesPer"
         })
       }, {label: "DND5E.LimitedUses"}),
-      consume: new fields.SchemaField({
-        type: new fields.StringField({
+      consume: new foundry.data.fields.SchemaField({
+        type: new foundry.data.fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.abilityConsumptionTypes, label: "DND5E.ConsumeType"
         }),
-        target: new fields.StringField({
+        target: new foundry.data.fields.StringField({
           required: true, blank: false, nullable: true, initial: null, label: "DND5E.ConsumeTarget"
         }),
-        amount: new fields.NumberField({required: true, label: "DND5E.ConsumeAmount"})
+        amount: new foundry.data.fields.NumberField({required: true, label: "DND5E.ConsumeAmount"})
       }, {label: "DND5E.ConsumeTitle"})
     };
   }
@@ -192,36 +191,37 @@ export class ActivatedEffectData extends DataModel {
  * @property {number} save.dc             Custom saving throw value.
  * @property {string} save.scaling        Method for automatically determining saving throw DC.
  */
-export class ActionData extends DataModel {
+export class ActionData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      ability: new fields.StringField({
+      ability: new foundry.data.fields.StringField({
         required: true, nullable: true, initial: null, choices: CONFIG.DND5E.abilities, label: ""
       }),
-      actionType: new fields.StringField({
+      actionType: new foundry.data.fields.StringField({
         required: true, nullable: true, initial: null, choices: CONFIG.DND5E.itemActionTypes,
         label: "DND5E.ItemActionType"
       }),
       attackBonus: new FormulaField({required: true, label: "DND5E.ItemAttackBonus"}),
-      chatFlavor: new fields.StringField({required: true, label: "DND5E.ChatFlavor"}),
-      critical: new fields.SchemaField({
-        threshold: new fields.NumberField({
+      chatFlavor: new foundry.data.fields.StringField({required: true, label: "DND5E.ChatFlavor"}),
+      critical: new foundry.data.fields.SchemaField({
+        threshold: new foundry.data.fields.NumberField({
           required: true, integer: true, initial: null, positive: true, label: "DND5E.ItemCritThreshold"
         }),
         damage: new FormulaField({required: true, label: "DND5E.ItemCritExtraDamage"})
       }, {label: ""}),
-      damage: new fields.SchemaField({
-        // TODO: This doesn't work correctly
-        parts: new fields.ArrayField(new fields.StringField({label: ""}), {required: true, label: ""}),
+      damage: new foundry.data.fields.SchemaField({
+        parts: new foundry.data.fields.ArrayField(new foundry.data.fields.ArrayField(
+          new foundry.data.fields.StringField()
+        ), {required: true, label: ""}),
         versatile: new FormulaField({required: true, label: "DND5E.VersatileDamage"})
       }, {label: "DND5E.Damage"}),
       formula: new FormulaField({required: true, label: "DND5E.OtherFormula"}),
-      save: new fields.SchemaField({
-        ability: new fields.StringField({
+      save: new foundry.data.fields.SchemaField({
+        ability: new foundry.data.fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.abilities, label: ""
         }),
-        dc: new fields.NumberField({required: true, min: 0, label: "DND5E.AbbreviationDC"}),
-        scaling: new fields.StringField({
+        dc: new foundry.data.fields.NumberField({required: true, min: 0, label: "DND5E.AbbreviationDC"}),
+        scaling: new foundry.data.fields.StringField({
           required: true, blank: false, initial: "spell", label: "DND5E.ScalingFormula"
         })
       }, {label: "DND5E.SavingThrow"})
@@ -240,23 +240,23 @@ export class ActionData extends DataModel {
  * @property {number} hp.dt          Damage threshold.
  * @property {string} hp.conditions  Conditions that are triggered when this equipment takes damage.
  */
-export class MountableData extends DataModel {
+export class MountableData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      armor: new fields.SchemaField({
-        value: new fields.NumberField({
+      armor: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, initial: 10, min: 0, label: "DND5E.ArmorClass"
         })
       }, {label: "DND5E.ArmorClass"}),
-      hp: new fields.SchemaField({
-        value: new fields.NumberField({
+      hp: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.HitPointsCurrent"
         }),
-        max: new fields.NumberField({
+        max: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.HitPointsMax"
         }),
-        dt: new fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.DamageThreshold"}),
-        conditions: new fields.StringField({required: true, label: "DND5E.HealthConditions"})
+        dt: new foundry.data.fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.DamageThreshold"}),
+        conditions: new foundry.data.fields.StringField({required: true, label: "DND5E.HealthConditions"})
       }, {label: "DND5E.HitPoints"})
     };
   }

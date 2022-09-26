@@ -1,7 +1,4 @@
-import { DataModel } from "/common/abstract/module.mjs";
-import * as fields from "/common/data/fields.mjs";
 import * as common from "./common.mjs";
-
 
 /**
  * Data definition for Consumable items.
@@ -14,7 +11,7 @@ import * as common from "./common.mjs";
  * @property {object} uses               Information on how the consumable can be used and destroyed.
  * @property {boolean} uses.autoDestroy  Should this item be destroyed when it runs out of uses.
  */
-export default class ItemConsumableData extends DataModel {
+export default class ItemConsumableData extends foundry.abstract.DataModel {
   static defineSchema() {
     const usesFields = foundry.utils.deepClone(common.ActivatedEffectData.schema.fields.uses.fields);
     Object.values(usesFields).forEach(v => v.parent = undefined);
@@ -23,12 +20,12 @@ export default class ItemConsumableData extends DataModel {
       ...common.PhysicalItemData.defineSchema(),
       ...common.ActivatedEffectData.defineSchema(),
       ...common.ActionData.defineSchema(),
-      consumableType: new fields.StringField({
+      consumableType: new foundry.data.fields.StringField({
         required: true, initial: "potion", choices: CONFIG.DND5E.consumableTypes, label: "DND5E.ItemConsumableType"
       }),
-      uses: new fields.SchemaField({
+      uses: new foundry.data.fields.SchemaField({
         ...usesFields,
-        autoDestroy: new fields.BooleanField({required: true, label: "DND5E.ItemDestroyEmpty"})
+        autoDestroy: new foundry.data.fields.BooleanField({required: true, label: "DND5E.ItemDestroyEmpty"})
       }, {label: "DND5E.LimitedUses"})
     };
   }

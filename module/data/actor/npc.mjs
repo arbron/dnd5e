@@ -1,21 +1,19 @@
-import { DataModel } from "/common/abstract/module.mjs";
-import * as fields from "/common/data/fields.mjs";
 import * as creature from "./creature.mjs";
-
 
 /**
  * Data definition for Non-Player Characters.
  *
- * @property {DetailsData} details      NPC type, environment, CR, and other extended details.
- * @property {ResourcesData} resources  NPC's legendary and lair resources.
+ * @property {NPCAttributeData} attributes  NPC's HP formula & default HP value.
+ * @property {NPCDetailsData} details       NPC type, environment, CR, and other extended details.
+ * @property {NPCResourcesData} resources   NPC's legendary and lair resources.
  */
-export default class ActorNPCData extends creature.CreatureData {
+export class NPCData extends creature.CreatureData {
   static defineSchema() {
     return {
       ...super.defineSchema(),
-      attributes: new fields.EmbeddedDataField(AttributeData, {label: "DND5E.Attributes"}),
-      details: new fields.EmbeddedDataField(DetailsData, {label: "DND5E.Details"}),
-      resources: new fields.EmbeddedDataField(ResourcesData, {label: "DND5E.Resources"})
+      attributes: new foundry.data.fields.EmbeddedDataField(NPCAttributeData, {label: "DND5E.Attributes"}),
+      details: new foundry.data.fields.EmbeddedDataField(NPCDetailsData, {label: "DND5E.Details"}),
+      resources: new foundry.data.fields.EmbeddedDataField(NPCResourcesData, {label: "DND5E.Resources"})
     };
   }
 }
@@ -28,16 +26,16 @@ export default class ActorNPCData extends creature.CreatureData {
  * @property {object} hp                    NPC's hit point data.
  * @property {string} hp.formula            Formula used to determine hit points.
  */
-export class AttributeData extends creature.AttributeData {
+export class NPCAttributeData extends creature.CreatureAttributeData {
   static defineSchema() {
     const schema = super.defineSchema();
     const hpFields = foundry.utils.deepClone(schema.hp.fields);
     Object.values(hpFields).forEach(v => v.parent = undefined);
     return {
       ...schema,
-      hp: new fields.SchemaField({
+      hp: new foundry.data.fields.SchemaField({
         ...hpFields,
-        formula: new fields.StringField({required: true, label: ""})
+        formula: new foundry.data.fields.StringField({required: true, label: ""})
       }, schema.hp.options)
     };
   }
@@ -57,29 +55,29 @@ export class AttributeData extends creature.AttributeData {
  * @property {number} spellLevel    Spellcasting level of this NPC.
  * @property {string} source        What book or adventure is this NPC from?
  */
-export class DetailsData extends creature.DetailsData {
+export class NPCDetailsData extends creature.CreatureDetailsData {
   static defineSchema() {
     return {
       ...super.defineSchema(),
-      type: new fields.SchemaField({
-        value: new fields.StringField({
+      type: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.StringField({
           required: true, blank: true, choices: [...Object.keys(CONFIG.DND5E.creatureTypes), "custom"],
           label: "DND5E.CreatureType"
         }),
-        subtype: new fields.StringField({required: true, label: "DND5E.CreatureTypeSelectorSubtype"}),
-        swarm: new fields.StringField({
+        subtype: new foundry.data.fields.StringField({required: true, label: "DND5E.CreatureTypeSelectorSubtype"}),
+        swarm: new foundry.data.fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.actorSizes, label: "DND5E.CreatureSwarmSize"
         }),
-        custom: new fields.StringField({required: true, label: "DND5E.CreatureTypeSelectorCustom"})
+        custom: new foundry.data.fields.StringField({required: true, label: "DND5E.CreatureTypeSelectorCustom"})
       }, {label: "DND5E.CreatureType"}),
-      environment: new fields.StringField({required: true, label: "DND5E.Environment"}),
-      cr: new fields.NumberField({
+      environment: new foundry.data.fields.StringField({required: true, label: "DND5E.Environment"}),
+      cr: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, min: 0, initial: 1, label: "DND5E.ChallengeRating"
       }),
-      spellLevel: new fields.NumberField({
+      spellLevel: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SpellcasterLevel"
       }),
-      source: new fields.StringField({required: true, label: "DND5E.Source"})
+      source: new foundry.data.fields.StringField({required: true, label: "DND5E.Source"})
     };
   }
 
@@ -160,28 +158,28 @@ export class DetailsData extends creature.DetailsData {
  * @property {boolean} lair.value      Does this NPC use lair actions.
  * @property {number} lair.initiative  Initiative count when lair actions are triggered.
  */
-export class ResourcesData extends DataModel {
+export class NPCResourcesData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      legact: new fields.SchemaField({
-        value: new fields.NumberField({
+      legact: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.LegActRemaining"
         }),
-        max: new fields.NumberField({
+        max: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.LegActMax"
         })
       }, {label: "DND5E.LegAct"}),
-      legres: new fields.SchemaField({
-        value: new fields.NumberField({
+      legres: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.LegResRemaining"
         }),
-        max: new fields.NumberField({
+        max: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.LegResMax"
         })
       }, {label: "DND5E.LegRes"}),
-      lair: new fields.SchemaField({
-        value: new fields.BooleanField({required: true, label: "DND5E.LairAct"}),
-        initiative: new fields.NumberField({required: true, integer: true, label: "DND5E.LairActionInitiative"})
+      lair: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.BooleanField({required: true, label: "DND5E.LairAct"}),
+        initiative: new foundry.data.fields.NumberField({required: true, integer: true, label: "DND5E.LairActionInitiative"})
       }, {label: "DND5E.LairActionLabel"})
     };
   }

@@ -1,5 +1,3 @@
-import { DataModel } from "/common/abstract/module.mjs";
-import * as fields from "/common/data/fields.mjs";
 import * as common from "./common.mjs";
 import { CurrencyData } from "../actor/common.mjs";
 
@@ -15,22 +13,22 @@ import { CurrencyData } from "../actor/common.mjs";
  * @property {boolean} capacity.weightless  Does the weight of the items in the container carry over to the actor?
  * @property {CurrencyData} currency        Amount of currency currently held by the container.
  */
-export default class ItemBackpackData extends DataModel {
+export default class ItemBackpackData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),
       ...common.PhysicalItemData.defineSchema(),
-      capacity: new fields.SchemaField({
-        type: new fields.StringField({
+      capacity: new foundry.data.fields.SchemaField({
+        type: new foundry.data.fields.StringField({
           required: true, initial: "weight", choices: CONFIG.DND5E.itemCapacityTypes,
           label: "DND5E.ItemContainerCapacityType"
         }),
-        value: new fields.NumberField({
+        value: new foundry.data.fields.NumberField({
           required: true, nullable: false, initial: 0, min: 0, label: "DND5E.ItemContainerCapacityMax"
         }),
-        weightless: new fields.BooleanField({required: true, label: "DND5E.ItemContainerWeightless"})
+        weightless: new foundry.data.fields.BooleanField({required: true, label: "DND5E.ItemContainerWeightless"})
       }, {label: "DND5E.ItemContainerCapacity"}),
-      currency: new fields.EmbeddedDataField(CurrencyData, {label: "DND5E.Currency"})
+      currency: new foundry.data.fields.EmbeddedDataField(CurrencyData, {label: "DND5E.Currency"})
     };
   }
 

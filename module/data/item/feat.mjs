@@ -1,7 +1,4 @@
-import { DataModel } from "/common/abstract/module.mjs";
-import * as fields from "/common/data/fields.mjs";
 import * as common from "./common.mjs";
-
 
 /**
  * Data definition for Feature items.
@@ -14,18 +11,18 @@ import * as common from "./common.mjs";
  * @property {number} recharge.value     Minimum number needed to roll on a d6 to recharge this feature.
  * @property {boolean} recharge.charged  Does this feature have a charge remaining?
  */
-export default class ItemFeatData extends DataModel {
+export default class ItemFeatData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),
       ...common.ActivatedEffectData.defineSchema(),
       ...common.ActionData.defineSchema(),
-      requirements: new fields.StringField({required: true, label: "DND5E.Requirements"}),
-      recharge: new fields.SchemaField({
-        value: new fields.NumberField({
+      requirements: new foundry.data.fields.StringField({required: true, label: "DND5E.Requirements"}),
+      recharge: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.NumberField({
           required: true, integer: true, minimum: 1, label: "DND5E.FeatureRechargeOn"
         }),
-        charged: new fields.BooleanField({required: true, label: "DND5E.Charged"})
+        charged: new foundry.data.fields.BooleanField({required: true, label: "DND5E.Charged"})
       }, {label: "DND5E.FeatureActionRecharge"})
     };
   }

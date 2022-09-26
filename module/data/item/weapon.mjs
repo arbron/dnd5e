@@ -1,7 +1,4 @@
-import { DataModel } from "/common/abstract/module.mjs";
-import * as fields from "/common/data/fields.mjs";
 import * as common from "./common.mjs";
-
 
 /**
  * Data definition for Weapon items.
@@ -16,7 +13,7 @@ import * as common from "./common.mjs";
  * @property {object} properties   Mapping of various weapon property booleans.
  * @property {boolean} proficient  Does the weapon's owner have proficiency?
  */
-export default class ItemWeaponData extends DataModel {
+export default class ItemWeaponData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),
@@ -24,15 +21,15 @@ export default class ItemWeaponData extends DataModel {
       ...common.ActivatedEffectData.defineSchema(),
       ...common.ActionData.defineSchema(),
       ...common.MountableData.defineSchema(),
-      weaponType: new fields.StringField({
+      weaponType: new foundry.data.fields.StringField({
         required: true, initial: "simpleM", choices: CONFIG.DND5E.weaponTypes, label: "DND5E.ItemWeaponType"
       }),
-      baseItem: new fields.StringField({
+      baseItem: new foundry.data.fields.StringField({
         required: true, blank: true, choices: CONFIG.DND5E.weaponIds, label: "DND5E.ItemWeaponBase"
       }),
       // TODO: Replace with MappingField
-      properties: new fields.ObjectField({required: true, label: "DND5E.ItemWeaponProperties"}),
-      proficient: new fields.BooleanField({required: true, initial: true, label: "DND5E.Proficient"})
+      properties: new foundry.data.fields.ObjectField({required: true, label: "DND5E.ItemWeaponProperties"}),
+      proficient: new foundry.data.fields.BooleanField({required: true, initial: true, label: "DND5E.Proficient"})
     };
   }
 

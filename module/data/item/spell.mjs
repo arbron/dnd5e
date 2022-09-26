@@ -1,8 +1,5 @@
-import { DataModel } from "/common/abstract/module.mjs";
-import * as fields from "/common/data/fields.mjs";
 import { FormulaField } from "../fields.mjs";
 import * as common from "./common.mjs";
-
 
 /**
  * Data definition for Spell items.
@@ -30,36 +27,36 @@ import * as common from "./common.mjs";
  * @property {string} scaling.mode               Spell scaling mode as defined in `DND5E.spellScalingModes`.
  * @property {string} scaling.formula            Dice formula used for scaling.
  */
-export default class ItemSpellData extends DataModel {
+export default class ItemSpellData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),
       ...common.ActivatedEffectData.defineSchema(),
       ...common.ActionData.defineSchema(),
-      level: new fields.NumberField({required: true, integer: true, initial: 1, min: 0, label: "DND5E.SpellLevel"}),
-      school: new fields.StringField({required: true, label: "DND5E.SpellSchool"}),
-      components: new fields.SchemaField({ // TODO: This should be a MappingField to support custom components
-        vocal: new fields.BooleanField({required: true, label: ""}),
-        somatic: new fields.BooleanField({required: true, label: ""}),
-        material: new fields.BooleanField({required: true, label: ""}),
-        ritual: new fields.BooleanField({required: true, label: ""}),
-        concentration: new fields.BooleanField({required: true, label: ""})
+      level: new foundry.data.fields.NumberField({required: true, integer: true, initial: 1, min: 0, label: "DND5E.SpellLevel"}),
+      school: new foundry.data.fields.StringField({required: true, label: "DND5E.SpellSchool"}),
+      components: new foundry.data.fields.SchemaField({ // TODO: This should be a MappingField to support custom components
+        vocal: new foundry.data.fields.BooleanField({required: true, label: ""}),
+        somatic: new foundry.data.fields.BooleanField({required: true, label: ""}),
+        material: new foundry.data.fields.BooleanField({required: true, label: ""}),
+        ritual: new foundry.data.fields.BooleanField({required: true, label: ""}),
+        concentration: new foundry.data.fields.BooleanField({required: true, label: ""})
       }, {label: "DND5E.SpellComponents"}),
-      materials: new fields.SchemaField({
-        value: new fields.StringField({required: true, label: "DND5E.SpellMaterialsDescription"}),
-        consumed: new fields.BooleanField({required: true, label: "DND5E.SpellMaterialsConsumed"}),
-        cost: new fields.NumberField({required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsCost"}),
-        supply: new fields.NumberField({required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsSupply"})
+      materials: new foundry.data.fields.SchemaField({
+        value: new foundry.data.fields.StringField({required: true, label: "DND5E.SpellMaterialsDescription"}),
+        consumed: new foundry.data.fields.BooleanField({required: true, label: "DND5E.SpellMaterialsConsumed"}),
+        cost: new foundry.data.fields.NumberField({required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsCost"}),
+        supply: new foundry.data.fields.NumberField({required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsSupply"})
       }, {label: "DND5E.SpellMaterials"}),
-      preparation: new fields.SchemaField({
-        mode: new fields.StringField({
+      preparation: new foundry.data.fields.SchemaField({
+        mode: new foundry.data.fields.StringField({
           required: true, initial: "prepared", choices: CONFIG.DND5E.spellPreparationModes,
           label: "DND5E.SpellPreparationMode"
         }),
-        prepared: new fields.BooleanField({required: true, label: "DND5E.SpellPrepared"})
+        prepared: new foundry.data.fields.BooleanField({required: true, label: "DND5E.SpellPrepared"})
       }, {label: "DND5E.SpellPreparation"}),
-      scaling: new fields.SchemaField({
-        mode: new fields.StringField({
+      scaling: new foundry.data.fields.SchemaField({
+        mode: new foundry.data.fields.StringField({
           required: true, initial: "none", choices: CONFIG.DND5E.spellScalingModes, label: "DND5E.ScalingMode"
         }),
         formula: new FormulaField({required: true, nullable: true, initial: null, label: "DND5E.ScalingFormula"})
