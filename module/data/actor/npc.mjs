@@ -20,8 +20,7 @@ export class NPCData extends creature.CreatureData {
 
 /**
  * An embedded data structure for extra attribute data used by NPCs.
- * @extends creature.AttributeData
- * @see ActorNPCData
+ * @see NPCData
  *
  * @property {object} hp                    NPC's hit point data.
  * @property {string} hp.formula            Formula used to determine hit points.
@@ -43,7 +42,7 @@ export class NPCAttributeData extends creature.CreatureAttributeData {
 
 /**
  * An embedded data structure for extra details data used by NPCs.
- * @see ActorNPCData
+ * @see NPCData
  *
  * @property {TypeData} type        Creature type of this NPC.
  * @property {string} type.value    NPC's type as defined in the system configuration.
@@ -146,7 +145,7 @@ export class NPCDetailsData extends creature.CreatureDetailsData {
 
 /**
  * An embedded data structure for NPC resources.
- * @see ActorCharacterData
+ * @see NPCData
  *
  * @property {object} legact           NPC's legendary actions.
  * @property {number} legact.value     Currently available legendary actions.

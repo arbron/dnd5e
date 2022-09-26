@@ -238,8 +238,8 @@ export class DetailsData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       biography: new foundry.data.fields.SchemaField({
-        value: new foundry.data.fields.StringField({blank: true, label: "DND5E.Biography"}),
-        public: new foundry.data.fields.StringField({blank: true, label: "DND5E.BiographyPublic"})
+        value: new foundry.data.fields.HTMLField({blank: true, label: "DND5E.Biography"}),
+        public: new foundry.data.fields.HTMLField({blank: true, label: "DND5E.BiographyPublic"})
       }, {label: "DND5E.Biography"})
     };
   }
@@ -249,19 +249,19 @@ export class DetailsData extends foundry.abstract.DataModel {
  * An embedded data structure representing shared traits.
  * @see CommonData
  *
- * @property {string} size        Actor's size.
- * @property {object} di          Damage immunities.
- * @property {string[]} di.value  Currently selected damage immunities.
- * @property {string} di.custom   Semicolon-separated list of custom damage immunities.
- * @property {object} dr          Damage resistances.
- * @property {string[]} dr.value  Currently selected damage resistances.
- * @property {string} dr.custom   Semicolon-separated list of custom damage resistances.
- * @property {object} dv          Damage vulnerabilities.
- * @property {string[]} dv.value  Currently selected damage vulnerabilities.
- * @property {string} dv.custom   Semicolon-separated list of custom damage vulnerabilities.
- * @property {object} ci          Condition immunities.
- * @property {string[]} ci.value  Currently selected condition immunities.
- * @property {string} ci.custom   Semicolon-separated list of custom condition immunities.
+ * @property {string} size           Actor's size.
+ * @property {object} di             Damage immunities.
+ * @property {Set<string>} di.value  Currently selected damage immunities.
+ * @property {string} di.custom      Semicolon-separated list of custom damage immunities.
+ * @property {object} dr             Damage resistances.
+ * @property {Set<string>} dr.value  Currently selected damage resistances.
+ * @property {string} dr.custom      Semicolon-separated list of custom damage resistances.
+ * @property {object} dv             Damage vulnerabilities.
+ * @property {Set<string>} dv.value  Currently selected damage vulnerabilities.
+ * @property {string} dv.custom      Semicolon-separated list of custom damage vulnerabilities.
+ * @property {object} ci             Condition immunities.
+ * @property {Set<string>} ci.value  Currently selected condition immunities.
+ * @property {string} ci.custom      Semicolon-separated list of custom condition immunities.
  */
 export class TraitsData extends foundry.abstract.DataModel {
   static defineSchema() {
@@ -299,7 +299,7 @@ export class TraitsData extends foundry.abstract.DataModel {
 
 /**
  * An embedded data structure for currently held currencies.
- * @see DetailsData
+ * @see CommonData
  *
  * @property {number} pp  Platinum pieces.
  * @property {number} gp  Gold pieces.

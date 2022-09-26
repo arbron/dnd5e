@@ -21,7 +21,7 @@ import * as common from "./common.mjs";
  * @property {boolean} stealth          Does this equipment grant disadvantage on stealth checks when used?
  * @property {boolean} proficient       Does the owner have proficiency in this piece of equipment?
  */
-export default class ItemEquipmentData extends foundry.abstract.DataModel {
+export default class EquipmentData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),

@@ -13,7 +13,7 @@ import * as common from "./common.mjs";
  * @property {number} proficient  Level of proficiency in this tool as defined in `DND5E.proficiencyLevels`.
  * @property {string} bonus       Bonus formula added to tool rolls.
  */
-export default class ItemToolData extends foundry.abstract.DataModel {
+export default class ToolData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),

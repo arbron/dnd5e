@@ -117,7 +117,7 @@ Hooks.once("init", function() {
 
   // Hook up system data types
   // CONFIG.Actor.systemDataModels = dataModels.actor.config;
-  // CONFIG.Item.systemDataModels = dataModels.item.config;
+  CONFIG.Item.systemDataModels = dataModels.item.config;
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);

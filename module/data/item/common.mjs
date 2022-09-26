@@ -13,9 +13,9 @@ export class ItemDescriptionData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       description: new foundry.data.fields.SchemaField({
-        value: new foundry.data.fields.StringField({required: true, label: "DND5E.Description"}),
-        chat: new foundry.data.fields.StringField({required: true, label: ""}),
-        unidentified: new foundry.data.fields.StringField({required: true, label: ""})
+        value: new foundry.data.fields.HTMLField({required: true, label: "DND5E.Description"}),
+        chat: new foundry.data.fields.HTMLField({required: true, label: ""}),
+        unidentified: new foundry.data.fields.HTMLField({required: true, label: ""})
       }, {label: "DND5E.Description"}),
       source: new foundry.data.fields.StringField({required: true, label: "DND5E.Source"})
     };
@@ -63,6 +63,7 @@ export class PhysicalItemData extends foundry.abstract.DataModel {
   static migrateData(source) {
     this.migrateAttunementData(source);
     this.migrateRaritydata(source);
+    return super.migrateData(source);
   }
 
   /* -------------------------------------------- */
@@ -73,7 +74,7 @@ export class PhysicalItemData extends foundry.abstract.DataModel {
    */
   static migrateAttunementData(source) {
     if ( (source.attuned === undefined) || (source.attunement !== undefined) ) return;
-    source.attunement = source.attuned ? DND5E.attunementTypes.ATTUNED : DND5E.attunementTypes.NONE;
+    source.attunement = source.attuned ? CONFIG.DND5E.attunementTypes.ATTUNED : CONFIG.DND5E.attunementTypes.NONE;
   }
 
   /* -------------------------------------------- */
@@ -84,8 +85,8 @@ export class PhysicalItemData extends foundry.abstract.DataModel {
    */
   static migrateRaritydata(source) {
     if ( !source.rarity ) return;
-    const rarity = Object.keys(DND5E.itemRarity).find(key =>
-      (DND5E.itemRarity[key].toLowerCase() === source.rarity.toLowerCase()) || (key === source.rarity)
+    const rarity = Object.keys(CONFIG.DND5E.itemRarity).find(key =>
+      (CONFIG.DND5E.itemRarity[key].toLowerCase() === source.rarity.toLowerCase()) || (key === source.rarity)
     );
     if ( rarity ) source.rarity = rarity;
   }
@@ -126,7 +127,9 @@ export class ActivatedEffectData extends foundry.abstract.DataModel {
         type: new foundry.data.fields.StringField({
           required: true, blank: true, choices: CONFIG.DND5E.abilityActivationTypes, label: ""
         }),
-        cost: new foundry.data.fields.NumberField({required: true, nullable: false, initial: 0, label: "DND5E.ItemActivationCost"}),
+        cost: new foundry.data.fields.NumberField({
+          required: true, nullable: false, initial: 0, label: "DND5E.ItemActivationCost"
+        }),
         condition: new foundry.data.fields.StringField({required: true, label: "DND5E.ItemActivationCondition"})
       }, {label: ""}),
       duration: new foundry.data.fields.SchemaField({
@@ -255,7 +258,9 @@ export class MountableData extends foundry.abstract.DataModel {
         max: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.HitPointsMax"
         }),
-        dt: new foundry.data.fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.DamageThreshold"}),
+        dt: new foundry.data.fields.NumberField({
+          required: true, integer: true, min: 0, label: "DND5E.DamageThreshold"
+        }),
         conditions: new foundry.data.fields.StringField({required: true, label: "DND5E.HealthConditions"})
       }, {label: "DND5E.HitPoints"})
     };

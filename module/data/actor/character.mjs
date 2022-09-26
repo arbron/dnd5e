@@ -29,7 +29,7 @@ export class CharacterData extends creature.CreatureData {
 
 /**
  * An embedded data structure for extra attribute data used by characters.
- * @see ActorCharacterData
+ * @see CharacterData
  *
  * @property {DeathData} death       Information on death saving throws.
  * @property {number} death.success  Number of successful death saves.
@@ -62,7 +62,7 @@ export class CharacterAttributeData extends creature.CreatureAttributeData {
 
 /**
  * An embedded data structure for extra details data used by characters.
- * @see ActorCharacterData
+ * @see CharacterData
  *
  * @property {string} background     Name of character's background.
  * @property {string} originalClass  ID of first class taken by character.
@@ -107,7 +107,7 @@ export class CharacterDetailsData extends creature.CreatureDetailsData {
 
 /**
  * An embedded data structure for individual resource properties.
- * @see DetailsData
+ * @see CharacterData
  *
  * @property {number} value  Available uses of this resource.
  * @property {number} max    Maximum allowed uses of this resource.
@@ -133,32 +133,38 @@ export class CharacterResourceData extends foundry.abstract.DataModel {
 
 /**
  * An embedded data structure for extra trait data used by characters.
- * @see ActorCharacterData
+ * @see CharacterData
  *
- * @property {SimpleTraitData} weaponProf  Character's weapon proficiencies.
- * @property {string[]} weaponProf.value   Currently selected weapon proficiencies.
- * @property {string} weaponProf.custom    Semicolon-separated list of custom weapon proficiencies.
- * @property {SimpleTraitData} armorProf   Character's armor proficiencies.
- * @property {string[]} armorProf.value    Currently selected armor proficiencies.
- * @property {string} armorProf.custom     Semicolon-separated list of custom armor proficiencies.
- * @property {SimpleTraitData} toolProf    Character's tool proficiencies.
- * @property {string[]} toolProf.value     Currently selected tool proficiencies.
- * @property {string} toolProf.custom      Semicolon-separated list of custom tool proficiencies.
+ * @property {object} weaponProf             Character's weapon proficiencies.
+ * @property {Set<string>} weaponProf.value  Currently selected weapon proficiencies.
+ * @property {string} weaponProf.custom      Semicolon-separated list of custom weapon proficiencies.
+ * @property {object} armorProf              Character's armor proficiencies.
+ * @property {Set<string>} armorProf.value   Currently selected armor proficiencies.
+ * @property {string} armorProf.custom       Semicolon-separated list of custom armor proficiencies.
+ * @property {object} toolProf               Character's tool proficiencies.
+ * @property {Set<string>} toolProf.value    Currently selected tool proficiencies.
+ * @property {string} toolProf.custom        Semicolon-separated list of custom tool proficiencies.
  */
 export class CharacterTraitsData extends creature.CreatureTraitsData {
   static defineSchema() {
     return {
       ...super.defineSchema(),
       weaponProf: new foundry.data.fields.SchemaField({
-        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}),
+        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({blank: false}), {
+          label: "DND5E.TraitsChosen"
+        }),
         custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.TraitWeaponProf"}),
       armorProf: new foundry.data.fields.SchemaField({
-        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}),
+        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({blank: false}), {
+          label: "DND5E.TraitsChosen"
+        }),
         custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.TraitArmorProf"}),
       toolProf: new foundry.data.fields.SchemaField({
-        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}),
+        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({blank: false}), {
+          label: "DND5E.TraitsChosen"
+        }),
         custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.TraitToolProf"})
     };

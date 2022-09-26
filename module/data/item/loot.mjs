@@ -5,7 +5,7 @@ import * as common from "./common.mjs";
  * @see common.ItemDescriptionData
  * @see common.PhysicalItemData
  */
-export default class ItemLootData extends foundry.abstract.DataModel {
+export default class LootData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),

@@ -11,7 +11,7 @@ import * as common from "./common.mjs";
  * @property {object} uses               Information on how the consumable can be used and destroyed.
  * @property {boolean} uses.autoDestroy  Should this item be destroyed when it runs out of uses.
  */
-export default class ItemConsumableData extends foundry.abstract.DataModel {
+export default class ConsumableData extends foundry.abstract.DataModel {
   static defineSchema() {
     const usesFields = foundry.utils.deepClone(common.ActivatedEffectData.schema.fields.uses.fields);
     Object.values(usesFields).forEach(v => v.parent = undefined);

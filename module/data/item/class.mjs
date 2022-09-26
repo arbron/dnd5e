@@ -19,7 +19,7 @@ import * as common from "./common.mjs";
  * @property {string} spellcasting.progression  Spell progression granted by class as from `DND5E.spellProgression`.
  * @property {string} spellcasting.ability      Ability score to use for spellcasting.
  */
-export default class ItemClassData extends foundry.abstract.DataModel {
+export default class ClassData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),

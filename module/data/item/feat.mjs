@@ -11,7 +11,7 @@ import * as common from "./common.mjs";
  * @property {number} recharge.value     Minimum number needed to roll on a d6 to recharge this feature.
  * @property {boolean} recharge.charged  Does this feature have a charge remaining?
  */
-export default class ItemFeatData extends foundry.abstract.DataModel {
+export default class FeatData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),

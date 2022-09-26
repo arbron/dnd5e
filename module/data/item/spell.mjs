@@ -1,4 +1,4 @@
-import { FormulaField } from "../fields.mjs";
+import { FormulaField, MappingField } from "../fields.mjs";
 import * as common from "./common.mjs";
 
 /**
@@ -27,21 +27,22 @@ import * as common from "./common.mjs";
  * @property {string} scaling.mode               Spell scaling mode as defined in `DND5E.spellScalingModes`.
  * @property {string} scaling.formula            Dice formula used for scaling.
  */
-export default class ItemSpellData extends foundry.abstract.DataModel {
+export default class SpellData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),
       ...common.ActivatedEffectData.defineSchema(),
       ...common.ActionData.defineSchema(),
-      level: new foundry.data.fields.NumberField({required: true, integer: true, initial: 1, min: 0, label: "DND5E.SpellLevel"}),
+      level: new foundry.data.fields.NumberField({
+        required: true, integer: true, initial: 1, min: 0, label: "DND5E.SpellLevel"
+      }),
       school: new foundry.data.fields.StringField({required: true, label: "DND5E.SpellSchool"}),
-      components: new foundry.data.fields.SchemaField({ // TODO: This should be a MappingField to support custom components
-        vocal: new foundry.data.fields.BooleanField({required: true, label: ""}),
-        somatic: new foundry.data.fields.BooleanField({required: true, label: ""}),
-        material: new foundry.data.fields.BooleanField({required: true, label: ""}),
-        ritual: new foundry.data.fields.BooleanField({required: true, label: ""}),
-        concentration: new foundry.data.fields.BooleanField({required: true, label: ""})
-      }, {label: "DND5E.SpellComponents"}),
+      // TODO: Fails on old, non-boolean data
+      components: new MappingField(new foundry.data.fields.BooleanField(), {
+        required: true, label: "DND5E.SpellComponents",
+        initialKeys: [...Object.keys(CONFIG.DND5E.spellComponents), ...Object.keys(CONFIG.DND5E.spellTags)]
+      }),
+      // components: new foundry.data.fields.ObjectField({label: "DND5E.SpellComponents"}),
       materials: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.StringField({required: true, label: "DND5E.SpellMaterialsDescription"}),
         consumed: new foundry.data.fields.BooleanField({required: true, label: "DND5E.SpellMaterialsConsumed"}),
@@ -62,5 +63,26 @@ export default class ItemSpellData extends foundry.abstract.DataModel {
         formula: new FormulaField({required: true, nullable: true, initial: null, label: "DND5E.ScalingFormula"})
       }, {label: "DND5E.LevelScaling"})
     };
+  }
+
+  /* -------------------------------------------- */
+
+  /** @override */
+  static migrateData(source) {
+    this.migrateComponentData(source);
+    return super.migrateData(source);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Migrate the spell's component data to remove any old, non-boolean values.
+   * @param {object} source  The candidate source data from which the model will be constructed.
+   */
+  static migrateComponentData(source) {
+    if ( !source.components ) return;
+    for ( const [key, value] of Object.entries(source.components) ) {
+      if ( typeof value !== "boolean" ) delete source.components[key];
+    }
   }
 }

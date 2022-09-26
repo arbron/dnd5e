@@ -170,7 +170,9 @@ export class SpellData extends foundry.abstract.DataModel {
       value: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SpellProgAvailable"
       }),
-      override: new foundry.data.fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.SpellProgOverride"})
+      override: new foundry.data.fields.NumberField({
+        required: true, integer: true, min: 0, label: "DND5E.SpellProgOverride"
+      })
     };
   }
 }

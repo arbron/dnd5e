@@ -1,40 +1,40 @@
-import ItemBackgroundData from "./background.mjs";
-import ItemBackpackData from "./backpack.mjs";
-import ItemClassData from "./class.mjs";
-import ItemConsumableData from "./consumable.mjs";
-import ItemEquipmentData from "./equipment.mjs";
-import ItemFeatData from "./feat.mjs";
-import ItemLootData from "./loot.mjs";
-import ItemSpellData from "./spell.mjs";
-import ItemSubclassData from "./subclass.mjs";
-import ItemToolData from "./tool.mjs";
-import ItemWeaponData from "./weapon.mjs";
+import BackgroundData from "./background.mjs";
+import BackpackData from "./backpack.mjs";
+import ClassData from "./class.mjs";
+import ConsumableData from "./consumable.mjs";
+import EquipmentData from "./equipment.mjs";
+import FeatData from "./feat.mjs";
+import LootData from "./loot.mjs";
+import SpellData from "./spell.mjs";
+import SubclassData from "./subclass.mjs";
+import ToolData from "./tool.mjs";
+import WeaponData from "./weapon.mjs";
 
 export {
-  ItemBackgroundData,
-  ItemBackpackData,
-  ItemClassData,
-  ItemConsumableData,
-  ItemEquipmentData,
-  ItemFeatData,
-  ItemLootData,
-  ItemSpellData,
-  ItemSubclassData,
-  ItemToolData,
-  ItemWeaponData
+  BackgroundData,
+  BackpackData,
+  ClassData,
+  ConsumableData,
+  EquipmentData,
+  FeatData,
+  LootData,
+  SpellData,
+  SubclassData,
+  ToolData,
+  WeaponData
 };
 export * from "./common.mjs";
 
 export const config = {
-  background: ItemBackgroundData,
-  backpack: ItemBackpackData,
-  class: ItemClassData,
-  consumable: ItemConsumableData,
-  equipment: ItemEquipmentData,
-  feat: ItemFeatData,
-  loot: ItemLootData,
-  spell: ItemSpellData,
-  subclass: ItemSubclassData,
-  tool: ItemToolData,
-  weapon: ItemWeaponData
+  background: BackgroundData,
+  backpack: BackpackData,
+  class: ClassData,
+  consumable: ConsumableData,
+  equipment: EquipmentData,
+  feat: FeatData,
+  loot: LootData,
+  spell: SpellData,
+  subclass: SubclassData,
+  tool: ToolData,
+  weapon: WeaponData
 };

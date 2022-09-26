@@ -6,7 +6,7 @@ import * as common from "./common.mjs";
  *
  * @property {object[]} advancement  Advancement objects for this background.
  */
-export default class ItemBackgroundData extends foundry.abstract.DataModel {
+export default class BackgroundData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ...common.ItemDescriptionData.defineSchema(),

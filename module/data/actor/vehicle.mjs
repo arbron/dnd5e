@@ -35,7 +35,7 @@ export class VehicleData extends common.CommonData {
 
 /**
  * An embedded data structure for extra attribute data used by vehicles.
- * @see ActorVehicleData
+ * @see VehicleData
  *
  * @property {object} ac                    Data used to calculate vehicle's armor class.
  * @property {number} ac.flat               Flat value used for flat or natural armor calculation.
@@ -115,7 +115,7 @@ export class VehicleAttributeData extends common.AttributeData {
 
 /**
  * An embedded data structure for extra trait data used by vehicles.
- * @see ActorVehicleData
+ * @see VehicleData
  *
  * @property {string} dimensions  Description of the vehicle's size.
  */
@@ -136,7 +136,7 @@ export class VehicleTraitsData extends common.TraitsData {
 
 /**
  * An embedded data structure representing an entry in the crew or passenger lists.
- * @see CargoData
+ * @see VehicleData
  *
  * @property {string} name      Name of individual or type of creature.
  * @property {number} quantity  How many of this creature are onboard?
