@@ -1,4 +1,5 @@
 import { MappingField } from "../fields.mjs";
+import { SystemDataMixin } from "../mixin.mjs";
 import {
   ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate, MountableTemplate, PhysicalItemTemplate
 } from "./templates.mjs";
@@ -16,14 +17,11 @@ import {
  * @property {object} properties   Mapping of various weapon property booleans.
  * @property {boolean} proficient  Does the weapon's owner have proficiency?
  */
-export default class WeaponData extends foundry.abstract.DataModel {
+export default class WeaponData extends SystemDataMixin(
+  ItemDescriptionTemplate, PhysicalItemTemplate, ActivatedEffectTemplate, ActionTemplate, MountableTemplate) {
   static defineSchema() {
     return {
-      ...ItemDescriptionTemplate.defineSchema(),
-      ...PhysicalItemTemplate.defineSchema(),
-      ...ActivatedEffectTemplate.defineSchema(),
-      ...ActionTemplate.defineSchema(),
-      ...MountableTemplate.defineSchema(),
+      ...this.templateSchema(),
       weaponType: new foundry.data.fields.StringField({
         required: true, initial: "simpleM", choices: CONFIG.DND5E.weaponTypes, label: "DND5E.ItemWeaponType"
       }),
@@ -35,13 +33,5 @@ export default class WeaponData extends foundry.abstract.DataModel {
       }),
       proficient: new foundry.data.fields.BooleanField({required: true, initial: true, label: "DND5E.Proficient"})
     };
-  }
-
-  /* -------------------------------------------- */
-
-  /** @inheritdoc */
-  static migrateData(source) {
-    PhysicalItemTemplate.migrateData(source);
-    return super.migrateData(source);
   }
 }

@@ -1,4 +1,5 @@
 import { FormulaField, MappingField } from "../fields.mjs";
+import { SystemDataMixin } from "../mixin.mjs";
 import { ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate } from "./templates.mjs";
 
 /**
@@ -27,12 +28,11 @@ import { ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate } from
  * @property {string} scaling.mode               Spell scaling mode as defined in `DND5E.spellScalingModes`.
  * @property {string} scaling.formula            Dice formula used for scaling.
  */
-export default class SpellData extends foundry.abstract.DataModel {
+export default class SpellData extends SystemDataMixin(
+  ItemDescriptionTemplate, ActivatedEffectTemplate, ActionTemplate) {
   static defineSchema() {
     return {
-      ...ItemDescriptionTemplate.defineSchema(),
-      ...ActivatedEffectTemplate.defineSchema(),
-      ...ActionTemplate.defineSchema(),
+      ...this.templateSchema(),
       level: new foundry.data.fields.NumberField({
         required: true, integer: true, initial: 1, min: 0, label: "DND5E.SpellLevel"
       }),
@@ -61,14 +61,6 @@ export default class SpellData extends foundry.abstract.DataModel {
         formula: new FormulaField({required: true, nullable: true, initial: null, label: "DND5E.ScalingFormula"})
       }, {label: "DND5E.LevelScaling"})
     };
-  }
-
-  /* -------------------------------------------- */
-
-  /** @override */
-  static migrateData(source) {
-    this.migrateComponentData(source);
-    return super.migrateData(source);
   }
 
   /* -------------------------------------------- */

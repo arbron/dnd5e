@@ -1,4 +1,5 @@
 import { IdentifierField } from "../fields.mjs";
+import { SystemDataMixin } from "../mixin.mjs";
 import { ItemDescriptionTemplate } from "./templates.mjs";
 
 /**
@@ -19,10 +20,10 @@ import { ItemDescriptionTemplate } from "./templates.mjs";
  * @property {string} spellcasting.progression  Spell progression granted by class as from `DND5E.spellProgression`.
  * @property {string} spellcasting.ability      Ability score to use for spellcasting.
  */
-export default class ClassData extends foundry.abstract.DataModel {
+export default class ClassData extends SystemDataMixin(ItemDescriptionTemplate) {
   static defineSchema() {
     return {
-      ...ItemDescriptionTemplate.defineSchema(),
+      ...this.templateSchema(),
       identifier: new IdentifierField({required: true, label: "DND5E.Identifier"}),
       levels: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, positive: true, initial: 1, label: "DND5E.ClassLevels"
@@ -64,14 +65,6 @@ export default class ClassData extends foundry.abstract.DataModel {
         })
       }, {label: "DND5E.Spellcasting"})
     };
-  }
-
-  /* -------------------------------------------- */
-
-  /** @inheritdoc */
-  static migrateData(source) {
-    this.migrateSpellcastingData(source);
-    return super.migrateData(source);
   }
 
   /* -------------------------------------------- */

@@ -1,3 +1,4 @@
+import { SystemDataMixin } from "../mixin.mjs";
 import {
   ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate, MountableTemplate, PhysicalItemTemplate
 } from "./templates.mjs";
@@ -23,14 +24,11 @@ import {
  * @property {boolean} stealth          Does this equipment grant disadvantage on stealth checks when used?
  * @property {boolean} proficient       Does the owner have proficiency in this piece of equipment?
  */
-export default class EquipmentData extends foundry.abstract.DataModel {
+export default class EquipmentData extends SystemDataMixin(
+  ItemDescriptionTemplate, PhysicalItemTemplate, ActivatedEffectTemplate, ActionTemplate, MountableTemplate) {
   static defineSchema() {
     return {
-      ...ItemDescriptionTemplate.defineSchema(),
-      ...PhysicalItemTemplate.defineSchema(),
-      ...ActivatedEffectTemplate.defineSchema(),
-      ...ActionTemplate.defineSchema(),
-      ...MountableTemplate.defineSchema(),
+      ...this.templateSchema(),
       armor: new foundry.data.fields.SchemaField({
         type: new foundry.data.fields.StringField({
           required: true, initial: "light", choices: CONFIG.DND5E.equipmentTypes, label: "DND5E.ItemEquipmentType"
@@ -51,15 +49,6 @@ export default class EquipmentData extends foundry.abstract.DataModel {
       stealth: new foundry.data.fields.BooleanField({required: true, label: "DND5E.ItemEquipmentStealthDisav"}),
       proficient: new foundry.data.fields.BooleanField({required: true, initial: true, label: "DND5E.Proficient"})
     };
-  }
-
-  /* -------------------------------------------- */
-
-  /** @inheritdoc */
-  static migrateData(source) {
-    PhysicalItemTemplate.migrateData(source);
-    this.migrateArmorTypeData(source);
-    return super.migrateData(source);
   }
 
   /* -------------------------------------------- */

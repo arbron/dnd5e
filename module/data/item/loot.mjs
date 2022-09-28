@@ -1,3 +1,4 @@
+import { SystemDataMixin } from "../mixin.mjs";
 import { ItemDescriptionTemplate, PhysicalItemTemplate } from "./templates.mjs";
 
 /**
@@ -5,19 +6,8 @@ import { ItemDescriptionTemplate, PhysicalItemTemplate } from "./templates.mjs";
  * @see ItemDescriptionTemplate
  * @see PhysicalItemTemplate
  */
-export default class LootData extends foundry.abstract.DataModel {
+export default class LootData extends SystemDataMixin(ItemDescriptionTemplate, PhysicalItemTemplate) {
   static defineSchema() {
-    return {
-      ...ItemDescriptionTemplate.defineSchema(),
-      ...PhysicalItemTemplate.defineSchema()
-    };
-  }
-
-  /* -------------------------------------------- */
-
-  /** @inheritdoc */
-  static migrateData(source) {
-    PhysicalItemTemplate.migrateData(source);
-    return super.migrateData(source);
+    return this.templateSchema();
   }
 }

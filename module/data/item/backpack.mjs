@@ -1,3 +1,4 @@
+import { SystemDataMixin } from "../mixin.mjs";
 import { ItemDescriptionTemplate, PhysicalItemTemplate } from "./templates.mjs";
 import { CurrencyData } from "../actor/common.mjs";
 
@@ -13,11 +14,10 @@ import { CurrencyData } from "../actor/common.mjs";
  * @property {boolean} capacity.weightless  Does the weight of the items in the container carry over to the actor?
  * @property {CurrencyData} currency        Amount of currency currently held by the container.
  */
-export default class BackpackData extends foundry.abstract.DataModel {
+export default class BackpackData extends SystemDataMixin(ItemDescriptionTemplate, PhysicalItemTemplate) {
   static defineSchema() {
     return {
-      ...ItemDescriptionTemplate.defineSchema(),
-      ...PhysicalItemTemplate.defineSchema(),
+      ...this.templateSchema(),
       capacity: new foundry.data.fields.SchemaField({
         type: new foundry.data.fields.StringField({
           required: true, initial: "weight", choices: CONFIG.DND5E.itemCapacityTypes,
@@ -30,13 +30,5 @@ export default class BackpackData extends foundry.abstract.DataModel {
       }, {label: "DND5E.ItemContainerCapacity"}),
       currency: new foundry.data.fields.EmbeddedDataField(CurrencyData, {label: "DND5E.Currency"})
     };
-  }
-
-  /* -------------------------------------------- */
-
-  /** @inheritdoc */
-  static migrateData(source) {
-    PhysicalItemTemplate.migrateData(source);
-    return super.migrateData(source);
   }
 }

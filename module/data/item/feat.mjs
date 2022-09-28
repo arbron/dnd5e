@@ -1,3 +1,4 @@
+import { SystemDataMixin } from "../mixin.mjs";
 import { ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate } from "./templates.mjs";
 
 /**
@@ -11,12 +12,11 @@ import { ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate } from
  * @property {number} recharge.value     Minimum number needed to roll on a d6 to recharge this feature.
  * @property {boolean} recharge.charged  Does this feature have a charge remaining?
  */
-export default class FeatData extends foundry.abstract.DataModel {
+export default class FeatData extends SystemDataMixin(
+  ItemDescriptionTemplate, ActivatedEffectTemplate, ActionTemplate) {
   static defineSchema() {
     return {
-      ...ItemDescriptionTemplate.defineSchema(),
-      ...ActivatedEffectTemplate.defineSchema(),
-      ...ActionTemplate.defineSchema(),
+      ...this.templateSchema(),
       requirements: new foundry.data.fields.StringField({required: true, label: "DND5E.Requirements"}),
       recharge: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.NumberField({

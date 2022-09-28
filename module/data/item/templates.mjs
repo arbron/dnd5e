@@ -1,7 +1,7 @@
 import { FormulaField } from "../fields.mjs";
 
 /**
- * An embedded data structure for item description & source.
+ * Data model template with item description & source.
  *
  * @property {object} description               Various item descriptions.
  * @property {string} description.value         Full item description.
@@ -9,8 +9,8 @@ import { FormulaField } from "../fields.mjs";
  * @property {string} description.unidentified  Description displayed if item is unidentified.
  * @property {string} source                    Adventure or sourcebook where this item originated.
  */
-export class ItemDescriptionTemplate extends foundry.abstract.DataModel {
-  static defineSchema() {
+export class ItemDescriptionTemplate {
+  static templateSchema() {
     return {
       description: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.HTMLField({required: true, label: "DND5E.Description"}),
@@ -23,7 +23,7 @@ export class ItemDescriptionTemplate extends foundry.abstract.DataModel {
 }
 
 /**
- * An embedded data structure containing information on physical items.
+ * Data model template with information on physical items.
  *
  * @property {number} quantity     Number of items in a stack.
  * @property {number} weight       Item's weight in pounds or kilograms (depending on system setting).
@@ -33,8 +33,8 @@ export class ItemDescriptionTemplate extends foundry.abstract.DataModel {
  * @property {string} rarity       Item rarity as defined in `DND5E.itemRarity`.
  * @property {boolean} identified  Has this item been identified?
  */
-export class PhysicalItemTemplate extends foundry.abstract.DataModel {
-  static defineSchema() {
+export class PhysicalItemTemplate {
+  static templateSchema() {
     return {
       quantity: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, positive: true, initial: 1, label: "DND5E.Quantity"
@@ -55,15 +55,6 @@ export class PhysicalItemTemplate extends foundry.abstract.DataModel {
       }),
       identified: new foundry.data.fields.BooleanField({required: true, initial: true, label: "DND5E.Identified"})
     };
-  }
-
-  /* -------------------------------------------- */
-
-  /** @override */
-  static migrateData(source) {
-    this.migrateAttunementData(source);
-    this.migrateRaritydata(source);
-    return super.migrateData(source);
   }
 
   /* -------------------------------------------- */
@@ -93,7 +84,7 @@ export class PhysicalItemTemplate extends foundry.abstract.DataModel {
 }
 
 /**
- * An embedded data structure for items that can be used as some sort of action.
+ * Data model template for items that can be used as some sort of action.
  *
  * @property {object} activation            Effect's activation conditions.
  * @property {string} activation.type       Activation type as defined in `DND5E.abilityActivationTypes`.
@@ -120,8 +111,8 @@ export class PhysicalItemTemplate extends foundry.abstract.DataModel {
  * @property {string} consume.target        Item ID or resource key path of resource to consume.
  * @property {number} consume.amount        Quantity of the resource to consume per use.
  */
-export class ActivatedEffectTemplate extends foundry.abstract.DataModel {
-  static defineSchema() {
+export class ActivatedEffectTemplate {
+  static templateSchema() {
     return {
       activation: new foundry.data.fields.SchemaField({
         type: new foundry.data.fields.StringField({
@@ -176,7 +167,7 @@ export class ActivatedEffectTemplate extends foundry.abstract.DataModel {
 }
 
 /**
- * An embedded data structure for item actions.
+ * Data model template for item actions.
  *
  * @property {string} ability             Ability score to use when determining modifier.
  * @property {string} actionType          Action type as defined in `DND5E.itemActionTypes`.
@@ -194,8 +185,8 @@ export class ActivatedEffectTemplate extends foundry.abstract.DataModel {
  * @property {number} save.dc             Custom saving throw value.
  * @property {string} save.scaling        Method for automatically determining saving throw DC.
  */
-export class ActionTemplate extends foundry.abstract.DataModel {
-  static defineSchema() {
+export class ActionTemplate {
+  static templateSchema() {
     return {
       ability: new foundry.data.fields.StringField({
         required: true, nullable: true, initial: null, choices: CONFIG.DND5E.abilities, label: ""
@@ -233,7 +224,7 @@ export class ActionTemplate extends foundry.abstract.DataModel {
 }
 
 /**
- * An embedded data structure for equipment that can be mounted on a vehicle.
+ * Data model template for equipment that can be mounted on a vehicle.
  *
  * @property {object} armor          Equipment's armor class.
  * @property {number} armor.value    Armor class value for equipment.
@@ -243,8 +234,8 @@ export class ActionTemplate extends foundry.abstract.DataModel {
  * @property {number} hp.dt          Damage threshold.
  * @property {string} hp.conditions  Conditions that are triggered when this equipment takes damage.
  */
-export class MountableTemplate extends foundry.abstract.DataModel {
-  static defineSchema() {
+export class MountableTemplate {
+  static templateSchema() {
     return {
       armor: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.NumberField({
