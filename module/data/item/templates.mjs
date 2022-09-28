@@ -151,7 +151,8 @@ export class ActivatedEffectTemplate {
         max: new FormulaField({required: true, deterministic: true, label: "DND5E.LimitedUsesMax"}),
         per: new foundry.data.fields.StringField({
           required: true, blank: false, nullable: true, initial: null, label: "DND5E.LimitedUsesPer"
-        })
+        }),
+        recovery: new FormulaField({required: true, label: "DND5E.RecoveryFormula"})
       }, {label: "DND5E.LimitedUses"}),
       consume: new foundry.data.fields.SchemaField({
         type: new foundry.data.fields.StringField({
