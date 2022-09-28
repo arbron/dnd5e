@@ -1,11 +1,11 @@
-import * as common from "./common.mjs";
+import { ItemDescriptionTemplate, PhysicalItemTemplate } from "./templates.mjs";
 import { CurrencyData } from "../actor/common.mjs";
 
 
 /**
  * Data definition for Backpack items.
- * @see common.ItemDescriptionData
- * @see common.PhysicalItemData
+ * @see ItemDescriptionTemplate
+ * @see PhysicalItemTemplate
  *
  * @property {object} capacity              Information on container's carrying capacity.
  * @property {string} capacity.type         Method for tracking max capacity as defined in `DND5E.itemCapacityTypes`.
@@ -16,8 +16,8 @@ import { CurrencyData } from "../actor/common.mjs";
 export default class BackpackData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      ...common.ItemDescriptionData.defineSchema(),
-      ...common.PhysicalItemData.defineSchema(),
+      ...ItemDescriptionTemplate.defineSchema(),
+      ...PhysicalItemTemplate.defineSchema(),
       capacity: new foundry.data.fields.SchemaField({
         type: new foundry.data.fields.StringField({
           required: true, initial: "weight", choices: CONFIG.DND5E.itemCapacityTypes,
@@ -36,7 +36,7 @@ export default class BackpackData extends foundry.abstract.DataModel {
 
   /** @inheritdoc */
   static migrateData(source) {
-    common.PhysicalItemData.migrateData(source);
+    PhysicalItemTemplate.migrateData(source);
     return super.migrateData(source);
   }
 }

@@ -1,11 +1,11 @@
 import { FormulaField, MappingField } from "../fields.mjs";
-import * as common from "./common.mjs";
+import { ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate } from "./templates.mjs";
 
 /**
  * Data definition for Spell items.
- * @see common.ItemDescriptionData
- * @see common.ActivatedEffectData
- * @see common.ActionData
+ * @see ItemDescriptionTemplate
+ * @see ActivatedEffectTemplate
+ * @see ActionTemplate
  *
  * @property {number} level                      Base level of the spell.
  * @property {string} school                     Magical school to which this spell belongs.
@@ -30,19 +30,17 @@ import * as common from "./common.mjs";
 export default class SpellData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      ...common.ItemDescriptionData.defineSchema(),
-      ...common.ActivatedEffectData.defineSchema(),
-      ...common.ActionData.defineSchema(),
+      ...ItemDescriptionTemplate.defineSchema(),
+      ...ActivatedEffectTemplate.defineSchema(),
+      ...ActionTemplate.defineSchema(),
       level: new foundry.data.fields.NumberField({
         required: true, integer: true, initial: 1, min: 0, label: "DND5E.SpellLevel"
       }),
       school: new foundry.data.fields.StringField({required: true, label: "DND5E.SpellSchool"}),
-      // TODO: Fails on old, non-boolean data
       components: new MappingField(new foundry.data.fields.BooleanField(), {
         required: true, label: "DND5E.SpellComponents",
         initialKeys: [...Object.keys(CONFIG.DND5E.spellComponents), ...Object.keys(CONFIG.DND5E.spellTags)]
       }),
-      // components: new foundry.data.fields.ObjectField({label: "DND5E.SpellComponents"}),
       materials: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.StringField({required: true, label: "DND5E.SpellMaterialsDescription"}),
         consumed: new foundry.data.fields.BooleanField({required: true, label: "DND5E.SpellMaterialsConsumed"}),

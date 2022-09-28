@@ -1,13 +1,15 @@
 import { MappingField } from "../fields.mjs";
-import * as common from "./common.mjs";
+import {
+  ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate, MountableTemplate, PhysicalItemTemplate
+} from "./templates.mjs";
 
 /**
  * Data definition for Weapon items.
- * @see common.ItemDescriptionData
- * @see common.PhysicalItemData
- * @see common.ActivatedEffectData
- * @see common.ActionData
- * @see common.MountableData
+ * @see ItemDescriptionTemplate
+ * @see PhysicalItemTemplate
+ * @see ActivatedEffectTemplate
+ * @see ActionTemplate
+ * @see MountableTemplate
  *
  * @property {string} weaponType   Weapon category as defined in `DND5E.weaponTypes`.
  * @property {string} baseItem     Base weapon as defined in `DND5E.weaponIds` for determining proficiency.
@@ -17,11 +19,11 @@ import * as common from "./common.mjs";
 export default class WeaponData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      ...common.ItemDescriptionData.defineSchema(),
-      ...common.PhysicalItemData.defineSchema(),
-      ...common.ActivatedEffectData.defineSchema(),
-      ...common.ActionData.defineSchema(),
-      ...common.MountableData.defineSchema(),
+      ...ItemDescriptionTemplate.defineSchema(),
+      ...PhysicalItemTemplate.defineSchema(),
+      ...ActivatedEffectTemplate.defineSchema(),
+      ...ActionTemplate.defineSchema(),
+      ...MountableTemplate.defineSchema(),
       weaponType: new foundry.data.fields.StringField({
         required: true, initial: "simpleM", choices: CONFIG.DND5E.weaponTypes, label: "DND5E.ItemWeaponType"
       }),
@@ -39,7 +41,7 @@ export default class WeaponData extends foundry.abstract.DataModel {
 
   /** @inheritdoc */
   static migrateData(source) {
-    common.PhysicalItemData.migrateData(source);
+    PhysicalItemTemplate.migrateData(source);
     return super.migrateData(source);
   }
 }

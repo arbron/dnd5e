@@ -1,11 +1,13 @@
-import * as common from "./common.mjs";
+import {
+  ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate, PhysicalItemTemplate
+} from "./templates.mjs";
 
 /**
  * Data definition for Consumable items.
- * @see common.ItemDescriptionData
- * @see common.PhysicalItemData
- * @see common.ActivatedEffectData
- * @see common.ActionData
+ * @see ItemDescriptionTemplate
+ * @see PhysicalItemTemplate
+ * @see ActivatedEffectTemplate
+ * @see ActionTemplate
  *
  * @property {string} consumableType     Type of consumable as defined in `DND5E.consumableTypes`.
  * @property {object} uses               Information on how the consumable can be used and destroyed.
@@ -13,13 +15,13 @@ import * as common from "./common.mjs";
  */
 export default class ConsumableData extends foundry.abstract.DataModel {
   static defineSchema() {
-    const usesFields = foundry.utils.deepClone(common.ActivatedEffectData.schema.fields.uses.fields);
+    const usesFields = foundry.utils.deepClone(ActivatedEffectTemplate.schema.fields.uses.fields);
     Object.values(usesFields).forEach(v => v.parent = undefined);
     return {
-      ...common.ItemDescriptionData.defineSchema(),
-      ...common.PhysicalItemData.defineSchema(),
-      ...common.ActivatedEffectData.defineSchema(),
-      ...common.ActionData.defineSchema(),
+      ...ItemDescriptionTemplate.defineSchema(),
+      ...PhysicalItemTemplate.defineSchema(),
+      ...ActivatedEffectTemplate.defineSchema(),
+      ...ActionTemplate.defineSchema(),
       consumableType: new foundry.data.fields.StringField({
         required: true, initial: "potion", choices: CONFIG.DND5E.consumableTypes, label: "DND5E.ItemConsumableType"
       }),
@@ -34,7 +36,7 @@ export default class ConsumableData extends foundry.abstract.DataModel {
 
   /** @inheritdoc */
   static migrateData(source) {
-    common.PhysicalItemData.migrateData(source);
+    PhysicalItemTemplate.migrateData(source);
     return super.migrateData(source);
   }
 }

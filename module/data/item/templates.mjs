@@ -9,7 +9,7 @@ import { FormulaField } from "../fields.mjs";
  * @property {string} description.unidentified  Description displayed if item is unidentified.
  * @property {string} source                    Adventure or sourcebook where this item originated.
  */
-export class ItemDescriptionData extends foundry.abstract.DataModel {
+export class ItemDescriptionTemplate extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       description: new foundry.data.fields.SchemaField({
@@ -33,7 +33,7 @@ export class ItemDescriptionData extends foundry.abstract.DataModel {
  * @property {string} rarity       Item rarity as defined in `DND5E.itemRarity`.
  * @property {boolean} identified  Has this item been identified?
  */
-export class PhysicalItemData extends foundry.abstract.DataModel {
+export class PhysicalItemTemplate extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       quantity: new foundry.data.fields.NumberField({
@@ -120,7 +120,7 @@ export class PhysicalItemData extends foundry.abstract.DataModel {
  * @property {string} consume.target        Item ID or resource key path of resource to consume.
  * @property {number} consume.amount        Quantity of the resource to consume per use.
  */
-export class ActivatedEffectData extends foundry.abstract.DataModel {
+export class ActivatedEffectTemplate extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       activation: new foundry.data.fields.SchemaField({
@@ -194,7 +194,7 @@ export class ActivatedEffectData extends foundry.abstract.DataModel {
  * @property {number} save.dc             Custom saving throw value.
  * @property {string} save.scaling        Method for automatically determining saving throw DC.
  */
-export class ActionData extends foundry.abstract.DataModel {
+export class ActionTemplate extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       ability: new foundry.data.fields.StringField({
@@ -243,7 +243,7 @@ export class ActionData extends foundry.abstract.DataModel {
  * @property {number} hp.dt          Damage threshold.
  * @property {string} hp.conditions  Conditions that are triggered when this equipment takes damage.
  */
-export class MountableData extends foundry.abstract.DataModel {
+export class MountableTemplate extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       armor: new foundry.data.fields.SchemaField({

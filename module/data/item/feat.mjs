@@ -1,10 +1,10 @@
-import * as common from "./common.mjs";
+import { ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate } from "./templates.mjs";
 
 /**
  * Data definition for Feature items.
- * @see common.ItemDescriptionData
- * @see common.ActivatedEffectData
- * @see common.ActionData
+ * @see ItemDescriptionTemplate
+ * @see ActivatedEffectTemplate
+ * @see ActionTemplate
  *
  * @property {string} requirements       Actor details required to use this feature.
  * @property {object} recharge           Details on how a feature can roll for recharges.
@@ -14,9 +14,9 @@ import * as common from "./common.mjs";
 export default class FeatData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      ...common.ItemDescriptionData.defineSchema(),
-      ...common.ActivatedEffectData.defineSchema(),
-      ...common.ActionData.defineSchema(),
+      ...ItemDescriptionTemplate.defineSchema(),
+      ...ActivatedEffectTemplate.defineSchema(),
+      ...ActionTemplate.defineSchema(),
       requirements: new foundry.data.fields.StringField({required: true, label: "DND5E.Requirements"}),
       recharge: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.NumberField({

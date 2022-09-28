@@ -23,7 +23,7 @@ export {
   ToolData,
   WeaponData
 };
-export * from "./common.mjs";
+export * from "./templates.mjs";
 
 export const config = {
   background: BackgroundData,

@@ -1,15 +1,15 @@
-import * as common from "./common.mjs";
+import { ItemDescriptionTemplate, PhysicalItemTemplate } from "./templates.mjs";
 
 /**
  * Data definition for Loot items.
- * @see common.ItemDescriptionData
- * @see common.PhysicalItemData
+ * @see ItemDescriptionTemplate
+ * @see PhysicalItemTemplate
  */
 export default class LootData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      ...common.ItemDescriptionData.defineSchema(),
-      ...common.PhysicalItemData.defineSchema()
+      ...ItemDescriptionTemplate.defineSchema(),
+      ...PhysicalItemTemplate.defineSchema()
     };
   }
 
@@ -17,7 +17,7 @@ export default class LootData extends foundry.abstract.DataModel {
 
   /** @inheritdoc */
   static migrateData(source) {
-    common.PhysicalItemData.migrateData(source);
+    PhysicalItemTemplate.migrateData(source);
     return super.migrateData(source);
   }
 }

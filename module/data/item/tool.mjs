@@ -1,10 +1,10 @@
 import { FormulaField } from "../fields.mjs";
-import * as common from "./common.mjs";
+import { ItemDescriptionTemplate, PhysicalItemTemplate } from "./templates.mjs";
 
 /**
  * Data definition for Tool items.
- * @see common.ItemDescriptionData
- * @see common.PhysicalItemData
+ * @see ItemDescriptionTemplate
+ * @see PhysicalItemTemplate
  *
  * @property {string} toolType    Tool category as defined in `DND5E.toolTypes`.
  * @property {string} baseItem    Base tool as defined in `DND5E.toolIds` for determining proficiency.
@@ -16,8 +16,8 @@ import * as common from "./common.mjs";
 export default class ToolData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      ...common.ItemDescriptionData.defineSchema(),
-      ...common.PhysicalItemData.defineSchema(),
+      ...ItemDescriptionTemplate.defineSchema(),
+      ...PhysicalItemTemplate.defineSchema(),
       toolType: new foundry.data.fields.StringField({required: true, label: "DND5E.ItemToolType"}),
       baseItem: new foundry.data.fields.StringField({
         required: true, blank: true, choices: CONFIG.DND5E.toolIds, label: "DND5E.ItemToolBase"
@@ -37,7 +37,7 @@ export default class ToolData extends foundry.abstract.DataModel {
 
   /** @inheritdoc */
   static migrateData(source) {
-    common.PhysicalItemData.migrateData(source);
+    PhysicalItemTemplate.migrateData(source);
     return super.migrateData(source);
   }
 }

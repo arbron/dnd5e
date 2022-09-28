@@ -1,12 +1,14 @@
-import * as common from "./common.mjs";
+import {
+  ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate, MountableTemplate, PhysicalItemTemplate
+} from "./templates.mjs";
 
 /**
  * Data definition for Equipment items.
- * @see common.ItemDescriptionData
- * @see common.PhysicalItemData
- * @see common.ActivatedEffectData
- * @see common.ActionData
- * @see common.MountableData
+ * @see ItemDescriptionTemplate
+ * @see PhysicalItemTemplate
+ * @see ActivatedEffectTemplate
+ * @see ActionTemplate
+ * @see MountableTemplate
  *
  * @property {object} armor             Armor details and equipment type information.
  * @property {string} armor.type        Equipment type as defined in `DND5E.equipmentTypes`.
@@ -24,11 +26,11 @@ import * as common from "./common.mjs";
 export default class EquipmentData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      ...common.ItemDescriptionData.defineSchema(),
-      ...common.PhysicalItemData.defineSchema(),
-      ...common.ActivatedEffectData.defineSchema(),
-      ...common.ActionData.defineSchema(),
-      ...common.MountableData.defineSchema(),
+      ...ItemDescriptionTemplate.defineSchema(),
+      ...PhysicalItemTemplate.defineSchema(),
+      ...ActivatedEffectTemplate.defineSchema(),
+      ...ActionTemplate.defineSchema(),
+      ...MountableTemplate.defineSchema(),
       armor: new foundry.data.fields.SchemaField({
         type: new foundry.data.fields.StringField({
           required: true, initial: "light", choices: CONFIG.DND5E.equipmentTypes, label: "DND5E.ItemEquipmentType"
@@ -55,7 +57,7 @@ export default class EquipmentData extends foundry.abstract.DataModel {
 
   /** @inheritdoc */
   static migrateData(source) {
-    common.PhysicalItemData.migrateData(source);
+    PhysicalItemTemplate.migrateData(source);
     this.migrateArmorTypeData(source);
     return super.migrateData(source);
   }

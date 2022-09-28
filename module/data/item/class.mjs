@@ -1,9 +1,9 @@
 import { IdentifierField } from "../fields.mjs";
-import * as common from "./common.mjs";
+import { ItemDescriptionTemplate } from "./templates.mjs";
 
 /**
  * Data definition for Class items.
- * @see common.ItemDescriptionData
+ * @see ItemDescriptionTemplate
  *
  * @property {string} identifier        Identifier slug for this class.
  * @property {number} levels            Current number of levels in this class.
@@ -22,7 +22,7 @@ import * as common from "./common.mjs";
 export default class ClassData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      ...common.ItemDescriptionData.defineSchema(),
+      ...ItemDescriptionTemplate.defineSchema(),
       identifier: new IdentifierField({required: true, label: "DND5E.Identifier"}),
       levels: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, positive: true, initial: 1, label: "DND5E.ClassLevels"

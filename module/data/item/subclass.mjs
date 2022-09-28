@@ -1,9 +1,9 @@
 import { IdentifierField } from "../fields.mjs";
-import * as common from "./common.mjs";
+import { ItemDescriptionTemplate } from "./templates.mjs";
 
 /**
  * Data definition for Subclass items.
- * @see common.ItemDescriptionData
+ * @see ItemDescriptionTemplate
  *
  * @property {string} identifier       Identifier slug for this subclass.
  * @property {string} classIdentifier  Identifier slug for the class with which this subclass should be associated.
@@ -15,7 +15,7 @@ import * as common from "./common.mjs";
 export default class SubclassData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
-      ...common.ItemDescriptionData.defineSchema(),
+      ...ItemDescriptionTemplate.defineSchema(),
       identifier: new IdentifierField({required: true, label: "DND5E.Identifier"}),
       classIdentifier: new IdentifierField({
         required: true, label: "DND5E.ClassIdentifier", hint: "DND5E.ClassIdentifierHint"
