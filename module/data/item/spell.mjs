@@ -1,5 +1,5 @@
+import SystemDataModel from "../abstract.mjs";
 import { FormulaField, MappingField } from "../fields.mjs";
-import { SystemDataMixin } from "../mixin.mjs";
 import ActionTemplate from "./templates/action.mjs";
 import ActivatedEffectTemplate from "./templates/activated-effect.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
@@ -30,7 +30,7 @@ import ItemDescriptionTemplate from "./templates/item-description.mjs";
  * @property {string} scaling.mode               Spell scaling mode as defined in `DND5E.spellScalingModes`.
  * @property {string} scaling.formula            Dice formula used for scaling.
  */
-export default class SpellData extends SystemDataMixin(
+export default class SpellData extends SystemDataModel.mixed(
   ItemDescriptionTemplate, ActivatedEffectTemplate, ActionTemplate
 ) {
   static systemSchema() {

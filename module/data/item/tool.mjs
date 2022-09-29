@@ -1,5 +1,5 @@
+import SystemDataModel from "../abstract.mjs";
 import { FormulaField } from "../fields.mjs";
-import { SystemDataMixin } from "../mixin.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
 import PhysicalItemTemplate from "./templates/physical-item.mjs";
 
@@ -15,7 +15,7 @@ import PhysicalItemTemplate from "./templates/physical-item.mjs";
  * @property {number} proficient  Level of proficiency in this tool as defined in `DND5E.proficiencyLevels`.
  * @property {string} bonus       Bonus formula added to tool rolls.
  */
-export default class ToolData extends SystemDataMixin(ItemDescriptionTemplate, PhysicalItemTemplate) {
+export default class ToolData extends SystemDataModel.mixed(ItemDescriptionTemplate, PhysicalItemTemplate) {
   static systemSchema() {
     return {
       toolType: new foundry.data.fields.StringField({required: true, label: "DND5E.ItemToolType"}),

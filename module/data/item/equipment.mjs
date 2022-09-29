@@ -1,4 +1,4 @@
-import { SystemDataMixin } from "../mixin.mjs";
+import SystemDataModel from "../abstract.mjs";
 import ActionTemplate from "./templates/action.mjs";
 import ActivatedEffectTemplate from "./templates/activated-effect.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
@@ -26,7 +26,7 @@ import MountableTemplate from "./templates/mountable.mjs";
  * @property {boolean} stealth          Does this equipment grant disadvantage on stealth checks when used?
  * @property {boolean} proficient       Does the owner have proficiency in this piece of equipment?
  */
-export default class EquipmentData extends SystemDataMixin(
+export default class EquipmentData extends SystemDataModel.mixed(
   ItemDescriptionTemplate, PhysicalItemTemplate, ActivatedEffectTemplate, ActionTemplate, MountableTemplate
 ) {
   static systemSchema() {

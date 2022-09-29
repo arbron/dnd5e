@@ -1,5 +1,5 @@
+import SystemDataModel from "../abstract.mjs";
 import { IdentifierField } from "../fields.mjs";
-import { SystemDataMixin } from "../mixin.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
 
 /**
@@ -13,7 +13,7 @@ import ItemDescriptionTemplate from "./templates/item-description.mjs";
  * @property {string} spellcasting.progression  Spell progression granted by class as from `DND5E.spellProgression`.
  * @property {string} spellcasting.ability      Ability score to use for spellcasting.
  */
-export default class SubclassData extends SystemDataMixin(ItemDescriptionTemplate) {
+export default class SubclassData extends SystemDataModel.mixed(ItemDescriptionTemplate) {
   static systemSchema() {
     return {
       identifier: new IdentifierField({required: true, label: "DND5E.Identifier"}),

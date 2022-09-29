@@ -1,4 +1,4 @@
-import { SystemDataMixin } from "../mixin.mjs";
+import SystemDataModel from "../abstract.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
 import PhysicalItemTemplate from "./templates/physical-item.mjs";
 
@@ -7,4 +7,4 @@ import PhysicalItemTemplate from "./templates/physical-item.mjs";
  * @see ItemDescriptionTemplate
  * @see PhysicalItemTemplate
  */
-export default class LootData extends SystemDataMixin(ItemDescriptionTemplate, PhysicalItemTemplate) {}
+export default class LootData extends SystemDataModel.mixed(ItemDescriptionTemplate, PhysicalItemTemplate) {}

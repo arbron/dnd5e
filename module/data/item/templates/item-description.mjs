@@ -1,4 +1,4 @@
-import { SystemDataModel } from "../../mixin.mjs";
+import SystemDataModel from "../../abstract.mjs";
 
 /**
  * Data model template with item description & source.

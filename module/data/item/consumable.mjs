@@ -1,4 +1,4 @@
-import { SystemDataMixin } from "../mixin.mjs";
+import SystemDataModel from "../abstract.mjs";
 import ActionTemplate from "./templates/action.mjs";
 import ActivatedEffectTemplate from "./templates/activated-effect.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
@@ -15,7 +15,7 @@ import PhysicalItemTemplate from "./templates/physical-item.mjs";
  * @property {object} uses               Information on how the consumable can be used and destroyed.
  * @property {boolean} uses.autoDestroy  Should this item be destroyed when it runs out of uses.
  */
-export default class ConsumableData extends SystemDataMixin(
+export default class ConsumableData extends SystemDataModel.mixed(
   ItemDescriptionTemplate, PhysicalItemTemplate, ActivatedEffectTemplate, ActionTemplate
 ) {
   static systemSchema() {

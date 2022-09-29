@@ -1,4 +1,4 @@
-import { SystemDataMixin } from "../mixin.mjs";
+import SystemDataModel from "../abstract.mjs";
 import ActionTemplate from "./templates/action.mjs";
 import ActivatedEffectTemplate from "./templates/activated-effect.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
@@ -14,7 +14,7 @@ import ItemDescriptionTemplate from "./templates/item-description.mjs";
  * @property {number} recharge.value     Minimum number needed to roll on a d6 to recharge this feature.
  * @property {boolean} recharge.charged  Does this feature have a charge remaining?
  */
-export default class FeatData extends SystemDataMixin(
+export default class FeatData extends SystemDataModel.mixed(
   ItemDescriptionTemplate, ActivatedEffectTemplate, ActionTemplate
 ) {
   static systemSchema() {

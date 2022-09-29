@@ -1,4 +1,4 @@
-import { SystemDataModel } from "../../mixin.mjs";
+import SystemDataModel from "../../abstract.mjs";
 
 /**
  * Data model template for equipment that can be mounted on a vehicle.

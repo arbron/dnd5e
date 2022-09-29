@@ -1,5 +1,5 @@
+import SystemDataModel from "../../abstract.mjs";
 import { FormulaField } from "../../fields.mjs";
-import { SystemDataModel } from "../../mixin.mjs";
 
 /**
  * Data model template for item actions.

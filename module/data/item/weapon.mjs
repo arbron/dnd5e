@@ -1,5 +1,5 @@
+import SystemDataModel from "../abstract.mjs";
 import { MappingField } from "../fields.mjs";
-import { SystemDataMixin } from "../mixin.mjs";
 import ActionTemplate from "./templates/action.mjs";
 import ActivatedEffectTemplate from "./templates/activated-effect.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
@@ -19,7 +19,7 @@ import MountableTemplate from "./templates/mountable.mjs";
  * @property {object} properties   Mapping of various weapon property booleans.
  * @property {boolean} proficient  Does the weapon's owner have proficiency?
  */
-export default class WeaponData extends SystemDataMixin(
+export default class WeaponData extends SystemDataModel.mixed(
   ItemDescriptionTemplate, PhysicalItemTemplate, ActivatedEffectTemplate, ActionTemplate, MountableTemplate
 ) {
   static systemSchema() {
