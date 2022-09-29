@@ -1,7 +1,9 @@
 import { SystemDataMixin } from "../mixin.mjs";
-import {
-  ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate, MountableTemplate, PhysicalItemTemplate
-} from "./templates.mjs";
+import ActionTemplate from "./templates/action.mjs";
+import ActivatedEffectTemplate from "./templates/activated-effect.mjs";
+import ItemDescriptionTemplate from "./templates/item-description.mjs";
+import PhysicalItemTemplate from "./templates/physical-item.mjs";
+import MountableTemplate from "./templates/mountable.mjs";
 
 /**
  * Data definition for Equipment items.
@@ -25,10 +27,10 @@ import {
  * @property {boolean} proficient       Does the owner have proficiency in this piece of equipment?
  */
 export default class EquipmentData extends SystemDataMixin(
-  ItemDescriptionTemplate, PhysicalItemTemplate, ActivatedEffectTemplate, ActionTemplate, MountableTemplate) {
-  static defineSchema() {
+  ItemDescriptionTemplate, PhysicalItemTemplate, ActivatedEffectTemplate, ActionTemplate, MountableTemplate
+) {
+  static systemSchema() {
     return {
-      ...this.templateSchema(),
       armor: new foundry.data.fields.SchemaField({
         type: new foundry.data.fields.StringField({
           required: true, initial: "light", choices: CONFIG.DND5E.equipmentTypes, label: "DND5E.ItemEquipmentType"

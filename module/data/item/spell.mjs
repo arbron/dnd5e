@@ -1,6 +1,8 @@
 import { FormulaField, MappingField } from "../fields.mjs";
 import { SystemDataMixin } from "../mixin.mjs";
-import { ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate } from "./templates.mjs";
+import ActionTemplate from "./templates/action.mjs";
+import ActivatedEffectTemplate from "./templates/activated-effect.mjs";
+import ItemDescriptionTemplate from "./templates/item-description.mjs";
 
 /**
  * Data definition for Spell items.
@@ -29,10 +31,10 @@ import { ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate } from
  * @property {string} scaling.formula            Dice formula used for scaling.
  */
 export default class SpellData extends SystemDataMixin(
-  ItemDescriptionTemplate, ActivatedEffectTemplate, ActionTemplate) {
-  static defineSchema() {
+  ItemDescriptionTemplate, ActivatedEffectTemplate, ActionTemplate
+) {
+  static systemSchema() {
     return {
-      ...this.templateSchema(),
       level: new foundry.data.fields.NumberField({
         required: true, integer: true, initial: 1, min: 0, label: "DND5E.SpellLevel"
       }),

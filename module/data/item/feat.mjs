@@ -1,5 +1,7 @@
 import { SystemDataMixin } from "../mixin.mjs";
-import { ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate } from "./templates.mjs";
+import ActionTemplate from "./templates/action.mjs";
+import ActivatedEffectTemplate from "./templates/activated-effect.mjs";
+import ItemDescriptionTemplate from "./templates/item-description.mjs";
 
 /**
  * Data definition for Feature items.
@@ -13,10 +15,10 @@ import { ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate } from
  * @property {boolean} recharge.charged  Does this feature have a charge remaining?
  */
 export default class FeatData extends SystemDataMixin(
-  ItemDescriptionTemplate, ActivatedEffectTemplate, ActionTemplate) {
-  static defineSchema() {
+  ItemDescriptionTemplate, ActivatedEffectTemplate, ActionTemplate
+) {
+  static systemSchema() {
     return {
-      ...this.templateSchema(),
       requirements: new foundry.data.fields.StringField({required: true, label: "DND5E.Requirements"}),
       recharge: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.NumberField({

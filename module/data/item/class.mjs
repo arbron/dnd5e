@@ -1,6 +1,6 @@
 import { IdentifierField } from "../fields.mjs";
 import { SystemDataMixin } from "../mixin.mjs";
-import { ItemDescriptionTemplate } from "./templates.mjs";
+import ItemDescriptionTemplate from "./templates/item-description.mjs";
 
 /**
  * Data definition for Class items.
@@ -21,9 +21,8 @@ import { ItemDescriptionTemplate } from "./templates.mjs";
  * @property {string} spellcasting.ability      Ability score to use for spellcasting.
  */
 export default class ClassData extends SystemDataMixin(ItemDescriptionTemplate) {
-  static defineSchema() {
+  static systemSchema() {
     return {
-      ...this.templateSchema(),
       identifier: new IdentifierField({required: true, label: "DND5E.Identifier"}),
       levels: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, positive: true, initial: 1, label: "DND5E.ClassLevels"

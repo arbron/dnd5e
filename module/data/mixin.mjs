@@ -1,7 +1,7 @@
 /**
  * Data Model variant with some extra methods to support template mixins.
  */
-export class BaseSystemDataModel extends foundry.abstract.DataModel {
+export class SystemDataModel extends foundry.abstract.DataModel {
 
   /**
    * Name of the base templates used for construction.
@@ -11,14 +11,21 @@ export class BaseSystemDataModel extends foundry.abstract.DataModel {
 
   /* -------------------------------------------- */
 
+  /** @inheritdoc */
+  static defineSchema() {
+    let schema = {};
+    this._templates?.forEach(t => schema = { ...schema, ...this[`${t}_systemSchema`]() });
+    return { ...schema, ...this.systemSchema() };
+  }
+
+  /* -------------------------------------------- */
+
   /**
-   * Return the merged template schema.
+   * Specific schema that will be merged with template schema.
    * @returns {object}
    */
-  static templateSchema() {
-    const template = {};
-    this._templates?.forEach(t => foundry.utils.mergeObject(template, this[`${t}_templateSchema`]()));
-    return template;
+  static systemSchema() {
+    return {};
   }
 
   /* -------------------------------------------- */
@@ -39,15 +46,15 @@ export class BaseSystemDataModel extends foundry.abstract.DataModel {
  * @returns {DataModel}
  */
 export function SystemDataMixin(...templates) {
-  const Base = class extends BaseSystemDataModel {};
+  const Base = class extends SystemDataModel {};
 
   Base._templates = [];
   for ( const template of templates ) {
     Base._templates.push(template.name);
     for ( const key of Object.getOwnPropertyNames(template) ) {
       if ( ["length", "migrateData", "name", "prototype"].includes(key) ) continue;
-      if ( key === "templateSchema" ) {
-        Base[`${template.name}_templateSchema`] = template.templateSchema;
+      if ( key === "systemSchema" ) {
+        Base[`${template.name}_systemSchema`] = template.systemSchema;
         continue;
       }
       Base[key] = template[key];

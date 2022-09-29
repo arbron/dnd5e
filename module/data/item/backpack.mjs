@@ -1,5 +1,6 @@
 import { SystemDataMixin } from "../mixin.mjs";
-import { ItemDescriptionTemplate, PhysicalItemTemplate } from "./templates.mjs";
+import ItemDescriptionTemplate from "./templates/item-description.mjs";
+import PhysicalItemTemplate from "./templates/physical-item.mjs";
 import { CurrencyData } from "../actor/common.mjs";
 
 
@@ -15,9 +16,8 @@ import { CurrencyData } from "../actor/common.mjs";
  * @property {CurrencyData} currency        Amount of currency currently held by the container.
  */
 export default class BackpackData extends SystemDataMixin(ItemDescriptionTemplate, PhysicalItemTemplate) {
-  static defineSchema() {
+  static systemSchema() {
     return {
-      ...this.templateSchema(),
       capacity: new foundry.data.fields.SchemaField({
         type: new foundry.data.fields.StringField({
           required: true, initial: "weight", choices: CONFIG.DND5E.itemCapacityTypes,

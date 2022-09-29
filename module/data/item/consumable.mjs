@@ -1,7 +1,8 @@
 import { SystemDataMixin } from "../mixin.mjs";
-import {
-  ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate, PhysicalItemTemplate
-} from "./templates.mjs";
+import ActionTemplate from "./templates/action.mjs";
+import ActivatedEffectTemplate from "./templates/activated-effect.mjs";
+import ItemDescriptionTemplate from "./templates/item-description.mjs";
+import PhysicalItemTemplate from "./templates/physical-item.mjs";
 
 /**
  * Data definition for Consumable items.
@@ -15,12 +16,13 @@ import {
  * @property {boolean} uses.autoDestroy  Should this item be destroyed when it runs out of uses.
  */
 export default class ConsumableData extends SystemDataMixin(
-  ItemDescriptionTemplate, PhysicalItemTemplate, ActivatedEffectTemplate, ActionTemplate) {
-  static defineSchema() {
-    const usesFields = foundry.utils.deepClone(ActivatedEffectTemplate.templateSchema().uses.fields);
+  ItemDescriptionTemplate, PhysicalItemTemplate, ActivatedEffectTemplate, ActionTemplate
+) {
+  static systemSchema() {
+    const usesFields = foundry.utils.deepClone(ActivatedEffectTemplate.systemSchema().uses.fields);
     Object.values(usesFields).forEach(v => v.parent = undefined);
+
     return {
-      ...this.templateSchema(),
       consumableType: new foundry.data.fields.StringField({
         required: true, initial: "potion", choices: CONFIG.DND5E.consumableTypes, label: "DND5E.ItemConsumableType"
       }),

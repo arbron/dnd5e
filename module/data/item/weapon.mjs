@@ -1,8 +1,10 @@
 import { MappingField } from "../fields.mjs";
 import { SystemDataMixin } from "../mixin.mjs";
-import {
-  ActionTemplate, ActivatedEffectTemplate, ItemDescriptionTemplate, MountableTemplate, PhysicalItemTemplate
-} from "./templates.mjs";
+import ActionTemplate from "./templates/action.mjs";
+import ActivatedEffectTemplate from "./templates/activated-effect.mjs";
+import ItemDescriptionTemplate from "./templates/item-description.mjs";
+import PhysicalItemTemplate from "./templates/physical-item.mjs";
+import MountableTemplate from "./templates/mountable.mjs";
 
 /**
  * Data definition for Weapon items.
@@ -18,10 +20,10 @@ import {
  * @property {boolean} proficient  Does the weapon's owner have proficiency?
  */
 export default class WeaponData extends SystemDataMixin(
-  ItemDescriptionTemplate, PhysicalItemTemplate, ActivatedEffectTemplate, ActionTemplate, MountableTemplate) {
-  static defineSchema() {
+  ItemDescriptionTemplate, PhysicalItemTemplate, ActivatedEffectTemplate, ActionTemplate, MountableTemplate
+) {
+  static systemSchema() {
     return {
-      ...this.templateSchema(),
       weaponType: new foundry.data.fields.StringField({
         required: true, initial: "simpleM", choices: CONFIG.DND5E.weaponTypes, label: "DND5E.ItemWeaponType"
       }),

@@ -1,6 +1,7 @@
 import { FormulaField } from "../fields.mjs";
 import { SystemDataMixin } from "../mixin.mjs";
-import { ItemDescriptionTemplate, PhysicalItemTemplate } from "./templates.mjs";
+import ItemDescriptionTemplate from "./templates/item-description.mjs";
+import PhysicalItemTemplate from "./templates/physical-item.mjs";
 
 /**
  * Data definition for Tool items.
@@ -15,9 +16,8 @@ import { ItemDescriptionTemplate, PhysicalItemTemplate } from "./templates.mjs";
  * @property {string} bonus       Bonus formula added to tool rolls.
  */
 export default class ToolData extends SystemDataMixin(ItemDescriptionTemplate, PhysicalItemTemplate) {
-  static defineSchema() {
+  static systemSchema() {
     return {
-      ...this.templateSchema(),
       toolType: new foundry.data.fields.StringField({required: true, label: "DND5E.ItemToolType"}),
       baseItem: new foundry.data.fields.StringField({
         required: true, blank: true, choices: CONFIG.DND5E.toolIds, label: "DND5E.ItemToolBase"
