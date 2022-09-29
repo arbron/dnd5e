@@ -30,10 +30,19 @@ export default class SystemDataModel extends foundry.abstract.DataModel {
 
   /* -------------------------------------------- */
 
+  /**
+   * List of all template migrations to apply.
+   * @type {string[]}
+   */
+  static _migrations;
+
+  /* -------------------------------------------- */
+
   /** @inheritdoc */
   static migrateData(source) {
+    this._migrations?.forEach(k => this[k](source));
     for ( const key of Object.getOwnPropertyNames(this) ) {
-      if ( (key === "migrateData") || !key.startsWith("migrate") ) continue;
+      if ( (key === "migrateData") || !key.startsWith("migrate") || this._migrations?.includes(key) ) continue;
       this[key](source);
     }
     return super.migrateData(source);
@@ -50,14 +59,16 @@ export default class SystemDataModel extends foundry.abstract.DataModel {
     const Base = class extends this {};
 
     Base._templates = [];
+    Base._migrations = [];
     for ( const template of templates ) {
       Base._templates.push(template.name);
       for ( const key of Object.getOwnPropertyNames(template) ) {
-        if ( ["length", "migrateData", "name", "prototype"].includes(key) ) continue;
+        if ( ["length", "migrateData", "mixed", "name", "prototype"].includes(key) ) continue;
         if ( key === "systemSchema" ) {
           Base[`${template.name}_systemSchema`] = template.systemSchema;
           continue;
         }
+        if ( key.startsWith("migrate") ) Base._migrations.push(key);
         Base[key] = template[key];
       }
       for ( const key of Object.getOwnPropertyNames(template.prototype) ) {

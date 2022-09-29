@@ -52,7 +52,7 @@ export default class PhysicalItemTemplate extends SystemDataModel {
    * Migrate the item's rarity from freeform string to enum value.
    * @param {object} source  The candidate source data from which the model will be constructed.
    */
-  static migrateRaritydata(source) {
+  static migrateRarityData(source) {
     if ( !source.rarity ) return;
     const rarity = Object.keys(CONFIG.DND5E.itemRarity).find(key =>
       (CONFIG.DND5E.itemRarity[key].toLowerCase() === source.rarity.toLowerCase()) || (key === source.rarity)

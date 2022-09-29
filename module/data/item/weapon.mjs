@@ -36,4 +36,17 @@ export default class WeaponData extends SystemDataModel.mixed(
       proficient: new foundry.data.fields.BooleanField({required: true, initial: true, label: "DND5E.Proficient"})
     };
   }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Migrate the weapons's properties object to remove any old, non-boolean values.
+   * @param {object} source  The candidate source data from which the model will be constructed.
+   */
+  static migratePropertiesData(source) {
+    if ( !source.properties ) return;
+    for ( const [key, value] of Object.entries(source.properties) ) {
+      if ( typeof value !== "boolean" ) delete source.properties[key];
+    }
+  }
 }

@@ -68,7 +68,7 @@ export default class SpellData extends SystemDataModel.mixed(
   /* -------------------------------------------- */
 
   /**
-   * Migrate the spell's component data to remove any old, non-boolean values.
+   * Migrate the spell's component object to remove any old, non-boolean values.
    * @param {object} source  The candidate source data from which the model will be constructed.
    */
   static migrateComponentData(source) {
