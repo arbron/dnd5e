@@ -16,6 +16,7 @@ import registerSystemSettings from "./module/settings.mjs";
 import * as advancement from "./module/advancement/_module.mjs";
 import * as applications from "./module/applications/_module.mjs";
 import * as canvas from "./module/canvas/_module.mjs";
+import * as dataModels from "./module/data/_module.mjs";
 import * as dice from "./module/dice/_module.mjs";
 import * as documents from "./module/documents/_module.mjs";
 import * as migrations from "./module/migration.mjs";
@@ -30,6 +31,7 @@ globalThis.dnd5e = {
   applications,
   canvas,
   config: DND5E,
+  dataModels,
   dice,
   documents,
   migrations,
@@ -112,6 +114,9 @@ Hooks.once("init", function() {
   // Register Roll Extensions
   CONFIG.Dice.rolls.push(dice.D20Roll);
   CONFIG.Dice.rolls.push(dice.DamageRoll);
+
+  // Hook up system data types
+  CONFIG.Item.systemDataModels = dataModels.item.config;
 
   // Register sheet application classes
   Actors.unregisterSheet("core", ActorSheet);
@@ -237,6 +242,7 @@ export {
   advancement,
   applications,
   canvas,
+  dataModels,
   dice,
   documents,
   migrations,
