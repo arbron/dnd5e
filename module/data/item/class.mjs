@@ -27,9 +27,7 @@ export default class ClassData extends SystemDataModel.mixed(ItemDescriptionTemp
       levels: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, positive: true, initial: 1, label: "DND5E.ClassLevels"
       }),
-      hitDice: new foundry.data.fields.StringField({
-        required: true, initial: "d6", choices: CONFIG.DND5E.hitDieTypes, label: "DND5E.HitDice"
-      }),
+      hitDice: new foundry.data.fields.StringField({required: true, initial: "d6", label: "DND5E.HitDice"}),
       hitDiceUsed: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.HitDiceUsed"
       }),
@@ -37,30 +35,24 @@ export default class ClassData extends SystemDataModel.mixed(ItemDescriptionTemp
       advancement: new foundry.data.fields.ArrayField(
         new foundry.data.fields.ObjectField(), {label: "DND5E.AdvancementTitle"}
       ),
-      saves: new foundry.data.fields.ArrayField(
-        new foundry.data.fields.StringField({choices: CONFIG.DND5E.abilities, label: "DND5E.Ability"}), {label: "DND5E.ClassSaves"}
-      ),
+      saves: new foundry.data.fields.ArrayField(new foundry.data.fields.StringField(), {label: "DND5E.ClassSaves"}),
       skills: new foundry.data.fields.SchemaField({
         number: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 2, label: "DND5E.ClassSkillsNumber"
         }),
         choices: new foundry.data.fields.ArrayField(
-          new foundry.data.fields.StringField({
-            choices: CONFIG.DND5E.skills, label: "DND5E.Skill"
-          }), {label: "DND5E.ClassSkillsEligible"}
+          new foundry.data.fields.StringField({label: "DND5E.Skill"}), {label: "DND5E.ClassSkillsEligible"}
         ),
         value: new foundry.data.fields.ArrayField(
-          new foundry.data.fields.StringField({
-            choices: CONFIG.DND5E.skills, label: "DND5E.Skill"
-          }), {label: "DND5E.ClassSkillsChosen"}
+          new foundry.data.fields.StringField({label: "DND5E.Skill"}), {label: "DND5E.ClassSkillsChosen"}
         )
       }, {label: "DND5E.Skills"}),
       spellcasting: new foundry.data.fields.SchemaField({
         progression: new foundry.data.fields.StringField({
-          required: true, initial: "none", choices: CONFIG.DND5E.spellProgression, label: "DND5E.SpellProgression"
+          required: true, initial: "none", label: "DND5E.SpellProgression"
         }),
         ability: new foundry.data.fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.abilities, label: "DND5E.SpellAbility"
+          required: true, blank: true, label: "DND5E.SpellAbility"
         })
       }, {label: "DND5E.Spellcasting"})
     };

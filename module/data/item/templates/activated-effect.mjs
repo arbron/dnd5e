@@ -33,9 +33,7 @@ export default class ActivatedEffectTemplate extends SystemDataModel {
   static systemSchema() {
     return {
       activation: new foundry.data.fields.SchemaField({
-        type: new foundry.data.fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.abilityActivationTypes, label: ""
-        }),
+        type: new foundry.data.fields.StringField({required: true, blank: true, label: ""}),
         cost: new foundry.data.fields.NumberField({
           required: true, nullable: false, initial: 0, label: "DND5E.ItemActivationCost"
         }),
@@ -43,26 +41,18 @@ export default class ActivatedEffectTemplate extends SystemDataModel {
       }, {label: ""}),
       duration: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.NumberField({required: true, min: 0, label: ""}),
-        units: new foundry.data.fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.timePeriods, label: ""
-        })
+        units: new foundry.data.fields.StringField({required: true, blank: true, label: ""})
       }, {label: ""}),
       target: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.NumberField({required: true, min: 0, label: ""}),
         width: new foundry.data.fields.NumberField({required: true, min: 0, label: ""}),
-        units: new foundry.data.fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.distanceUnits, label: ""
-        }),
-        type: new foundry.data.fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.targetTypes, label: ""
-        })
+        units: new foundry.data.fields.StringField({required: true, blank: true, label: ""}),
+        type: new foundry.data.fields.StringField({required: true, blank: true, label: ""})
       }, {label: "DND5E.Target"}),
       range: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.NumberField({required: true, min: 0, label: "DND5E.RangeNormal"}),
         long: new foundry.data.fields.NumberField({required: true, min: 0, label: "DND5E.RangeLong"}),
-        units: new foundry.data.fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.distanceUnits, label: "DND5E.RangeUnits"
-        })
+        units: new foundry.data.fields.StringField({required: true, blank: true, label: "DND5E.RangeUnits"})
       }, {label: "DND5E.Range"}),
       uses: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.NumberField({required: true, min: 0, label: "DND5E.LimitedUsesAvailable"}),
@@ -74,14 +64,22 @@ export default class ActivatedEffectTemplate extends SystemDataModel {
         recovery: new FormulaField({required: true, label: "DND5E.RecoveryFormula"})
       }, {label: "DND5E.LimitedUses"}),
       consume: new foundry.data.fields.SchemaField({
-        type: new foundry.data.fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.abilityConsumptionTypes, label: "DND5E.ConsumeType"
-        }),
+        type: new foundry.data.fields.StringField({required: true, blank: true, label: "DND5E.ConsumeType"}),
         target: new foundry.data.fields.StringField({
           required: true, blank: false, nullable: true, initial: null, label: "DND5E.ConsumeTarget"
         }),
         amount: new foundry.data.fields.NumberField({required: true, label: "DND5E.ConsumeAmount"})
       }, {label: "DND5E.ConsumeTitle"})
     };
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Ensure a 0 in max uses is converted to an empty string rather than "0".
+   * @param {object} source  The candidate source data from which the model will be constructed.
+   */
+  static migrateMaxUses(source) {
+    if ( (source.uses?.max === 0) || (source.uses?.max === "0") ) source.uses.max = "";
   }
 }

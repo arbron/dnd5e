@@ -24,13 +24,10 @@ export default class PhysicalItemTemplate extends SystemDataModel {
         required: true, nullable: false, initial: 0, min: 0, label: "DND5E.Price"
       }),
       attunement: new foundry.data.fields.NumberField({
-        required: true, integer: true, initial: CONFIG.DND5E.attunementTypes.NONE,
-        choices: Object.values(CONFIG.DND5E.attunementTypes), label: "DND5E.Attunement"
+        required: true, integer: true, initial: CONFIG.DND5E.attunementTypes.NONE, label: "DND5E.Attunement"
       }),
       equipped: new foundry.data.fields.BooleanField({required: true, label: "DND5E.Equipped"}),
-      rarity: new foundry.data.fields.StringField({
-        required: true, blank: true, choices: CONFIG.DND5E.itemRarity, label: "DND5E.Rarity"
-      }),
+      rarity: new foundry.data.fields.StringField({required: true, blank: true, label: "DND5E.Rarity"}),
       identified: new foundry.data.fields.BooleanField({required: true, initial: true, label: "DND5E.Identified"})
     };
   }
@@ -41,7 +38,7 @@ export default class PhysicalItemTemplate extends SystemDataModel {
    * Migrate the item's attuned boolean to attunement string.
    * @param {object} source  The candidate source data from which the model will be constructed.
    */
-  static migrateAttunementData(source) {
+  static migrateAttunement(source) {
     if ( (source.attuned === undefined) || (source.attunement !== undefined) ) return;
     source.attunement = source.attuned ? CONFIG.DND5E.attunementTypes.ATTUNED : CONFIG.DND5E.attunementTypes.NONE;
   }
@@ -52,7 +49,7 @@ export default class PhysicalItemTemplate extends SystemDataModel {
    * Migrate the item's rarity from freeform string to enum value.
    * @param {object} source  The candidate source data from which the model will be constructed.
    */
-  static migrateRarityData(source) {
+  static migrateRarity(source) {
     if ( !source.rarity ) return;
     const rarity = Object.keys(CONFIG.DND5E.itemRarity).find(key =>
       (CONFIG.DND5E.itemRarity[key].toLowerCase() === source.rarity.toLowerCase()) || (key === source.rarity)

@@ -59,14 +59,9 @@ export class NPCDetailsData extends creature.CreatureDetailsData {
     return {
       ...super.defineSchema(),
       type: new foundry.data.fields.SchemaField({
-        value: new foundry.data.fields.StringField({
-          required: true, blank: true, choices: [...Object.keys(CONFIG.DND5E.creatureTypes), "custom"],
-          label: "DND5E.CreatureType"
-        }),
+        value: new foundry.data.fields.StringField({required: true, blank: true, label: "DND5E.CreatureType"}),
         subtype: new foundry.data.fields.StringField({required: true, label: "DND5E.CreatureTypeSelectorSubtype"}),
-        swarm: new foundry.data.fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.actorSizes, label: "DND5E.CreatureSwarmSize"
-        }),
+        swarm: new foundry.data.fields.StringField({required: true, blank: true, label: "DND5E.CreatureSwarmSize"}),
         custom: new foundry.data.fields.StringField({required: true, label: "DND5E.CreatureTypeSelectorCustom"})
       }, {label: "DND5E.CreatureType"}),
       environment: new foundry.data.fields.StringField({required: true, label: "DND5E.Environment"}),

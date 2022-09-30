@@ -19,11 +19,9 @@ export default class ToolData extends SystemDataModel.mixed(ItemDescriptionTempl
   static systemSchema() {
     return {
       toolType: new foundry.data.fields.StringField({required: true, label: "DND5E.ItemToolType"}),
-      baseItem: new foundry.data.fields.StringField({
-        required: true, blank: true, choices: CONFIG.DND5E.toolIds, label: "DND5E.ItemToolBase"
-      }),
+      baseItem: new foundry.data.fields.StringField({required: true, blank: true, label: "DND5E.ItemToolBase"}),
       ability: new foundry.data.fields.StringField({
-        required: true, initial: "int", choices: CONFIG.DND5E.abilities, label: "DND5E.DefaultAbilityCheck"
+        required: true, initial: "int", label: "DND5E.DefaultAbilityCheck"
       }),
       chatFlavor: new foundry.data.fields.StringField({required: true, label: "DND5E.ChatFlavor"}),
       proficient: new foundry.data.fields.NumberField({

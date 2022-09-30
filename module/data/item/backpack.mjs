@@ -20,8 +20,7 @@ export default class BackpackData extends SystemDataModel.mixed(ItemDescriptionT
     return {
       capacity: new foundry.data.fields.SchemaField({
         type: new foundry.data.fields.StringField({
-          required: true, initial: "weight", choices: CONFIG.DND5E.itemCapacityTypes,
-          label: "DND5E.ItemContainerCapacityType"
+          required: true, initial: "weight", label: "DND5E.ItemContainerCapacityType"
         }),
         value: new foundry.data.fields.NumberField({
           required: true, nullable: false, initial: 0, min: 0, label: "DND5E.ItemContainerCapacityMax"

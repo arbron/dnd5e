@@ -79,9 +79,7 @@ export class AbilityData extends foundry.abstract.DataModel {
       value: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, min: 0, initial: 10, label: "DND5E.AbilityScore"
       }),
-      proficient: new foundry.data.fields.NumberField({
-        required: true, initial: 0, choices: CONFIG.DND5E.proficiencyLevels, label: "DND5E.ProficiencyLevel"
-      }),
+      proficient: new foundry.data.fields.NumberField({required: true, initial: 0, label: "DND5E.ProficiencyLevel"}),
       bonuses: new foundry.data.fields.SchemaField({
         check: new FormulaField({required: true, label: "DND5E.AbilityCheckBonus"}),
         save: new FormulaField({required: true, label: "DND5E.SaveBonus"})
@@ -170,9 +168,7 @@ export class AttributeData extends foundry.abstract.DataModel {
         walk: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 30, label: "DND5E.MovementWalk"
         }),
-        units: new foundry.data.fields.StringField({
-          required: true, initial: "ft", choices: CONFIG.DND5E.movementUnits, label: "DND5E.MovementUnits"
-        }),
+        units: new foundry.data.fields.StringField({required: true, initial: "ft", label: "DND5E.MovementUnits"}),
         hover: new foundry.data.fields.BooleanField({label: "DND5E.MovementHover"})
       }, {label: "DND5E.Movement"})
     };
@@ -267,30 +263,30 @@ export class TraitsData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       size: new foundry.data.fields.StringField({
-        required: true, initial: "med", choices: CONFIG.DND5E.actorSizes, label: "DND5E.Size"
+        required: true, initial: "med", label: "DND5E.Size"
       }),
       di: new foundry.data.fields.SchemaField({
-        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({
-          blank: false, choices: CONFIG.DND5E.damageResistanceTypes
-        }), {label: "DND5E.TraitsChosen"}),
+        value: new foundry.data.fields.SetField(
+          new foundry.data.fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}
+        ),
         custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamImm"}),
       dr: new foundry.data.fields.SchemaField({
-        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({
-          blank: false, choices: CONFIG.DND5E.damageResistanceTypes
-        }), {label: "DND5E.TraitsChosen"}),
+        value: new foundry.data.fields.SetField(
+          new foundry.data.fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}
+        ),
         custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamRes"}),
       dv: new foundry.data.fields.SchemaField({
-        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({
-          blank: false, choices: CONFIG.DND5E.damageResistanceTypes
-        }), {label: "DND5E.TraitsChosen"}),
+        value: new foundry.data.fields.SetField(
+          new foundry.data.fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}
+        ),
         custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.DamVuln"}),
       ci: new foundry.data.fields.SchemaField({
-        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({
-          blank: false, choices: CONFIG.DND5E.conditionTypes
-        }), {label: "DND5E.TraitsChosen"}),
+        value: new foundry.data.fields.SetField(
+          new foundry.data.fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}
+        ),
         custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.ConImm"})
     };

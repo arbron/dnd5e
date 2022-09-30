@@ -24,7 +24,7 @@ export default class ConsumableData extends SystemDataModel.mixed(
 
     return {
       consumableType: new foundry.data.fields.StringField({
-        required: true, initial: "potion", choices: CONFIG.DND5E.consumableTypes, label: "DND5E.ItemConsumableType"
+        required: true, initial: "potion", label: "DND5E.ItemConsumableType"
       }),
       uses: new foundry.data.fields.SchemaField({
         ...usesFields,

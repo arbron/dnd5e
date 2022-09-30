@@ -46,20 +46,21 @@ export default class SpellData extends SystemDataModel.mixed(
       materials: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.StringField({required: true, label: "DND5E.SpellMaterialsDescription"}),
         consumed: new foundry.data.fields.BooleanField({required: true, label: "DND5E.SpellMaterialsConsumed"}),
-        cost: new foundry.data.fields.NumberField({required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsCost"}),
-        supply: new foundry.data.fields.NumberField({required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsSupply"})
+        cost: new foundry.data.fields.NumberField({
+          required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsCost"
+        }),
+        supply: new foundry.data.fields.NumberField({
+          required: true, initial: 0, min: 0, label: "DND5E.SpellMaterialsSupply"
+        })
       }, {label: "DND5E.SpellMaterials"}),
       preparation: new foundry.data.fields.SchemaField({
         mode: new foundry.data.fields.StringField({
-          required: true, initial: "prepared", choices: CONFIG.DND5E.spellPreparationModes,
-          label: "DND5E.SpellPreparationMode"
+          required: true, initial: "prepared", label: "DND5E.SpellPreparationMode"
         }),
         prepared: new foundry.data.fields.BooleanField({required: true, label: "DND5E.SpellPrepared"})
       }, {label: "DND5E.SpellPreparation"}),
       scaling: new foundry.data.fields.SchemaField({
-        mode: new foundry.data.fields.StringField({
-          required: true, initial: "none", choices: CONFIG.DND5E.spellScalingModes, label: "DND5E.ScalingMode"
-        }),
+        mode: new foundry.data.fields.StringField({required: true, initial: "none", label: "DND5E.ScalingMode"}),
         formula: new FormulaField({required: true, nullable: true, initial: null, label: "DND5E.ScalingFormula"})
       }, {label: "DND5E.LevelScaling"})
     };

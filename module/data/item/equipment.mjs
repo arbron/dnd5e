@@ -33,13 +33,13 @@ export default class EquipmentData extends SystemDataModel.mixed(
     return {
       armor: new foundry.data.fields.SchemaField({
         type: new foundry.data.fields.StringField({
-          required: true, initial: "light", choices: CONFIG.DND5E.equipmentTypes, label: "DND5E.ItemEquipmentType"
+          required: true, initial: "light", label: "DND5E.ItemEquipmentType"
         }),
         value: new foundry.data.fields.NumberField({required: true, integer: true, min: 0, label: "DND5E.ArmorClass"}),
         dex: new foundry.data.fields.NumberField({required: true, integer: true, label: "DND5E.ItemEquipmentDexMod"})
       }, {label: ""}),
       baseItem: new foundry.data.fields.StringField({
-        required: true, blank: true, choices: CONFIG.DND5E.armorIds, label: "DND5E.ItemEquipmentBase"
+        required: true, blank: true, label: "DND5E.ItemEquipmentBase"
       }),
       speed: new foundry.data.fields.SchemaField({
         value: new foundry.data.fields.NumberField({required: true, min: 0, label: "DND5E.Speed"}),

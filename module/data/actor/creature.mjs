@@ -78,13 +78,11 @@ export class CreatureAttributeData extends common.AttributeData {
         truesight: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.SenseTruesight"
         }),
-        units: new foundry.data.fields.StringField({
-          required: true, initial: "ft", choices: CONFIG.DND5E.movementUnits, label: "DND5E.SenseUnits"
-        }),
+        units: new foundry.data.fields.StringField({required: true, initial: "ft", label: "DND5E.SenseUnits"}),
         special: new foundry.data.fields.StringField({required: true, label: "DND5E.SenseSpecial"})
       }, {label: "DND5E.Senses"}),
       spellcasting: new foundry.data.fields.StringField({
-        required: true, blank: true, initial: "int", choices: CONFIG.DND5E.abilities, label: "DND5E.SpellAbility"
+        required: true, blank: true, initial: "int", label: "DND5E.SpellAbility"
       })
     };
   }
@@ -121,11 +119,11 @@ export class SkillData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
       value: new foundry.data.fields.NumberField({
-        required: true, initial: 0, choices: CONFIG.DND5E.proficiencyLevels, label: "DND5E.ProficiencyLevel"
+        required: true, initial: 0, label: "DND5E.ProficiencyLevel"
       }),
       // TODO: Default abilities for skills are not filled properly
       ability: new foundry.data.fields.StringField({
-        required: true, initial: "dex", choices: CONFIG.DND5E.abilities, label: "DND5E.Ability"
+        required: true, initial: "dex", label: "DND5E.Ability"
       }),
       bonuses: new foundry.data.fields.SchemaField({
         check: new FormulaField({required: true, label: "DND5E.SkillBonusCheck"}),
@@ -148,9 +146,9 @@ export class CreatureTraitsData extends common.TraitsData {
     return {
       ...super.defineSchema(),
       languages: new foundry.data.fields.SchemaField({
-        value: new foundry.data.fields.SetField(new foundry.data.fields.StringField({
-          blank: false, choices: CONFIG.DND5E.languages
-        }), {label: "DND5E.TraitsChosen"}),
+        value: new foundry.data.fields.SetField(
+          new foundry.data.fields.StringField({blank: false}), {label: "DND5E.TraitsChosen"}
+        ),
         custom: new foundry.data.fields.StringField({required: true, label: "DND5E.Special"})
       }, {label: "DND5E.Languages"})
     };

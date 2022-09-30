@@ -25,10 +25,10 @@ export default class WeaponData extends SystemDataModel.mixed(
   static systemSchema() {
     return {
       weaponType: new foundry.data.fields.StringField({
-        required: true, initial: "simpleM", choices: CONFIG.DND5E.weaponTypes, label: "DND5E.ItemWeaponType"
+        required: true, initial: "simpleM", label: "DND5E.ItemWeaponType"
       }),
       baseItem: new foundry.data.fields.StringField({
-        required: true, blank: true, choices: CONFIG.DND5E.weaponIds, label: "DND5E.ItemWeaponBase"
+        required: true, blank: true, label: "DND5E.ItemWeaponBase"
       }),
       properties: new MappingField(new foundry.data.fields.BooleanField(), {
         required: true, initialKeys: CONFIG.DND5E.weaponProperties, label: "DND5E.ItemWeaponProperties"

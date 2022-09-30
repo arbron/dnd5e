@@ -26,11 +26,9 @@ export default class SubclassData extends SystemDataModel.mixed(ItemDescriptionT
       ),
       spellcasting: new foundry.data.fields.SchemaField({
         progression: new foundry.data.fields.StringField({
-          required: true, initial: "none", choices: CONFIG.DND5E.spellProgression, label: "DND5E.SpellProgression"
+          required: true, initial: "none", label: "DND5E.SpellProgression"
         }),
-        ability: new foundry.data.fields.StringField({
-          required: true, blank: true, choices: CONFIG.DND5E.abilities, label: "DND5E.SpellAbility"
-        })
+        ability: new foundry.data.fields.StringField({required: true, blank: true, label: "DND5E.SpellAbility"})
       }, {label: "DND5E.Spellcasting"})
     };
   }

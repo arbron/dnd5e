@@ -15,9 +15,7 @@ export class VehicleData extends common.CommonData {
   static defineSchema() {
     return {
       ...super.defineSchema(),
-      vehicleType: new foundry.data.fields.StringField({
-        required: true, initial: "water", choices: CONFIG.DND5E.vehicleTypes, label: "DND5E.VehicleType"
-      }),
+      vehicleType: new foundry.data.fields.StringField({required: true, initial: "water", label: "DND5E.VehicleType"}),
       // TODO: Mental abilities should default to zero
       attributes: new foundry.data.fields.EmbeddedDataField(VehicleAttributeData, {label: "DND5E.Attributes"}),
       traits: new foundry.data.fields.EmbeddedDataField(VehicleTraitsData, {label: "DND5E.Traits"}),
