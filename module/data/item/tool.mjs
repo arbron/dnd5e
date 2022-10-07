@@ -30,4 +30,13 @@ export default class ToolData extends SystemDataModel.mixin(ItemDescriptionTempl
       bonus: new FormulaField({required: true, label: "DND5E.ItemToolBonus"})
     };
   }
+
+  /* -------------------------------------------- */
+  /*  Getters                                     */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  get _typeAbilityMod() {
+    return "int";
+  }
 }

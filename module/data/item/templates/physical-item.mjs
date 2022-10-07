@@ -33,6 +33,8 @@ export default class PhysicalItemTemplate extends SystemDataModel {
   }
 
   /* -------------------------------------------- */
+  /*  Migrations                                  */
+  /* -------------------------------------------- */
 
   /**
    * Migrate the item's attuned boolean to attunement string.

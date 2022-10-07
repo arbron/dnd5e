@@ -52,6 +52,8 @@ export default class EquipmentData extends SystemDataModel.mixin(
   }
 
   /* -------------------------------------------- */
+  /*  Migrations                                  */
+  /* -------------------------------------------- */
 
   /**
    * Migrate "bonus" armor subtypes to "trinket".
@@ -61,5 +63,15 @@ export default class EquipmentData extends SystemDataModel.mixin(
     if ( source.armor?.type !== "bonus" ) return;
     source.armor ??= {};
     source.armor.type = "trinket";
+  }
+
+  /* -------------------------------------------- */
+  /*  Preparation                                 */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  prepareDerivedEquipmentLabels() {
+    const labels = this.parent.labels ??= {};
+    labels.armor = this.armor.value ? `${this.armor.value} ${game.i18n.localize("DND5E.AC")}` : "";
   }
 }

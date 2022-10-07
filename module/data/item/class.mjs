@@ -1,16 +1,17 @@
 import SystemDataModel from "../abstract.mjs";
 import { IdentifierField } from "../fields.mjs";
+import AdvancementTemplate from "./templates/advancement.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
 
 /**
  * Data definition for Class items.
  * @see ItemDescriptionTemplate
+ * @see AdvancementTemplate
  *
  * @property {string} identifier        Identifier slug for this class.
  * @property {number} levels            Current number of levels in this class.
  * @property {string} hitDice           Denomination of hit dice available as defined in `DND5E.hitDieTypes`.
  * @property {number} hitDiceUsed       Number of hit dice consumed.
- * @property {object[]} advancement     Advancement objects for this class.
  * @property {string[]} saves           Savings throws in which this class grants proficiency.
  * @property {object} skills            Available class skills and selected skills.
  * @property {number} skills.number     Number of skills selectable by the player.
@@ -20,7 +21,7 @@ import ItemDescriptionTemplate from "./templates/item-description.mjs";
  * @property {string} spellcasting.progression  Spell progression granted by class as from `DND5E.spellProgression`.
  * @property {string} spellcasting.ability      Ability score to use for spellcasting.
  */
-export default class ClassData extends SystemDataModel.mixin(ItemDescriptionTemplate) {
+export default class ClassData extends SystemDataModel.mixin(ItemDescriptionTemplate, AdvancementTemplate) {
   static systemSchema() {
     return {
       identifier: new IdentifierField({required: true, label: "DND5E.Identifier"}),
@@ -31,10 +32,6 @@ export default class ClassData extends SystemDataModel.mixin(ItemDescriptionTemp
       hitDiceUsed: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.HitDiceUsed"
       }),
-      // TODO: Convert to proper advancement data when #1812 is merged
-      advancement: new foundry.data.fields.ArrayField(
-        new foundry.data.fields.ObjectField(), {label: "DND5E.AdvancementTitle"}
-      ),
       saves: new foundry.data.fields.ArrayField(new foundry.data.fields.StringField(), {label: "DND5E.ClassSaves"}),
       skills: new foundry.data.fields.SchemaField({
         number: new foundry.data.fields.NumberField({
@@ -59,6 +56,8 @@ export default class ClassData extends SystemDataModel.mixin(ItemDescriptionTemp
   }
 
   /* -------------------------------------------- */
+  /*  Migrations                                  */
+  /* -------------------------------------------- */
 
   /**
    * Migrate the class's spellcasting string to object.
@@ -70,5 +69,18 @@ export default class ClassData extends SystemDataModel.mixin(ItemDescriptionTemp
       progression: source.spellcasting,
       ability: ""
     };
+  }
+
+  /* -------------------------------------------- */
+  /*  Preparation                                 */
+  /* -------------------------------------------- */
+
+  /**
+   * Store the original class value within system data so it can be available when class is converted
+   * to an object for display on the actor sheet.
+   */
+  prepareFinalOriginalClassData() {
+    this.isOriginalClass = this.parent.isOriginalClass;
+    // TODO: Unfortunately DataModel#toObject(false) doesn't retain any newly added fields so this no longer works
   }
 }

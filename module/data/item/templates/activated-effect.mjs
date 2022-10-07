@@ -74,6 +74,8 @@ export default class ActivatedEffectTemplate extends SystemDataModel {
   }
 
   /* -------------------------------------------- */
+  /*  Migrations                                  */
+  /* -------------------------------------------- */
 
   /**
    * Ensure a 0 in max uses is converted to an empty string rather than "0".
@@ -81,5 +83,97 @@ export default class ActivatedEffectTemplate extends SystemDataModel {
    */
   static migrateMaxUses(source) {
     if ( (source.uses?.max === 0) || (source.uses?.max === "0") ) source.uses.max = "";
+  }
+
+  /* -------------------------------------------- */
+  /*  Getters                                     */
+  /* -------------------------------------------- */
+
+  /**
+   * Does the Item have an area of effect target?
+   * @type {boolean}
+   */
+  get hasAreaTarget() {
+    return this.target.type in CONFIG.DND5E.areaTargetTypes;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Does the Item target one or more distinct targets.
+   * @type {boolean}
+   */
+  get hasIndividualTarget() {
+    return this.target.type in CONFIG.DND5E.individualTargetTypes;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Is this Item limited in its ability to be used by charges or by recharge?
+   * @type {boolean}
+   */
+  get hasLimitedUses() {
+    return this.uses.per && (this.uses.max > 0);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Does the Item have a target?
+   * @type {boolean}
+   */
+  get hasTarget() {
+    return !["none", ""].includes(this.target.type);
+  }
+
+  /* -------------------------------------------- */
+  /*  Preparation                                 */
+  /* -------------------------------------------- */
+
+  /**
+   * Reset certain values if their types or units don't accept values.
+   */
+  prepareBaseActivationData() {
+    // Target values
+    if ( ["none", "self"].includes(this.target.type) ) this.target.value = this.target.units = null;
+    else if ( ["none", "touch", "self"].includes(this.target.units) ) this.target.value = null;
+
+    // Range values
+    if ( ["none", "touch", "self"].includes(this.range.units) ) this.range.value = this.range.long = null;
+
+    // Duration values
+    if ( ["inst", "perm"].includes(this.duration.units) ) this.duration.value = null;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Prepare labels for activated effects.
+   */
+  prepareDerivedActivationLabels() {
+    const labels = this.parent.labels ??= {};
+
+    labels.activation = [
+      this.activation.cost,
+      CONFIG.DND5E.abilityActivationTypes[this.activation.type]
+    ].filterJoin(" ");
+
+    labels.target = [
+      this.target.value,
+      CONFIG.DND5E.distanceUnits[this.target.units],
+      CONFIG.DND5E.targetTypes[this.target.type]
+    ].filterJoin(" ");
+
+    labels.range = [
+      this.range.value,
+      this.range.long ? `/ ${this.range.long}` : null,
+      CONFIG.DND5E.distanceUnits[this.range.units]
+    ].filterJoin(" ");
+
+    labels.duration = [
+      this.duration.value,
+      CONFIG.DND5E.timePeriods[this.duration.units]
+    ].filterJoin(" ");
   }
 }

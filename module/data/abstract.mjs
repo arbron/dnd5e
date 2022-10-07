@@ -31,20 +31,24 @@ export default class SystemDataModel extends foundry.abstract.DataModel {
   /* -------------------------------------------- */
 
   /**
-   * List of all template migrations to apply.
-   * @type {string[]}
+   * Helper methods to get all enumerable methods, inherited or own, for the provided object.
+   * @param {object} object          Source of the methods to fetch.
+   * @param {string} [startingWith]  Optional filtering string.
+   * @returns {string[]}             Array of method keys.
    */
-  static _migrations;
+  static _getMethods(object, startingWith) {
+    let keys = [];
+    for ( const key in object ) { keys.push(key); }
+    keys.push(...Object.getOwnPropertyNames(object));
+    if ( startingWith ) keys = keys.filter(key => key.startsWith(startingWith));
+    return keys;
+  }
 
   /* -------------------------------------------- */
 
   /** @inheritdoc */
   static migrateData(source) {
-    this._migrations?.forEach(k => this[k](source));
-    for ( const key of Object.getOwnPropertyNames(this) ) {
-      if ( (key === "migrateData") || !key.startsWith("migrate") || this._migrations?.includes(key) ) continue;
-      this[key](source);
-    }
+    this._getMethods(this, "migrate").forEach(k => this[k](source));
     return super.migrateData(source);
   }
 
@@ -62,21 +66,48 @@ export default class SystemDataModel extends foundry.abstract.DataModel {
     Base._migrations = [];
     for ( const template of templates ) {
       Base._templates.push(template.name);
-      for ( const key of Object.getOwnPropertyNames(template) ) {
+      for ( const [key, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(template)) ) {
         if ( ["length", "migrateData", "mixed", "name", "prototype"].includes(key) ) continue;
         if ( key === "systemSchema" ) {
-          Base[`${template.name}_systemSchema`] = template.systemSchema;
+          Object.defineProperty(Base, `${template.name}_systemSchema`, descriptor);
           continue;
         }
-        if ( key.startsWith("migrate") ) Base._migrations.push(key);
-        Base[key] = template[key];
+        Object.defineProperty(Base, key, {...descriptor, enumerable: true});
       }
-      for ( const key of Object.getOwnPropertyNames(template.prototype) ) {
+      for ( const [key, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(template.prototype)) ) {
         if ( ["constructor"].includes(key) ) continue;
-        Base.prototype[key] = template.prototype[key];
+        Object.defineProperty(Base.prototype, key, {...descriptor, enumerable: true});
       }
     }
 
     return Base;
   }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Prepare data related to this DataModel itself, before any embedded Documents or derived data is computed.
+   */
+  prepareBaseData() {
+    this.constructor._getMethods(this.constructor.prototype, "prepareBase").forEach(k => this[k]());
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Apply transformations or derivations to the values of the source data object.
+   */
+  prepareDerivedData() {
+    this.constructor._getMethods(this.constructor.prototype, "prepareDerived").forEach(k => this[k]());
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Final data preparation steps performed on Items after parent actor has been fully prepared.
+   */
+  prepareFinalData() {
+    this.constructor._getMethods(this.constructor.prototype, "prepareFinal").forEach(k => this[k]());
+  }
+
 }

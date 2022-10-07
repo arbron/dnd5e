@@ -134,6 +134,8 @@ export default class ItemSheet5e extends ItemSheet {
    */
   _getItemAdvancement(item) {
     const advancement = {};
+    if ( !this.advancement ) return advancement;
+
     const configMode = !item.parent || this.advancementConfigurationMode;
     const maxLevel = !configMode
       ? (item.system.levels ?? item.class?.system.levels ?? item.parent.system.details.level) : -1;

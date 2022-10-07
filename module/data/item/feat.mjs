@@ -28,4 +28,41 @@ export default class FeatData extends SystemDataModel.mixin(
       }, {label: "DND5E.FeatureActionRecharge"})
     };
   }
+
+  /* -------------------------------------------- */
+  /*  Getters                                     */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  get hasLimitedUses() {
+    return !!this.recharge.value || super.hasLimitedUses;
+  }
+
+  /* -------------------------------------------- */
+  /*  Preparation                                 */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  prepareDerivedFeatLabels() {
+    const labels = this.parent.labels ??= {};
+
+    switch ( this.activation.type ) {
+      case "legendary":
+        labels.featType = game.i18n.localize("DND5E.LegendaryActionLabel");
+        break;
+      case "lair":
+        labels.featType = game.i18n.localize("DND5E.LairActionLabel");
+        break;
+      case "":
+        labels.featType = game.i18n.localize("DND5E.Passive");
+        break;
+      default:
+        labels.featType = game.i18n.localize(this.damage.length ? "DND5E.Attack" : "DND5E.Action");
+        break;
+    }
+
+    // Recharge Label
+    const chgSuffix = `${this.recharge.value}${parseInt(this.recharge.value) < 6 ? "+" : ""}`;
+    labels.recharge = `${game.i18n.localize("DND5E.Recharge")} [${chgSuffix}]`;
+  }
 }

@@ -67,6 +67,8 @@ export default class SpellData extends SystemDataModel.mixin(
   }
 
   /* -------------------------------------------- */
+  /*  Migrations                                  */
+  /* -------------------------------------------- */
 
   /**
    * Migrate the spell's component object to remove any old, non-boolean values.
@@ -77,5 +79,52 @@ export default class SpellData extends SystemDataModel.mixin(
     for ( const [key, value] of Object.entries(source.components) ) {
       if ( typeof value !== "boolean" ) delete source.components[key];
     }
+  }
+
+  /* -------------------------------------------- */
+  /*  Getters                                     */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  get _typeAbilityMod() {
+    return this.parent?.actor?.system.attributes.spellcasting || "int";
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  get _typeCriticalThreshold() {
+    return this.parent?.actor?.flags.dnd5e?.spellCriticalThreshold ?? Infinity;
+  }
+
+  /* -------------------------------------------- */
+  /*  Preparation                                 */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  prepareDerivedSpellLabels() {
+    const labels = this.parent.labels ??= {};
+    const attributes = {
+      ...CONFIG.DND5E.spellComponents,
+      ...Object.fromEntries(Object.entries(CONFIG.DND5E.spellTags).map(([k, v]) => {
+        v.tag = true;
+        return [k, v];
+      }))
+    };
+
+    labels.level = CONFIG.DND5E.spellLevels[this.level];
+    labels.school = CONFIG.DND5E.spellSchools[this.school];
+    labels.materials = this.materials.value ?? null;
+
+    labels.components = Object.entries(this.components).reduce((obj, [c, active]) => {
+      const config = attributes[c];
+      if ( !config || (active !== true) ) return obj;
+      obj.all.push({abbr: config.abbr, tag: config.tag});
+      if ( config.tag ) obj.tags.push(config.label);
+      else obj.vsm.push(config.abbr);
+      return obj;
+    }, {all: [], vsm: [], tags: []});
+    labels.components.vsm = new Intl.ListFormat(game.i18n.lang, { style: "narrow", type: "conjunction" })
+      .format(labels.components.vsm);
   }
 }

@@ -137,7 +137,7 @@ export default class AdvancementManager extends Application {
     const dataClone = foundry.utils.deepClone(itemData);
     dataClone._id = foundry.utils.randomID();
     if ( itemData.type === "class" ) {
-      dataClone.system.levels = 0;
+      dataClone.system.levels = 1;
       if ( !manager.clone.system.details.originalClass ) {
         manager.clone.updateSource({"system.details.originalClass": dataClone._id});
       }
@@ -298,7 +298,7 @@ export default class AdvancementManager extends Application {
    * @protected
    */
   static flowsForLevel(item, level) {
-    return (item?.advancement.byLevel[level] ?? [])
+    return (item?.advancement?.byLevel[level] ?? [])
       .filter(a => a.appliesToClass)
       .map(a => new a.constructor.metadata.apps.flow(item, a.id, level));
   }

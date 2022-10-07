@@ -1,5 +1,4 @@
 import {d20Roll, damageRoll} from "../dice/dice.mjs";
-import simplifyRollFormula from "../dice/simplify-roll-formula.mjs";
 import AbilityUseDialog from "../applications/item/ability-use-dialog.mjs";
 import Proficiency from "./actor/proficiency.mjs";
 
@@ -22,58 +21,34 @@ export default class Item5e extends Item {
   /**
    * Which ability score modifier is used by this item?
    * @type {string|null}
+   * @see ActionTemplate#abilityMod
    */
   get abilityMod() {
-    if ( !("ability" in this.system) ) return null;
-
-    // Case 1 - defined directly by the item
-    if ( this.system.ability ) return this.system.ability;
-
-    // Case 2 - inferred from a parent actor
-    if ( this.actor ) {
-      const abilities = this.actor.system.abilities;
-      const spellcasting = this.actor.system.attributes.spellcasting;
-
-      // Special rules per item type
-      switch ( this.type ) {
-        case "consumable":
-          if ( this.system.consumableType === "scroll" ) return spellcasting || "int";
-          break;
-        case "spell":
-          return spellcasting || "int";
-        case "tool":
-          return "int";
-        case "weapon":
-          // Finesse weapons - Str or Dex (PHB pg. 147)
-          if ( this.system.properties.fin === true ) {
-            return abilities.dex.mod >= abilities.str.mod ? "dex" : "str";
-          }
-          // Ranged weapons - Dex (PH p.194)
-          if ( ["simpleR", "martialR"].includes(this.system.weaponType) ) return "dex";
-          break;
-      }
-
-      // If a specific attack type is defined
-      if ( this.hasAttack ) return {
-        mwak: "str",
-        rwak: "dex",
-        msak: spellcasting || "int",
-        rsak: spellcasting || "int"
-      }[this.system.actionType];
-    }
-
-    // Case 3 - unknown
-    return null;
+    return this.system.abilityMod ?? null;
   }
 
   /* -------------------------------------------- */
 
   /**
-   * Return an item's identifier.
-   * @type {string}
+   * Retrieve an item's critical hit threshold. Uses the smallest value from among the following sources:
+   * - item document
+   * - item document's actor (if it has one)
+   * - the constant '20'
+   * @returns {number|null}  The minimum value that must be rolled to be considered a critical hit.
    */
-  get identifier() {
-    return this.system.identifier || this.name.slugify({strict: true});
+  get criticalThreshold() {
+    return this.system.criticalThreshold ?? null;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Does the Item implement an ability check as part of its usage?
+   * @type {boolean}
+   * @see ActionTemplate#hasAbilityCheck
+   */
+  get hasAbilityCheck() {
+    return this.system.hasAbilityCheck ?? false;
   }
 
   /* -------------------------------------------- */
@@ -89,11 +64,23 @@ export default class Item5e extends Item {
   /* -------------------------------------------- */
 
   /**
+   * Does the Item have an area of effect target?
+   * @type {boolean}
+   * @see ActivatedEffectTemplate#hasAreaTarget
+   */
+  get hasAreaTarget() {
+    return this.system.hasAreaTarget ?? false;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
    * Does the Item implement an attack roll as part of its usage?
    * @type {boolean}
+   * @see ActionTemplate#hasAttack
    */
   get hasAttack() {
-    return ["mwak", "rwak", "msak", "rsak"].includes(this.system.actionType);
+    return this.system.hasAttack ?? false;
   }
 
   /* -------------------------------------------- */
@@ -101,19 +88,75 @@ export default class Item5e extends Item {
   /**
    * Does the Item implement a damage roll as part of its usage?
    * @type {boolean}
+   * @see ActionTemplate#hasDamage
    */
   get hasDamage() {
-    return !!(this.system.damage && this.system.damage.parts.length);
+    return this.system.hasDamage ?? false;
   }
 
   /* -------------------------------------------- */
 
   /**
-   * Does the Item implement a versatile damage roll as part of its usage?
+   * Does the Item target one or more distinct targets.
+   * @type {boolean}
+   * @see ActivatedEffectTemplate#hasIndividualTarget
+   */
+  get hasIndividualTarget() {
+    return this.system.hasIndividualTarget ?? false;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Is this Item limited in its ability to be used by charges or by recharge?
+   * @type {boolean}
+   * @see ActivatedEffectTemplate#hasLimitedUses
+   * @see FeatData#hasLimitedUses
+   */
+  get hasLimitedUses() {
+    return this.system.hasLimitedUses ?? false;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Does the Item implement a saving throw as part of its usage?
+   * @type {boolean}
+   * @see ActionTemplate#hasSave
+   */
+  get hasSave() {
+    return this.system.hasSave ?? false;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Does the Item have a target?
+   * @type {boolean}
+   * @see ActivatedEffectTemplate#hasTarget
+   */
+  get hasTarget() {
+    return this.system.hasTarget ?? false;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Return an item's identifier.
+   * @type {string}
+   */
+  get identifier() {
+    return this.system.identifier || this.name.slugify({strict: true});
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Is this item any of the armor subtypes?
    * @type {boolean}
    */
-  get isVersatile() {
-    return !!(this.hasDamage && this.system.damage.versatile);
+  get isArmor() {
+    return this.system.armor?.type in CONFIG.DND5E.armorTypes;
   }
 
   /* -------------------------------------------- */
@@ -121,9 +164,10 @@ export default class Item5e extends Item {
   /**
    * Does the item provide an amount of healing instead of conventional damage?
    * @type {boolean}
+   * @see ActionTemplate#isHealing
    */
   get isHealing() {
-    return (this.system.actionType === "heal") && this.system.damage.parts.length;
+    return this.system.isHealing ?? false;
   }
 
   /* -------------------------------------------- */
@@ -136,6 +180,17 @@ export default class Item5e extends Item {
   get isOriginalClass() {
     if ( this.type !== "class" || !this.isEmbedded ) return null;
     return this.id === this.parent.system.details.originalClass;
+  }
+
+  /* --------------------------------------------- */
+
+  /**
+   * Does the Item implement a versatile damage roll as part of its usage?
+   * @type {boolean}
+   * @see ActionTemplate#isVersatile
+   */
+  get isVersatile() {
+    return this.system.isVersatile ?? false;
   }
 
   /* -------------------------------------------- */
@@ -161,71 +216,6 @@ export default class Item5e extends Item {
     const items = this.parent.items;
     const cid = this.system.identifier;
     return this._classLink ??= items.find(i => (i.type === "subclass") && (i.system.classIdentifier === cid));
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Does the Item implement a saving throw as part of its usage?
-   * @type {boolean}
-   */
-  get hasSave() {
-    const save = this.system.save || {};
-    return !!(save.ability && save.scaling);
-  }
-
-  /* --------------------------------------------- */
-
-  /**
-   * Does the Item implement an ability check as part of its usage?
-   * @type {boolean}
-   */
-  get hasAbilityCheck() {
-    return (this.system.actionType === "abil") && this.system.ability;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Does the Item have a target?
-   * @type {boolean}
-   */
-  get hasTarget() {
-    const target = this.system.target;
-    return target && !["none", ""].includes(target.type);
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Does the Item have an area of effect target?
-   * @type {boolean}
-   */
-  get hasAreaTarget() {
-    const target = this.system.target;
-    return target && (target.type in CONFIG.DND5E.areaTargetTypes);
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Is this Item limited in its ability to be used by charges or by recharge?
-   * @type {boolean}
-   */
-  get hasLimitedUses() {
-    let recharge = this.system.recharge || {};
-    let uses = this.system.uses || {};
-    return !!recharge.value || (uses.per && (uses.max > 0));
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Is this item any of the armor subtypes?
-   * @type {boolean}
-   */
-  get isArmor() {
-    return this.system.armor?.type in CONFIG.DND5E.armorTypes;
   }
 
   /* -------------------------------------------- */
@@ -278,177 +268,26 @@ export default class Item5e extends Item {
   /*  Data Preparation                            */
   /* -------------------------------------------- */
 
+  /** @inheritdoc */
+  prepareBaseData() {
+    super.prepareBaseData();
+    this.system.prepareBaseData();
+  }
+
+  /* -------------------------------------------- */
+
   /** @inheritDoc */
   prepareDerivedData() {
     super.prepareDerivedData();
+
     this.labels = {};
+    this.system.prepareDerivedData();
 
     // Clear out linked item cache
     this._classLink = undefined;
 
-    // Advancement
-    this._prepareAdvancement();
-
-    // Specialized preparation per Item type
-    switch ( this.type ) {
-      case "equipment":
-        this._prepareEquipment(); break;
-      case "feat":
-        this._prepareFeat(); break;
-      case "spell":
-        this._prepareSpell(); break;
-    }
-
-    // Activated Items
-    this._prepareActivation();
-    this._prepareAction();
-
-    // Un-owned items can have their final preparation done here, otherwise this needs to happen in the owning Actor
-    if ( !this.isOwned ) this.prepareFinalAttributes();
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare derived data for an equipment-type item and define labels.
-   * @protected
-   */
-  _prepareEquipment() {
-    this.labels.armor = this.system.armor.value ? `${this.system.armor.value} ${game.i18n.localize("DND5E.AC")}` : "";
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare derived data for a feat-type item and define labels.
-   * @protected
-   */
-  _prepareFeat() {
-    const act = this.system.activation;
-    const types = CONFIG.DND5E.abilityActivationTypes;
-    if ( act?.type === types.legendary ) this.labels.featType = game.i18n.localize("DND5E.LegendaryActionLabel");
-    else if ( act?.type === types.lair ) this.labels.featType = game.i18n.localize("DND5E.LairActionLabel");
-    else if ( act?.type ) {
-      this.labels.featType = game.i18n.localize(this.system.damage.length ? "DND5E.Attack" : "DND5E.Action");
-    }
-    else this.labels.featType = game.i18n.localize("DND5E.Passive");
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare derived data for a spell-type item and define labels.
-   * @protected
-   */
-  _prepareSpell() {
-    const tags = Object.fromEntries(Object.entries(CONFIG.DND5E.spellTags).map(([k, v]) => {
-      v.tag = true;
-      return [k, v];
-    }));
-    const attributes = {...CONFIG.DND5E.spellComponents, ...tags};
-    this.system.preparation.mode ||= "prepared";
-    this.labels.level = CONFIG.DND5E.spellLevels[this.system.level];
-    this.labels.school = CONFIG.DND5E.spellSchools[this.system.school];
-    this.labels.components = Object.entries(this.system.components).reduce((obj, [c, active]) => {
-      const config = attributes[c];
-      if ( !config || (active !== true) ) return obj;
-      obj.all.push({abbr: config.abbr, tag: config.tag});
-      if ( config.tag ) obj.tags.push(config.label);
-      else obj.vsm.push(config.abbr);
-      return obj;
-    }, {all: [], vsm: [], tags: []});
-    this.labels.components.vsm = new Intl.ListFormat(game.i18n.lang, { style: "narrow", type: "conjunction" })
-      .format(this.labels.components.vsm);
-    this.labels.materials = this.system?.materials?.value ?? null;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare derived data for activated items and define labels.
-   * @protected
-   */
-  _prepareActivation() {
-    if ( !("activation" in this.system) ) return;
-    const C = CONFIG.DND5E;
-
-    // Ability Activation Label
-    const act = this.system.activation ?? {};
-    this.labels.activation = [act.cost, C.abilityActivationTypes[act.type]].filterJoin(" ");
-
-    // Target Label
-    let tgt = this.system.target ?? {};
-    if ( ["none", "touch", "self"].includes(tgt.units) ) tgt.value = null;
-    if ( ["none", "self"].includes(tgt.type) ) {
-      tgt.value = null;
-      tgt.units = null;
-    }
-    this.labels.target = [tgt.value, C.distanceUnits[tgt.units], C.targetTypes[tgt.type]].filterJoin(" ");
-
-    // Range Label
-    let rng = this.system.range ?? {};
-    if ( ["none", "touch", "self"].includes(rng.units) ) {
-      rng.value = null;
-      rng.long = null;
-    }
-    this.labels.range = [rng.value, rng.long ? `/ ${rng.long}` : null, C.distanceUnits[rng.units]].filterJoin(" ");
-
-    // Duration Label
-    let dur = this.system.duration ?? {};
-    if ( ["inst", "perm"].includes(dur.units) ) dur.value = null;
-    this.labels.duration = [dur.value, C.timePeriods[dur.units]].filterJoin(" ");
-
-    // Recharge Label
-    let chg = this.system.recharge ?? {};
-    const chgSuffix = `${chg.value}${parseInt(chg.value) < 6 ? "+" : ""}`;
-    this.labels.recharge = `${game.i18n.localize("DND5E.Recharge")} [${chgSuffix}]`;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare derived data and labels for items which have an action which deals damage.
-   * @protected
-   */
-  _prepareAction() {
-    if ( !("actionType" in this.system) ) return;
-    let dmg = this.system.damage || {};
-    if ( dmg.parts ) {
-      const types = CONFIG.DND5E.damageTypes;
-      this.labels.damage = dmg.parts.map(d => d[0]).join(" + ").replace(/\+ -/g, "- ");
-      this.labels.damageTypes = dmg.parts.map(d => types[d[1]]).join(", ");
-    }
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare advancement objects from stored advancement data.
-   * @protected
-   */
-  _prepareAdvancement() {
-    const minAdvancementLevel = ["class", "subclass"].includes(this.type) ? 1 : 0;
-    this.advancement = {
-      byId: {},
-      byLevel: Object.fromEntries(
-        Array.fromRange(CONFIG.DND5E.maxLevel + 1).slice(minAdvancementLevel).map(l => [l, []])
-      ),
-      byType: {},
-      needingConfiguration: []
-    };
-    for ( const advancementData of this.system.advancement ?? [] ) {
-      const Advancement = dnd5e.advancement.types[`${advancementData.type}Advancement`];
-      if ( !Advancement ) continue;
-      const advancement = new Advancement(this, advancementData);
-      this.advancement.byId[advancement.id] = advancement;
-      this.advancement.byType[advancementData.type] ??= [];
-      this.advancement.byType[advancementData.type].push(advancement);
-      advancement.levels.forEach(l => this.advancement.byLevel[l].push(advancement));
-      if ( !advancement.levels.length ) this.advancement.needingConfiguration.push(advancement);
-    }
-    Object.entries(this.advancement.byLevel).forEach(([lvl, data]) => data.sort((a, b) => {
-      return a.sortingValueForLevel(lvl).localeCompare(b.sortingValueForLevel(lvl));
-    }));
+    // Un-embedded items can have their final preparation done here, otherwise this needs to happen in the Actor
+    if ( !this.isEmbedded ) this.prepareFinalAttributes();
   }
 
   /* -------------------------------------------- */
@@ -459,162 +298,17 @@ export default class Item5e extends Item {
    * Otherwise, it will be called at the end of `Item5e#prepareDerivedData`.
    */
   prepareFinalAttributes() {
+    this.system.prepareFinalData();
 
     // Proficiency
     const isProficient = (this.type === "spell") || this.system.proficient; // Always proficient in spell attacks.
     this.system.prof = new Proficiency(this.actor?.system.attributes.prof, isProficient);
 
-    // Class data
-    if ( this.type === "class" ) this.system.isOriginalClass = this.isOriginalClass;
-
     // Action usage
     if ( "actionType" in this.system ) {
-      this.labels.abilityCheck = game.i18n.format("DND5E.AbilityPromptTitle", {
-        ability: CONFIG.DND5E.abilities[this.system.ability]
-      });
-
-      // Saving throws
-      this.getSaveDC();
-
-      // To Hit
-      this.getAttackToHit();
-
       // Limited Uses
       this.prepareMaxUses();
-
-      // Damage Label
-      this.getDerivedDamageLabel();
     }
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Populate a label with the compiled and simplified damage formula based on owned item
-   * actor data. This is only used for display purposes and is not related to `Item5e#rollDamage`.
-   * @returns {{damageType: string, formula: string, label: string}[]}
-   */
-  getDerivedDamageLabel() {
-    if ( !this.hasDamage || !this.isOwned ) return [];
-    const rollData = this.getRollData();
-    const damageLabels = { ...CONFIG.DND5E.damageTypes, ...CONFIG.DND5E.healingTypes };
-    const derivedDamage = this.system.damage?.parts?.map(damagePart => {
-      let formula;
-      try {
-        const roll = new Roll(damagePart[0], rollData);
-        formula = simplifyRollFormula(roll.formula, { preserveFlavor: true });
-      }
-      catch(err) {
-        console.warn(`Unable to simplify formula for ${this.name}: ${err}`);
-      }
-      const damageType = damagePart[1];
-      return { formula, damageType, label: `${formula} ${damageLabels[damageType] ?? ""}` };
-    });
-    return this.labels.derivedDamage = derivedDamage;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Update the derived spell DC for an item that requires a saving throw.
-   * @returns {number|null}
-   */
-  getSaveDC() {
-    if ( !this.hasSave ) return null;
-    const save = this.system.save;
-
-    // Actor spell-DC based scaling
-    if ( save.scaling === "spell" ) {
-      save.dc = this.isOwned ? this.actor.system.attributes.spelldc : null;
-    }
-
-    // Ability-score based scaling
-    else if ( save.scaling !== "flat" ) {
-      save.dc = this.isOwned ? this.actor.system.abilities[save.scaling].dc : null;
-    }
-
-    // Update labels
-    const abl = CONFIG.DND5E.abilities[save.ability] ?? "";
-    this.labels.save = game.i18n.format("DND5E.SaveDC", {dc: save.dc || "", ability: abl});
-    return save.dc;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Update a label to the Item detailing its total to hit bonus from the following sources:
-   * - item document's innate attack bonus
-   * - item's actor's proficiency bonus if applicable
-   * - item's actor's global bonuses to the given item type
-   * - item's ammunition if applicable
-   * @returns {{rollData: object, parts: string[]}|null}  Data used in the item's Attack roll.
-   */
-  getAttackToHit() {
-    if ( !this.hasAttack ) return null;
-    const rollData = this.getRollData();
-    const parts = [];
-
-    // Include the item's innate attack bonus as the initial value and label
-    const ab = this.system.attackBonus;
-    if ( ab ) {
-      parts.push(ab);
-      this.labels.toHit = !/^[+-]/.test(ab) ? `+ ${ab}` : ab;
-    }
-
-    // Take no further action for un-owned items
-    if ( !this.isOwned ) return {rollData, parts};
-
-    // Ability score modifier
-    parts.push("@mod");
-
-    // Add proficiency bonus if an explicit proficiency flag is present or for non-item features
-    if ( !["weapon", "consumable"].includes(this.type) || this.system.proficient ) {
-      parts.push("@prof");
-      if ( this.system.prof?.hasProficiency ) rollData.prof = this.system.prof.term;
-    }
-
-    // Actor-level global bonus to attack rolls
-    const actorBonus = this.actor.system.bonuses?.[this.system.actionType] || {};
-    if ( actorBonus.attack ) parts.push(actorBonus.attack);
-
-    // One-time bonus provided by consumed ammunition
-    if ( (this.system.consume?.type === "ammo") && this.actor.items ) {
-      const ammoItem = this.actor.items.get(this.system.consume.target);
-      if ( ammoItem ) {
-        const ammoItemQuantity = ammoItem.system.quantity;
-        const ammoCanBeConsumed = ammoItemQuantity && (ammoItemQuantity - (this.system.consume.amount ?? 0) >= 0);
-        const ammoItemAttackBonus = ammoItem.system.attackBonus;
-        const ammoIsTypeConsumable = (ammoItem.type === "consumable") && (ammoItem.system.consumableType === "ammo");
-        if ( ammoCanBeConsumed && ammoItemAttackBonus && ammoIsTypeConsumable ) {
-          parts.push("@ammo");
-          rollData.ammo = ammoItemAttackBonus;
-        }
-      }
-    }
-
-    // Condense the resulting attack bonus formula into a simplified label
-    const roll = new Roll(parts.join("+"), rollData);
-    const formula = simplifyRollFormula(roll.formula) || "0";
-    this.labels.toHit = !/^[+-]/.test(formula) ? `+ ${formula}` : formula;
-    return {rollData, parts};
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Retrieve an item's critical hit threshold. Uses the smallest value from among the following sources:
-   * - item document
-   * - item document's actor (if it has one)
-   * - the constant '20'
-   * @returns {number|null}  The minimum value that must be rolled to be considered a critical hit.
-   */
-  getCriticalThreshold() {
-    const actorFlags = this.actor.flags.dnd5e || {};
-    if ( !this.hasAttack ) return null;
-    let actorThreshold = null;
-    if ( this.type === "weapon" ) actorThreshold = actorFlags.weaponCriticalThreshold;
-    else if ( this.type === "spell" ) actorThreshold = actorFlags.spellCriticalThreshold;
-    return Math.min(this.system.critical?.threshold ?? 20, actorThreshold ?? 20);
   }
 
   /* -------------------------------------------- */
@@ -1298,7 +992,7 @@ export default class Item5e extends Item {
     let title = `${this.name} - ${game.i18n.localize("DND5E.AttackRoll")}`;
 
     // Get the parts and rollData for this item's attack
-    const {parts, rollData} = this.getAttackToHit();
+    const {parts, rollData} = this.system.toHit;
 
     // Handle ammunition consumption
     delete this._ammo;
@@ -1331,7 +1025,7 @@ export default class Item5e extends Item {
       parts,
       actor: this.actor,
       data: rollData,
-      critical: this.getCriticalThreshold(),
+      critical: this.criticalThreshold,
       title,
       flavor: title,
       elvenAccuracy,

@@ -38,6 +38,8 @@ export default class WeaponData extends SystemDataModel.mixin(
   }
 
   /* -------------------------------------------- */
+  /*  Migrations                                  */
+  /* -------------------------------------------- */
 
   /**
    * Migrate the weapons's properties object to remove any old, non-boolean values.
@@ -48,5 +50,32 @@ export default class WeaponData extends SystemDataModel.mixin(
     for ( const [key, value] of Object.entries(source.properties) ) {
       if ( typeof value !== "boolean" ) delete source.properties[key];
     }
+  }
+
+  /* -------------------------------------------- */
+  /*  Getters                                     */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  get _typeAbilityMod() {
+    const abilities = this.parent?.actor?.system.abilities;
+    if ( !abilities ) return null;
+
+    // Finesse weapons - Str or Dex (PHB pg. 147)
+    if ( this.properties.fin === true ) {
+      return (abilities.dex?.mod ?? 0) >= (abilities.str?.mod ?? 0) ? "dex" : "str";
+    }
+
+    // Ranged weapons - Dex (PH p.194)
+    if ( ["simpleR", "martialR"].includes(this.weaponType) ) return "dex";
+
+    return null;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  get _typeCriticalThreshold() {
+    return this.parent?.actor?.flags.dnd5e?.weaponCriticalThreshold ?? Infinity;
   }
 }

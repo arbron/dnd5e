@@ -1,19 +1,10 @@
 import SystemDataModel from "../abstract.mjs";
+import AdvancementTemplate from "./templates/advancement.mjs";
 import ItemDescriptionTemplate from "./templates/item-description.mjs";
 
 /**
  * Data definition for Background items.
  * @see ItemDescriptionTemplate
- *
- * @property {object[]} advancement  Advancement objects for this background.
+ * @see AdvancementTemplate
  */
-export default class BackgroundData extends SystemDataModel.mixin(ItemDescriptionTemplate) {
-  static systemSchema() {
-    return {
-      // TODO: Convert to proper advancement data when #1812 is merged
-      advancement: new foundry.data.fields.ArrayField(
-        new foundry.data.fields.ObjectField(), {label: "DND5E.AdvancementTitle"}
-      )
-    };
-  }
-}
+export default class BackgroundData extends SystemDataModel.mixin(ItemDescriptionTemplate, AdvancementTemplate) {}
