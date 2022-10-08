@@ -85,6 +85,20 @@ export default class SpellData extends SystemDataModel.mixin(
   /*  Getters                                     */
   /* -------------------------------------------- */
 
+  /**
+   * Properties displayed in chat.
+   * @type {string[]}
+   */
+  get chatProperties() {
+    return [
+      this.parent.labels.level,
+      this.parent.labels.components.vsm + (this.parent.labels.materials ? ` (${this.parent.labels.materials})` : ""),
+      ...this.parent.labels.components.tags
+    ];
+  }
+
+  /* -------------------------------------------- */
+
   /** @inheritdoc */
   get _typeAbilityMod() {
     return this.parent?.actor?.system.attributes.spellcasting || "int";
@@ -126,5 +140,55 @@ export default class SpellData extends SystemDataModel.mixin(
     }, {all: [], vsm: [], tags: []});
     labels.components.vsm = new Intl.ListFormat(game.i18n.lang, { style: "narrow", type: "conjunction" })
       .format(labels.components.vsm);
+  }
+
+  /* -------------------------------------------- */
+  /*  Helpers                                     */
+  /* -------------------------------------------- */
+
+  /**
+   * Adjust a cantrip damage formula to scale it for higher level characters and monsters.
+   * @param {string[]} parts   The original parts of the damage formula.
+   * @param {string} scale     The scaling formula.
+   * @param {number} level     Level at which the spell is being cast.
+   * @param {object} rollData  A data object that should be applied to the scaled damage roll.
+   * @returns {string[]}       The parts of the damage formula with the scaling applied.
+   */
+  static scaleCantripDamage(parts, scale, level, rollData) {
+    const add = Math.floor((level + 1) / 6);
+    if ( add === 0 ) return [];
+    return this.scaleDamage(parts, scale || parts.join(" + "), add, rollData);
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Adjust the spell damage formula to scale it for spell level up-casting.
+   * @param {string[]} parts      The original parts of the damage formula.
+   * @param {number} baseLevel    Default level for the spell.
+   * @param {number} spellLevel   Level at which the spell is being cast.
+   * @param {string} formula      The scaling formula.
+   * @param {object} rollData     A data object that should be applied to the scaled damage roll.
+   * @returns {string[]}          The parts of the damage formula with the scaling applied.
+   */
+  static scaleSpellDamage(parts, baseLevel, spellLevel, formula, rollData) {
+    const upcastLevels = Math.max(spellLevel - baseLevel, 0);
+    if ( upcastLevels === 0 ) return parts;
+    return this.scaleDamage(parts, formula, upcastLevels, rollData);
+  }
+
+  /* -------------------------------------------- */
+  /*  Socket Event Handlers                       */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  _preCreate(data) {
+    if ( !this.parent.isEmbedded ) return;
+
+    // If preparation is explicitly specified, no further action is needed
+    if ( foundry.utils.hasProperty(data, "system.preparation.prepared") ) return;
+
+    // NPCs automatically prepare spells
+    this.updateSource({ "preparation.prepared": this.parent.actor.type === "npc" });
   }
 }

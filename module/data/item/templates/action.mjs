@@ -319,4 +319,38 @@ export default class ActionTemplate extends SystemDataModel {
     formula = simplifyRollFormula(formula) || "0";
     labels.toHit = !/^[+-]/.test(formula) ? `+ ${formula}` : formula;
   }
+
+  /* -------------------------------------------- */
+  /*  Helpers                                     */
+  /* -------------------------------------------- */
+
+  /**
+   * Scale an array of damage parts according to a provided scaling formula and scaling multiplier.
+   * @param {string[]} parts    The original parts of the damage formula.
+   * @param {string} scaling    The scaling formula.
+   * @param {number} times      A number of times to apply the scaling formula.
+   * @param {object} rollData   A data object that should be applied to the scaled damage roll
+   * @returns {string[]}        The parts of the damage formula with the scaling applied.
+   */
+  static scaleDamage(parts, scaling, times, rollData) {
+    if ( times <= 0 ) return parts;
+    const p0 = new Roll(parts[0], rollData);
+    const s = new Roll(scaling, rollData).alter(times);
+
+    // Attempt to simplify by combining like dice terms
+    let simplified = false;
+    if ( (s.terms[0] instanceof Die) && (s.terms.length === 1) ) {
+      const d0 = p0.terms[0];
+      const s0 = s.terms[0];
+      if ( (d0 instanceof Die) && (d0.faces === s0.faces) && d0.modifiers.equals(s0.modifiers) ) {
+        d0.number += s0.number;
+        parts[0] = p0.formula;
+        simplified = true;
+      }
+    }
+
+    // Otherwise, add to the first part
+    if ( !simplified ) parts[0] = `${parts[0]} + ${s.formula}`;
+    return parts;
+  }
 }

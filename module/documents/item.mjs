@@ -810,7 +810,6 @@ export default class Item5e extends Item {
    */
   async getChatData(htmlOptions={}) {
     const data = this.toObject().system;
-    const labels = this.labels;
 
     // Rich text description
     data.description.value = await TextEditor.enrichHTML(data.description.value, {
@@ -819,160 +818,14 @@ export default class Item5e extends Item {
       ...htmlOptions
     });
 
-    // Item type specific properties
-    const props = [];
-    switch ( this.type ) {
-      case "consumable":
-        this._consumableChatData(data, labels, props); break;
-      case "equipment":
-        this._equipmentChatData(data, labels, props); break;
-      case "feat":
-        this._featChatData(data, labels, props); break;
-      case "loot":
-        this._lootChatData(data, labels, props); break;
-      case "spell":
-        this._spellChatData(data, labels, props); break;
-      case "tool":
-        this._toolChatData(data, labels, props); break;
-      case "weapon":
-        this._weaponChatData(data, labels, props); break;
-    }
+    // Type specific properties
+    data.properties = [
+      ...this.system.chatProperties ?? [],
+      ...this.system.physicalItemChatProperties ?? [],
+      ...this.system.activatedEffectChatProperties ?? []
+    ].filter(p => !!p);
 
-    // Equipment properties
-    if ( data.hasOwnProperty("equipped") && !["loot", "tool"].includes(this.type) ) {
-      if ( data.attunement === CONFIG.DND5E.attunementTypes.REQUIRED ) {
-        props.push(CONFIG.DND5E.attunements[CONFIG.DND5E.attunementTypes.REQUIRED]);
-      }
-      props.push(
-        game.i18n.localize(data.equipped ? "DND5E.Equipped" : "DND5E.Unequipped"),
-        game.i18n.localize(data.proficient ? "DND5E.Proficient" : "DND5E.NotProficient")
-      );
-    }
-
-    // Ability activation properties
-    if ( data.hasOwnProperty("activation") ) {
-      props.push(
-        labels.activation + (data.activation?.condition ? ` (${data.activation.condition})` : ""),
-        labels.target,
-        labels.range,
-        labels.duration
-      );
-    }
-
-    // Filter properties and return
-    data.properties = props.filter(p => !!p);
     return data;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare chat card data for consumable type items.
-   * @param {object} data     Copy of item data being use to display the chat message.
-   * @param {object} labels   Specially prepared item labels.
-   * @param {string[]} props  Existing list of properties to be displayed. *Will be mutated.*
-   * @private
-   */
-  _consumableChatData(data, labels, props) {
-    props.push(
-      CONFIG.DND5E.consumableTypes[data.consumableType],
-      `${data.uses.value}/${data.uses.max} ${game.i18n.localize("DND5E.Charges")}`
-    );
-    data.hasCharges = data.uses.value >= 0;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare chat card data for equipment type items.
-   * @param {object} data     Copy of item data being use to display the chat message.
-   * @param {object} labels   Specially prepared item labels.
-   * @param {string[]} props  Existing list of properties to be displayed. *Will be mutated.*
-   * @private
-   */
-  _equipmentChatData(data, labels, props) {
-    props.push(
-      CONFIG.DND5E.equipmentTypes[data.armor.type],
-      labels.armor || null,
-      data.stealth ? game.i18n.localize("DND5E.StealthDisadvantage") : null
-    );
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare chat card data for items of the Feat type.
-   * @param {object} data     Copy of item data being use to display the chat message.
-   * @param {object} labels   Specially prepared item labels.
-   * @param {string[]} props  Existing list of properties to be displayed. *Will be mutated.*
-   * @private
-   */
-  _featChatData(data, labels, props) {
-    props.push(data.requirements);
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare chat card data for loot type items.
-   * @param {object} data     Copy of item data being use to display the chat message.
-   * @param {object} labels   Specially prepared item labels.
-   * @param {string[]} props  Existing list of properties to be displayed. *Will be mutated.*
-   * @private
-   */
-  _lootChatData(data, labels, props) {
-    props.push(
-      game.i18n.localize("DND5E.ItemTypeLoot"),
-      data.weight ? `${data.weight} ${game.i18n.localize("DND5E.AbbreviationLbs")}` : null
-    );
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Render a chat card for Spell type data.
-   * @param {object} data     Copy of item data being use to display the chat message.
-   * @param {object} labels   Specially prepared item labels.
-   * @param {string[]} props  Existing list of properties to be displayed. *Will be mutated.*
-   * @private
-   */
-  _spellChatData(data, labels, props) {
-    props.push(
-      labels.level,
-      labels.components.vsm + (labels.materials ? ` (${labels.materials})` : ""),
-      ...labels.components.tags
-    );
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare chat card data for tool type items.
-   * @param {object} data     Copy of item data being use to display the chat message.
-   * @param {object} labels   Specially prepared item labels.
-   * @param {string[]} props  Existing list of properties to be displayed. *Will be mutated.*
-   * @private
-   */
-  _toolChatData(data, labels, props) {
-    props.push(
-      CONFIG.DND5E.abilities[data.ability] || null,
-      CONFIG.DND5E.proficiencyLevels[data.proficient || 0]
-    );
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Prepare chat card data for weapon type items.
-   * @param {object} data     Copy of item data being use to display the chat message.
-   * @param {object} labels   Specially prepared item labels.
-   * @param {string[]} props  Existing list of properties to be displayed. *Will be mutated.*
-   * @private
-   */
-  _weaponChatData(data, labels, props) {
-    props.push(
-      CONFIG.DND5E.weaponTypes[data.weaponType]
-    );
   }
 
   /* -------------------------------------------- */
@@ -1130,10 +983,10 @@ export default class Item5e extends Item {
         if ( this.actor.type === "character" ) level = this.actor.system.details.level;
         else if ( this.system.preparation.mode === "innate" ) level = Math.ceil(this.actor.system.details.cr);
         else level = this.actor.system.details.spellLevel;
-        this._scaleCantripDamage(parts, scaling.formula, level, rollData);
+        this.system.constructor.scaleCantripDamage(parts, scaling.formula, level, rollData);
       }
       else if ( spellLevel && (scaling.mode === "level") && scaling.formula ) {
-        this._scaleSpellDamage(parts, this.system.level, spellLevel, scaling.formula, rollData);
+        this.system.constructor.scaleSpellDamage(parts, this.system.level, spellLevel, scaling.formula, rollData);
       }
     }
 
@@ -1184,74 +1037,6 @@ export default class Item5e extends Item {
 
     // Call the roll helper utility
     return roll;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Adjust a cantrip damage formula to scale it for higher level characters and monsters.
-   * @param {string[]} parts   The original parts of the damage formula.
-   * @param {string} scale     The scaling formula.
-   * @param {number} level     Level at which the spell is being cast.
-   * @param {object} rollData  A data object that should be applied to the scaled damage roll.
-   * @returns {string[]}       The parts of the damage formula with the scaling applied.
-   * @private
-   */
-  _scaleCantripDamage(parts, scale, level, rollData) {
-    const add = Math.floor((level + 1) / 6);
-    if ( add === 0 ) return [];
-    return this._scaleDamage(parts, scale || parts.join(" + "), add, rollData);
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Adjust the spell damage formula to scale it for spell level up-casting.
-   * @param {string[]} parts      The original parts of the damage formula.
-   * @param {number} baseLevel    Default level for the spell.
-   * @param {number} spellLevel   Level at which the spell is being cast.
-   * @param {string} formula      The scaling formula.
-   * @param {object} rollData     A data object that should be applied to the scaled damage roll.
-   * @returns {string[]}          The parts of the damage formula with the scaling applied.
-   * @private
-   */
-  _scaleSpellDamage(parts, baseLevel, spellLevel, formula, rollData) {
-    const upcastLevels = Math.max(spellLevel - baseLevel, 0);
-    if ( upcastLevels === 0 ) return parts;
-    return this._scaleDamage(parts, formula, upcastLevels, rollData);
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Scale an array of damage parts according to a provided scaling formula and scaling multiplier.
-   * @param {string[]} parts    The original parts of the damage formula.
-   * @param {string} scaling    The scaling formula.
-   * @param {number} times      A number of times to apply the scaling formula.
-   * @param {object} rollData   A data object that should be applied to the scaled damage roll
-   * @returns {string[]}        The parts of the damage formula with the scaling applied.
-   * @private
-   */
-  _scaleDamage(parts, scaling, times, rollData) {
-    if ( times <= 0 ) return parts;
-    const p0 = new Roll(parts[0], rollData);
-    const s = new Roll(scaling, rollData).alter(times);
-
-    // Attempt to simplify by combining like dice terms
-    let simplified = false;
-    if ( (s.terms[0] instanceof Die) && (s.terms.length === 1) ) {
-      const d0 = p0.terms[0];
-      const s0 = s.terms[0];
-      if ( (d0 instanceof Die) && (d0.faces === s0.faces) && d0.modifiers.equals(s0.modifiers) ) {
-        d0.number += s0.number;
-        parts[0] = p0.formula;
-        simplified = true;
-      }
-    }
-
-    // Otherwise, add to the first part
-    if ( !simplified ) parts[0] = `${parts[0]} + ${s.formula}`;
-    return parts;
   }
 
   /* -------------------------------------------- */
@@ -1720,30 +1505,12 @@ export default class Item5e extends Item {
   /** @inheritdoc */
   async _preCreate(data, options, user) {
     await super._preCreate(data, options, user);
+    await this.system._preCreate(data, options, user);
 
     // Create class identifier based on name
     if ( ["class", "subclass"].includes(this.type) && !this.system.identifier ) {
       await this.updateSource({ "system.identifier": data.name.slugify({strict: true}) });
     }
-
-    if ( !this.isEmbedded || (this.parent.type === "vehicle") ) return;
-    const isNPC = this.parent.type === "npc";
-    let updates;
-    switch (data.type) {
-      case "equipment":
-        updates = this._onCreateOwnedEquipment(data, isNPC);
-        break;
-      case "spell":
-        updates = this._onCreateOwnedSpell(data, isNPC);
-        break;
-      case "tool":
-        updates = this._onCreateOwnedTool(data, isNPC);
-        break;
-      case "weapon":
-        updates = this._onCreateOwnedWeapon(data, isNPC);
-        break;
-    }
-    if ( updates ) return this.updateSource(updates);
   }
 
   /* -------------------------------------------- */
@@ -1765,27 +1532,15 @@ export default class Item5e extends Item {
   /** @inheritdoc */
   async _preUpdate(changed, options, user) {
     await super._preUpdate(changed, options, user);
-    if ( (this.type !== "class") || !("levels" in (changed.system || {})) ) return;
+    await this.system._preUpdate(changed, options, user);
+  }
 
-    // Check to make sure the updated class level isn't below zero
-    if ( changed.system.levels <= 0 ) {
-      ui.notifications.warn(game.i18n.localize("DND5E.MaxClassLevelMinimumWarn"));
-      changed.system.levels = 1;
-    }
+  /* -------------------------------------------- */
 
-    // Check to make sure the updated class level doesn't exceed level cap
-    if ( changed.system.levels > CONFIG.DND5E.maxLevel ) {
-      ui.notifications.warn(game.i18n.format("DND5E.MaxClassLevelExceededWarn", {max: CONFIG.DND5E.maxLevel}));
-      changed.system.levels = CONFIG.DND5E.maxLevel;
-    }
-    if ( !this.isEmbedded || (this.parent.type !== "character") ) return;
-
-    // Check to ensure the updated character doesn't exceed level cap
-    const newCharacterLevel = this.actor.system.details.level + (changed.system.levels - this.system.levels);
-    if ( newCharacterLevel > CONFIG.DND5E.maxLevel ) {
-      ui.notifications.warn(game.i18n.format("DND5E.MaxCharacterLevelExceededWarn", {max: CONFIG.DND5E.maxLevel}));
-      changed.system.levels -= newCharacterLevel - CONFIG.DND5E.maxLevel;
-    }
+  /** @inheritdoc */
+  async _preDelete(options, user) {
+    await super._preDelete(options, user);
+    await this.system._preDelete(options, user);
   }
 
   /* -------------------------------------------- */
@@ -1799,108 +1554,6 @@ export default class Item5e extends Item {
     if ( (this.type === "class") && (this.id === this.parent.system.details.originalClass) ) {
       this.parent._assignPrimaryClass();
     }
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Pre-creation logic for the automatic configuration of owned equipment type Items.
-   *
-   * @param {object} data       Data for the newly created item.
-   * @param {boolean} isNPC     Is this actor an NPC?
-   * @returns {object}          Updates to apply to the item data.
-   * @private
-   */
-  _onCreateOwnedEquipment(data, isNPC) {
-    const updates = {};
-    if ( foundry.utils.getProperty(data, "system.equipped") === undefined ) {
-      updates["system.equipped"] = isNPC;  // NPCs automatically equip equipment
-    }
-    if ( foundry.utils.getProperty(data, "system.proficient") === undefined ) {
-      if ( isNPC ) {
-        updates["system.proficient"] = true;  // NPCs automatically have equipment proficiency
-      } else {
-        const armorProf = CONFIG.DND5E.armorProficienciesMap[this.system.armor?.type]; // Player characters check proficiency
-        const actorArmorProfs = this.parent.system.traits?.armorProf?.value || [];
-        updates["system.proficient"] = (armorProf === true) || actorArmorProfs.includes(armorProf)
-          || actorArmorProfs.includes(this.system.baseItem);
-      }
-    }
-    return updates;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Pre-creation logic for the automatic configuration of owned spell type Items.
-   *
-   * @param {object} data       Data for the newly created item.
-   * @param {boolean} isNPC     Is this actor an NPC?
-   * @returns {object}          Updates to apply to the item data.
-   * @private
-   */
-  _onCreateOwnedSpell(data, isNPC) {
-    const updates = {};
-    if ( foundry.utils.getProperty(data, "system.preparation.prepared") === undefined ) {
-      updates["system.preparation.prepared"] = isNPC; // NPCs automatically prepare spells
-    }
-    return updates;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Pre-creation logic for the automatic configuration of owned tool type Items.
-   * @param {object} data       Data for the newly created item.
-   * @param {boolean} isNPC     Is this actor an NPC?
-   * @returns {object}          Updates to apply to the item data.
-   * @private
-   */
-  _onCreateOwnedTool(data, isNPC) {
-    const updates = {};
-    if ( data.system?.proficient === undefined ) {
-      if ( isNPC ) updates["system.proficient"] = 1;
-      else {
-        const actorToolProfs = this.parent.system.traits?.toolProf?.value;
-        const proficient = actorToolProfs.includes(this.system.toolType)
-          || actorToolProfs.includes(this.system.baseItem);
-        updates["system.proficient"] = Number(proficient);
-      }
-    }
-    return updates;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Pre-creation logic for the automatic configuration of owned weapon type Items.
-   * @param {object} data       Data for the newly created item.
-   * @param {boolean} isNPC     Is this actor an NPC?
-   * @returns {object}          Updates to apply to the item data.
-   * @private
-   */
-  _onCreateOwnedWeapon(data, isNPC) {
-
-    // NPCs automatically equip items and are proficient with them
-    if ( isNPC ) {
-      const updates = {};
-      if ( !foundry.utils.hasProperty(data, "system.equipped") ) updates["system.equipped"] = true;
-      if ( !foundry.utils.hasProperty(data, "system.proficient") ) updates["system.proficient"] = true;
-      return updates;
-    }
-    if ( data.system?.proficient !== undefined ) return {};
-
-    // Some weapon types are always proficient
-    const weaponProf = CONFIG.DND5E.weaponProficienciesMap[this.system.weaponType];
-    const updates = {};
-    if ( weaponProf === true ) updates["system.proficient"] = true;
-
-    // Characters may have proficiency in this weapon type (or specific base weapon)
-    else {
-      const actorProfs = this.parent.system.traits?.weaponProf?.value || [];
-      updates["system.proficient"] = actorProfs.includes(weaponProf) || actorProfs.includes(this.system.baseItem);
-    }
-    return updates;
   }
 
   /* -------------------------------------------- */

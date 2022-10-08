@@ -37,6 +37,17 @@ export default class ConsumableData extends SystemDataModel.mixin(
   /*  Getters                                     */
   /* -------------------------------------------- */
 
+  /**
+   * Properties displayed in chat.
+   * @type {string[]}
+   */
+  get chatProperties() {
+    return [
+      CONFIG.DND5E.consumableTypes[this.consumableType],
+      `${this.uses.value}/${this.uses.max} ${game.i18n.localize("DND5E.Charges")}`
+    ];
+  }
+
   /** @inheritdoc */
   get _typeAbilityMod() {
     if ( this.consumableType !== "scroll" ) return null;

@@ -66,6 +66,22 @@ export default class EquipmentData extends SystemDataModel.mixin(
   }
 
   /* -------------------------------------------- */
+  /*  Getters                                     */
+  /* -------------------------------------------- */
+
+  /**
+   * Properties displayed in chat.
+   * @type {string[]}
+   */
+  get chatProperties() {
+    return [
+      CONFIG.DND5E.equipmentTypes[this.armor.type],
+      this.parent.labels?.armor ?? null,
+      this.stealth ? game.i18n.localize("DND5E.StealthDisadvantage") : null
+    ];
+  }
+
+  /* -------------------------------------------- */
   /*  Preparation                                 */
   /* -------------------------------------------- */
 
@@ -73,5 +89,39 @@ export default class EquipmentData extends SystemDataModel.mixin(
   prepareDerivedEquipmentLabels() {
     const labels = this.parent.labels ??= {};
     labels.armor = this.armor.value ? `${this.armor.value} ${game.i18n.localize("DND5E.AC")}` : "";
+  }
+
+  /* -------------------------------------------- */
+  /*  Socket Event Handlers                       */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  _preCreate(data) {
+    if ( !this.parent.isEmbedded ) return;
+    const updates = {};
+
+    // NPCs automatically equip equipment and are proficient with them
+    if ( this.parent.actor.type === "npc" ) {
+      if ( !foundry.utils.hasProperty(data, "system.equipped") ) updates.equipped = true;
+      if ( !foundry.utils.hasProperty(data, "system.proficient") ) updates.proficient = true;
+      this.updateSource(updates);
+      return;
+    }
+
+    // If proficiency is explicitly specified, no further action is needed
+    if ( foundry.utils.hasProperty(data, "system.proficient") ) return;
+
+    // Some armor types are always proficient
+    const armorProf = CONFIG.DND5E.armorProficienciesMap[this.armor.type];
+    if ( armorProf === true ) updates.proficient = true;
+
+    // Characters may have proficiency in this armor type (or specific base armor)
+    else {
+      // TODO: Change this to use a Set when actor data models are integrated
+      const actorProfs = this.parent.actor.system.traits?.armorProf?.value ?? [];
+      updates.proficient = actorProfs.includes(armorProf) || actorProfs.includes(this.baseItem);
+    }
+
+    this.updateSource(updates);
   }
 }

@@ -29,6 +29,8 @@ export default class SystemDataModel extends foundry.abstract.DataModel {
   }
 
   /* -------------------------------------------- */
+  /*  Helpers                                     */
+  /* -------------------------------------------- */
 
   /**
    * Helper methods to get all enumerable methods, inherited or own, for the provided object.
@@ -46,14 +48,6 @@ export default class SystemDataModel extends foundry.abstract.DataModel {
 
   /* -------------------------------------------- */
 
-  /** @inheritdoc */
-  static migrateData(source) {
-    this._getMethods(this, "migrate").forEach(k => this[k](source));
-    return super.migrateData(source);
-  }
-
-  /* -------------------------------------------- */
-
   /**
    * Mix multiple templates with the base type.
    * @param {...*} templates     Template classes to mix.
@@ -61,6 +55,8 @@ export default class SystemDataModel extends foundry.abstract.DataModel {
    */
   static mixin(...templates) {
     const Base = class extends this {};
+    // TODO: This causes an error when the "+ Add" buttons are used to create an item on the actor sheet
+    // saying: "TypeError: can't prevent extensions on this proxy object"
 
     Base._templates = [];
     Base._migrations = [];
@@ -83,6 +79,18 @@ export default class SystemDataModel extends foundry.abstract.DataModel {
     return Base;
   }
 
+  /* -------------------------------------------- */
+  /*  Migrations                                  */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  static migrateData(source) {
+    this._getMethods(this, "migrate").forEach(k => this[k](source));
+    return super.migrateData(source);
+  }
+
+  /* -------------------------------------------- */
+  /*  Preparation                                 */
   /* -------------------------------------------- */
 
   /**
@@ -109,5 +117,39 @@ export default class SystemDataModel extends foundry.abstract.DataModel {
   prepareFinalData() {
     this.constructor._getMethods(this.constructor.prototype, "prepareFinal").forEach(k => this[k]());
   }
+
+  /* -------------------------------------------- */
+  /*  Socket Event Handlers                       */
+  /* -------------------------------------------- */
+
+  /**
+   * Pre-creation logic for this system data.
+   * @param {object} data     The initial data object provided to the document creation request
+   * @param {object} options  Additional options which modify the creation request
+   * @param {User} user       The User requesting the document creation
+   * @protected
+   */
+  async _preCreate(data, options, user) {}
+
+  /* -------------------------------------------- */
+
+  /**
+   * Pre-update logic for this system data.
+   * @param {object} changed  The differential data that is changed relative to the documents prior values
+   * @param {object} options  Additional options which modify the update request
+   * @param {User} user       The User requesting the document update
+   * @protected
+   */
+  async _preUpdate(changed, options, user) {}
+
+  /* -------------------------------------------- */
+
+  /**
+   * Pre-deletion logic for this system data.
+   * @param {object} options  Additional options which modify the deletion request
+   * @param {User} user       The User requesting the document deletion
+   * @protected
+   */
+  async _preDelete(options, user) {}
 
 }

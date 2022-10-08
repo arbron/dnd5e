@@ -35,8 +35,53 @@ export default class ToolData extends SystemDataModel.mixin(ItemDescriptionTempl
   /*  Getters                                     */
   /* -------------------------------------------- */
 
+  /**
+   * Properties displayed in chat.
+   * @type {string[]}
+   */
+  get chatProperties() {
+    return [CONFIG.DND5E.abilities[this.ability]];
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  get physicalItemChatProperties() {
+    const req = CONFIG.DND5E.attunementTypes.REQUIRED;
+    return [
+      this.attunement === req ? CONFIG.DND5E.attunements[req] : null,
+      game.i18n.localize(this.equipped ? "DND5E.Equipped" : "DND5E.Unequipped"),
+      CONFIG.DND5E.proficiencyLevels[this.proficient || 0]
+    ];
+  }
+
+  /* -------------------------------------------- */
+
   /** @inheritdoc */
   get _typeAbilityMod() {
     return "int";
+  }
+
+  /* -------------------------------------------- */
+  /*  Socket Event Handlers                       */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  _preCreate(data) {
+    if ( !this.parent.isEmbedded ) return;
+
+    // If proficiency is explicitly specified, no further action is needed
+    if ( foundry.utils.hasProperty(data, "system.proficient") ) return;
+
+    switch (this.parent.actor.type) {
+      case "character":
+        // TODO: Change this to use a Set when actor data models are integrated
+        const actorProfs = this.parent.actor.system.traits.toolProf.value ?? [];
+        const proficient = actorProfs.includes(this.toolType) || actorProfs.includes(this.baseItem);
+        this.updateSource({ proficient: Number(proficient) });
+        return;
+      case "npc":
+        this.updateSource({ proficient: 1 });
+    }
   }
 }

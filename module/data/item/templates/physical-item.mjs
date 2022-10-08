@@ -58,4 +58,21 @@ export default class PhysicalItemTemplate extends SystemDataModel {
     );
     if ( rarity ) source.rarity = rarity;
   }
+
+  /* -------------------------------------------- */
+  /*  Getters                                     */
+  /* -------------------------------------------- */
+
+  /**
+   * Chat properties for physical items.
+   * @type {string[]}
+   */
+  get physicalItemChatProperties() {
+    const req = CONFIG.DND5E.attunementTypes.REQUIRED;
+    return [
+      this.attunement === req ? CONFIG.DND5E.attunements[req] : null,
+      game.i18n.localize(this.equipped ? "DND5E.Equipped" : "DND5E.Unequipped"),
+      game.i18n.localize(this.proficient ? "DND5E.Proficient" : "DND5E.NotProficient")
+    ];
+  }
 }

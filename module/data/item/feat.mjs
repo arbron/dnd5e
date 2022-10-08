@@ -33,6 +33,16 @@ export default class FeatData extends SystemDataModel.mixin(
   /*  Getters                                     */
   /* -------------------------------------------- */
 
+  /**
+   * Properties displayed in chat.
+   * @type {string[]}
+   */
+  get chatProperties() {
+    return [this.requirements];
+  }
+
+  /* -------------------------------------------- */
+
   /** @inheritdoc */
   get hasLimitedUses() {
     return !!this.recharge.value || super.hasLimitedUses;

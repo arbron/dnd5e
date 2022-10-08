@@ -56,6 +56,16 @@ export default class WeaponData extends SystemDataModel.mixin(
   /*  Getters                                     */
   /* -------------------------------------------- */
 
+  /**
+   * Properties displayed in chat.
+   * @type {string[]}
+   */
+  get chatProperties() {
+    return [CONFIG.DND5E.weaponTypes[this.weaponType]];
+  }
+
+  /* -------------------------------------------- */
+
   /** @inheritdoc */
   get _typeAbilityMod() {
     const abilities = this.parent?.actor?.system.abilities;
@@ -77,5 +87,39 @@ export default class WeaponData extends SystemDataModel.mixin(
   /** @inheritdoc */
   get _typeCriticalThreshold() {
     return this.parent?.actor?.flags.dnd5e?.weaponCriticalThreshold ?? Infinity;
+  }
+
+  /* -------------------------------------------- */
+  /*  Socket Event Handlers                       */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  _preCreate(data) {
+    if ( !this.parent.isEmbedded || (this.parent.actor.type === "vehicle") ) return;
+    const updates = {};
+
+    // NPCs automatically equip items and are proficient with them
+    if ( this.parent.actor.type === "npc" ) {
+      if ( !foundry.utils.hasProperty(data, "system.equipped") ) updates.equipped = true;
+      if ( !foundry.utils.hasProperty(data, "system.proficient") ) updates.proficient = true;
+      this.updateSource(updates);
+      return;
+    }
+
+    // If proficiency is explicitly specified, no further action is needed
+    if ( foundry.utils.hasProperty(data, "system.proficient") ) return;
+
+    // Some weapon types are always proficient
+    const weaponProf = CONFIG.DND5E.weaponProficienciesMap[this.weaponType];
+    if ( weaponProf === true ) updates.proficient = true;
+
+    // Characters may have proficiency in this weapon type (or specific base weapon)
+    else {
+      // TODO: Change this to use a Set when actor data models are integrated
+      const actorProfs = this.parent.actor.system.traits?.weaponProf?.value ?? [];
+      updates.proficient = actorProfs.includes(weaponProf) || actorProfs.includes(this.baseItem);
+    }
+
+    this.updateSource(updates);
   }
 }

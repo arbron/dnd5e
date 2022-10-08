@@ -83,4 +83,36 @@ export default class ClassData extends SystemDataModel.mixin(ItemDescriptionTemp
     this.isOriginalClass = this.parent.isOriginalClass;
     // TODO: Unfortunately DataModel#toObject(false) doesn't retain any newly added fields so this no longer works
   }
+
+  /* -------------------------------------------- */
+  /*  Socket Event Handlers                       */
+  /* -------------------------------------------- */
+
+  /** @inheritdoc */
+  _preUpdate(changes, options, user) {
+    // TODO: Move this into data model validation instead
+
+    const newLevel = foundry.utils.getProperty(changes, "system.levels");
+    if ( newLevel === undefined ) return;
+
+    // Check to make sure the updated class level isn't below zero
+    if ( newLevel <= 0 ) {
+      ui.notifications.warn(game.i18n.localize("DND5E.MaxClassLevelMinimumWarn"));
+      foundry.utils.setProperty(changes, "system.levels", 1);
+    }
+
+    // Check to make sure the updated class level doesn't exceed level cap
+    if ( newLevel > CONFIG.DND5E.maxLevel ) {
+      ui.notifications.warn(game.i18n.format("DND5E.MaxClassLevelExceededWarn", {max: CONFIG.DND5E.maxLevel}));
+      foundry.utils.setProperty(changes, "system.levels", CONFIG.DND5E.maxLevel);
+    }
+    if ( !this.parent.isEmbedded ) return;
+
+    // Check to ensure the updated character doesn't exceed level cap
+    const newCharacterLevel = this.parent.actor.system.details.level + (newLevel - this.levels);
+    if ( newCharacterLevel > CONFIG.DND5E.maxLevel ) {
+      ui.notifications.warn(game.i18n.format("DND5E.MaxCharacterLevelExceededWarn", {max: CONFIG.DND5E.maxLevel}));
+      foundry.utils.setProperty(changes, "system.levels", newLevel - (newCharacterLevel - CONFIG.DND5E.maxLevel));
+    }
+  }
 }
