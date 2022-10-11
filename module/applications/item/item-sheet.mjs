@@ -104,6 +104,15 @@ export default class ItemSheet5e extends ItemSheet {
       effects: ActiveEffect5e.prepareActiveEffectCategories(item.effects)
     });
 
+    if ( this.item.type === "weapon" ) {
+      const items = {};
+      for ( const [name, id] of Object.entries(CONFIG.DND5E.ammunitionIds) ) {
+        const baseItem = await ProficiencySelector.getBaseItem(id);
+        items[name] = baseItem.name;
+      }
+      context.ammunitionTypes = Object.fromEntries(Object.entries(items).sort((a, b) => a[1].localeCompare(b[1])));
+    }
+
     // Potential consumption targets
     context.abilityConsumptionTargets = this._getItemConsumptionTargets(item);
 
@@ -182,7 +191,9 @@ export default class ItemSheet5e extends ItemSheet {
    * @protected
    */
   async _getItemBaseTypes() {
-    const type = this.item.type === "equipment" ? "armor" : this.item.type;
+    let type = this.item.type;
+    if ( this.item.type === "consumable" ) type = "ammunition";
+    else if ( this.item.type === "equipment" ) type = "armor";
     const baseIds = CONFIG.DND5E[`${type}Ids`];
     if ( baseIds === undefined ) return {};
 

@@ -641,6 +641,7 @@
     "consumable": {
       "templates": ["itemDescription", "physicalItem", "activatedEffect", "action"],
       "consumableType": "potion",
+      "baseItem": "",
       "uses": {
         "autoDestroy": false
       }
@@ -722,6 +723,7 @@
       "templates": ["itemDescription", "physicalItem" ,"activatedEffect", "action", "mountable"],
       "weaponType": "simpleM",
       "baseItem": "",
+      "ammunitionType": "",
       "properties": {},
       "proficient": true
     }

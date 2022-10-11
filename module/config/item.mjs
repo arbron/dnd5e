@@ -253,6 +253,19 @@ export const spellScrollIds = {
 };
 
 /* -------------------------------------------- */
+
+/**
+ * The basic ammunition types in 5e.
+ * @enum {string}
+ */
+export const ammunitionIds = {
+  arrow: "3c7JXOzsv55gqJS5",
+  blowgunNeedle: "gBQ8xqTA5f8wP5iu",
+  crossbowBolt: "SItCnYBqhzqBoaWG",
+  slingBullet: "z9SbsMIBZzuhZOqT"
+};
+
+/* -------------------------------------------- */
 /*  Equipment                                   */
 /* -------------------------------------------- */
 

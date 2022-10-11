@@ -55,6 +55,15 @@
                 </select>
             </div>
 
+            {{#if (eq system.consumableType "ammo")}}
+                <div class="form-group">
+                    <label>{{ localize "DND5E.ItemAmmunitionBase" }}</label>
+                    <select name="system.baseItem">
+                        {{selectOptions baseItems selected=system.baseItem blank=""}}
+                    </select>
+                </div>
+            {{/if}}
+
             <div class="form-group">
                 <label>{{localize "DND5E.Attunement"}}</label>
                 <select name="system.attunement" data-dtype="Number">
