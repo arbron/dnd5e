@@ -1,5 +1,6 @@
 // Document Classes
 export {default as ActiveEffect5e} from "./active-effect.mjs";
+export * as activity from "./activity/_module.mjs";
 export {default as Actor5e} from "./actor/actor.mjs";
 export {default as Item5e} from "./item.mjs";
 export {default as TokenDocument5e} from "./token.mjs";
