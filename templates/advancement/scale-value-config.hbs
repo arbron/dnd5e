@@ -17,6 +17,37 @@
         {{localize type.hint}}
       </p>
     </div>
+
+    <hr>
+
+    <div class="form-group drop-target">
+      <label>{{localize "DND5E.AdvancementScaleValueItemLabel"}}</label>
+      <div class="form-fields">
+        {{#if configuration.item.uuid}}
+          <div class="item-name">{{{dnd5e-linkForUuid configuration.item.uuid}}}</div>
+          <div class="item-controls flexrow" data-item-uuid="{{configuration.item.uuid}}">
+            <a class="item-control item-action" data-action="delete" title="{{localize 'DND5E.ItemDelete'}}">
+              <i class="fas fa-trash"></i>
+            </a>
+          </div>
+        {{else}}
+          Drop Here
+        {{/if}}
+      </div>
+      <p class="hint">{{localize "DND5E.AdvancementScaleValueItemHint"}}</p>
+    </div>
+    {{log configuration.item}}
+
+    {{#if configuration.item.uuid}}
+      <div class="form-group">
+        <label>{{localize "DND5E.AdvancementScaleValueItemGroupedLabel"}}</label>
+        <div class="form-fields">
+          <input type="checkbox" name="configuration.item.grouped" {{checked configuration.item.grouped}}>
+        </div>
+        <p class="hint">{{{localize "DND5E.AdvancementScaleValueItemGroupedHint"}}}</p>
+      </div>
+    {{/if}}
+
     <hr>
 
     <div class="form-group">

@@ -8,6 +8,10 @@ import { IdentifierField, MappingField } from "../fields.mjs";
  * @property {object} [distance]
  * @property {string} [distance.units]  If distance type is selected, the units each value uses.
  * @property {Object<string, *>} scale  Scale values for each level. Value format is determined by type.
+ * @property {object} [item]
+ * @property {string} [item.uuid]       UUID of an associated item (such as the "Bardic Inspiration" feature).
+ * @property {boolean} [item.grouped]   Should this scale value be displayed with its associated item on the Features
+ *                                      column on a generated class journal page?
  */
 export class ScaleValueConfigurationData extends foundry.abstract.DataModel {
   /** @inheritdoc */
@@ -20,7 +24,15 @@ export class ScaleValueConfigurationData extends foundry.abstract.DataModel {
       distance: new foundry.data.fields.SchemaField({
         units: new foundry.data.fields.StringField({required: true, label: "DND5E.MovementUnits"})
       }),
-      scale: new MappingField(new ScaleValueEntryField(), {required: true})
+      scale: new MappingField(new ScaleValueEntryField(), {required: true}),
+      item: new foundry.data.fields.SchemaField({
+        uuid: new foundry.data.fields.StringField({
+          label: "DND5E.AdvancementScaleValueItemLabel", hint: "DND5E.AdvancementScaleValueItemHint"
+        }),
+        grouped: new foundry.data.fields.BooleanField({
+          label: "DND5E.AdvancementScaleValueItemGroupedLabel", hint: "DND5E.AdvancementScaleValueItemGroupedHint"
+        })
+      })
     };
   }
 

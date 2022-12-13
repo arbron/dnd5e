@@ -1,5 +1,10 @@
 <form id="{{appId}}" data-level="{{level}}" data-id="{{advancement.id}}" data-type="{{type}}">
-  <h3>{{{this.title}}}</h3>
+  <h3>
+    <span>{{{this.title}}}</span>
+    {{#if advancement.configuration.item.uuid}}
+      {{{dnd5e-linkForUuid advancement.configuration.item.uuid}}}
+    {{/if}}
+  </h3>
 
   <p>
     <span class="initial-scale-value {{#unless initial}}none{{/unless}}">

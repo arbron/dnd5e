@@ -11,7 +11,9 @@ export default class ScaleValueConfig extends AdvancementConfig {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["dnd5e", "advancement", "scale-value", "two-column"],
       template: "systems/dnd5e/templates/advancement/scale-value-config.hbs",
-      width: 540
+      width: 540,
+      dragDrop: [{ dropSelector: ".drop-target" }],
+      dropKeyPath: "item.uuid"
     });
   }
 

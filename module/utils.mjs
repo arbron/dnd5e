@@ -78,6 +78,31 @@ export function linkForUuid(uuid) {
 }
 
 /* -------------------------------------------- */
+/*  Schema Helpers                              */
+/* -------------------------------------------- */
+
+/**
+ * Find a schema field within the provided data model based on a dot-separated key path.
+ * @param {DataModel} model  Data model within which to search for the field.
+ * @param {string} keyPath   Path on the data model where the field should be located.
+ * @returns {DataField}      Field found if it exists, otherwise undefined.
+ */
+export function getSchemaField(model, keyPath) {
+  if ( !keyPath ) return undefined;
+  let target = model.schema;
+  for ( const p of keyPath.split(".") ) {
+    if ( target instanceof foundry.data.fields.SchemaField ) target = target.fields;
+    // TODO: Handle EmbeddedDataField
+    // TODO: Handle MappingField
+    // TODO: Handle ArrayField & SetField?
+    // console.log(p, target, target[p]);
+    if ( p in target ) target = target[p];
+    else return undefined;
+  }
+  return target;
+}
+
+/* -------------------------------------------- */
 /*  Validators                                  */
 /* -------------------------------------------- */
 

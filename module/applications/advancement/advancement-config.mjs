@@ -153,19 +153,40 @@ export default class AdvancementConfig extends FormApplication {
   /* -------------------------------------------- */
 
   /**
+   * Determine whether the drop target supports multiple items or just one.
+   * @returns {boolean}  `true` for multiple drop support, `false` for single.
+   */
+  _arrayDropField() {
+    const configSchema = this.advancement.constructor.metadata.dataModels?.configuration;
+    if ( configSchema ) {
+      const targetField = dnd5e.utils.getSchemaField(configSchema, this.options.dropKeyPath);
+      return !(targetField instanceof foundry.data.fields.StringField);
+    }
+
+    const existingData = foundry.utils.getProperty(this.advancement.configuration, this.options.dropKeyPath);
+    return foundry.utils.getType(existingData) === "Array";
+  }
+
+  /* -------------------------------------------- */
+
+  /**
    * Handle deleting an existing Item entry from the Advancement.
    * @param {Event} event        The originating click event.
-   * @returns {Promise<Item5e>}  The updated parent Item after the application re-renders.
    * @protected
    */
   async _onItemDelete(event) {
     event.preventDefault();
     const uuidToDelete = event.currentTarget.closest("[data-item-uuid]")?.dataset.itemUuid;
     if ( !uuidToDelete ) return;
-    const items = foundry.utils.getProperty(this.advancement.configuration, this.options.dropKeyPath);
-    const updates = { configuration: await this.prepareConfigurationUpdate({
-      [this.options.dropKeyPath]: items.filter(uuid => uuid !== uuidToDelete)
-    }) };
+    let updates;
+    if ( this._arrayDropField() ) {
+      const items = foundry.utils.getProperty(this.advancement.configuration, this.options.dropKeyPath);
+      updates = { configuration: await this.prepareConfigurationUpdate({
+        [this.options.dropKeyPath]: items.filter(uuid => uuid !== uuidToDelete)
+      }) };
+    } else {
+      updates = {[`configuration.${this.options.dropKeyPath}`]: ""};
+    }
     await this.advancement.update(updates);
   }
 
@@ -197,7 +218,9 @@ export default class AdvancementConfig extends FormApplication {
       return ui.notifications.error(err.message);
     }
 
-    const existingItems = foundry.utils.getProperty(this.advancement.configuration, this.options.dropKeyPath);
+    const multiDrop = this._arrayDropField();
+    let existingItems = foundry.utils.getProperty(this.advancement.configuration, this.options.dropKeyPath);
+    if ( !multiDrop ) existingItems = [existingItems];
 
     // Abort if this uuid is the parent item
     if ( item.uuid === this.item.uuid ) {
@@ -209,7 +232,8 @@ export default class AdvancementConfig extends FormApplication {
       return ui.notifications.warn(game.i18n.localize("DND5E.AdvancementItemGrantDuplicateWarning"));
     }
 
-    await this.advancement.update({[`configuration.${this.options.dropKeyPath}`]: [...existingItems, item.uuid]});
+    const newValue = multiDrop ? [...existingItems, item.uuid] : item.uuid;
+    await this.advancement.update({[`configuration.${this.options.dropKeyPath}`]: newValue});
   }
 
   /* -------------------------------------------- */

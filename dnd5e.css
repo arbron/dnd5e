@@ -1524,6 +1524,15 @@ h5 {
 .dnd5e.advancement.flow input.error {
   outline: 2px solid red;
 }
+.dnd5e.advancement.flow form[data-type="ScaleValue"] h3 {
+  display: flex;
+}
+.dnd5e.advancement.flow form[data-type="ScaleValue"] h3 span {
+  flex-grow: 1;
+}
+.dnd5e.advancement.flow form[data-type="ScaleValue"] h3 .content-link {
+  font-size: var(--font-size-16);
+}
 .dnd5e.advancement.flow form[data-type="ScaleValue"] p {
   margin-block-end: 0;
   font-size: var(--font-size-18);
