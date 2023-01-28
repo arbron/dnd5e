@@ -114,13 +114,13 @@ export default class JournalClassPageSheet extends JournalPageSheet {
    */
   async _getTable(item, initialLevel=1) {
     const hasFeatures = !!item.advancement.byType.ItemGrant;
-    const scaleValues = (item.advancement.byType.ScaleValue ?? []);
+    const scaleValues = this._getScaleValues(item);
     const spellProgression = await this._getSpellProgression(item);
 
     const headers = [[{content: game.i18n.localize("DND5E.Level")}]];
     if ( item.type === "class" ) headers[0].push({content: game.i18n.localize("DND5E.ProficiencyBonus")});
     if ( hasFeatures ) headers[0].push({content: game.i18n.localize("DND5E.Features")});
-    headers[0].push(...scaleValues.map(a => ({content: a.title})));
+    headers[0].push(...scaleValues.column.map(a => ({content: a.title})));
     if ( spellProgression ) {
       if ( spellProgression.headers.length > 1 ) {
         headers[0].forEach(h => h.rowSpan = 2);
@@ -134,38 +134,66 @@ export default class JournalClassPageSheet extends JournalPageSheet {
     const cols = [{ class: "level", span: 1 }];
     if ( item.type === "class" ) cols.push({class: "prof", span: 1});
     if ( hasFeatures ) cols.push({class: "features", span: 1});
-    if ( scaleValues.length ) cols.push({class: "scale", span: scaleValues.length});
+    if ( scaleValues.column.length ) cols.push({class: "scale", span: scaleValues.column.length});
     if ( spellProgression ) cols.push(...spellProgression.cols);
 
-    const makeLink = async uuid => (await fromUuid(uuid))?.toAnchor({classes: ["content-link"]}).outerHTML;
+    const makeLink = async uuid => (await fromUuid(uuid))?.toAnchor({classes: ["content-link"]});
 
     const rows = [];
     for ( const level of Array.fromRange((CONFIG.DND5E.maxLevel - (initialLevel - 1)), initialLevel) ) {
-      const features = [];
+      const features = {};
       for ( const advancement of item.advancement.byLevel[level] ) {
         switch ( advancement.constructor.typeName ) {
           case "ItemGrant":
             if ( advancement.configuration.optional ) continue;
-            features.push(...await Promise.all(advancement.configuration.items.map(makeLink)));
+            for ( const uuid of advancement.configuration.items ) features[uuid] = await makeLink(uuid);
             continue;
         }
+      }
+
+      for ( const scale of scaleValues.grouped ) {
+        if ( !scale.configuration.scale[level] ) continue;
+        const uuid = scale.configuration.item.uuid;
+        features[uuid] ??= await makeLink(uuid);
+        features[uuid].innerHTML += ` (${scale.valueForLevel(level).display})`;
       }
 
       // Level & proficiency bonus
       const cells = [{class: "level", content: level.ordinalString()}];
       if ( item.type === "class" ) cells.push({class: "prof", content: `+${Proficiency.calculateMod(level)}`});
-      if ( hasFeatures ) cells.push({class: "features", content: features.join(", ")});
-      scaleValues.forEach(s => cells.push({class: "scale", content: s.valueForLevel(level)?.display}));
+      if ( hasFeatures ) cells.push({
+        class: "features", content: Object.values(features).map(f => f.outerHTML).join(", ")
+      });
+      scaleValues.column.forEach(s => cells.push({class: "scale", content: s.valueForLevel(level)?.display}));
       const spellCells = spellProgression?.rows[rows.length];
       if ( spellCells ) cells.push(...spellCells);
 
       // Skip empty rows on subclasses
-      if ( (item.type === "subclass") && !features.length && !scaleValues.length && !spellCells ) continue;
+      if ( (item.type === "subclass") && !features.length && !scaleValues.column.length && !spellCells ) continue;
 
       rows.push(cells);
     }
 
     return { headers, cols, rows };
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Sort scale values into ones displayed in their own column versus ones grouped with features.
+   * @param {Item5e} item  Class or subclass item being prepared.
+   * @returns {object}     Scale values split into "grouped" & "column" sections.
+   */
+  _getScaleValues(item) {
+    const scaleValues = { grouped: [], column: [] };
+    for ( const scale of item.advancement.byType.ScaleValue ?? [] ) {
+      if ( scale.configuration.item.grouped && fromUuidSync(scale.configuration.item.uuid) ) {
+        scaleValues.grouped.push(scale);
+      } else {
+        scaleValues.column.push(scale);
+      }
+    }
+    return scaleValues;
   }
 
   /* -------------------------------------------- */

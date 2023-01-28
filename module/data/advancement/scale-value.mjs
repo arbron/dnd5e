@@ -219,11 +219,12 @@ export class ScaleValueTypeCR extends ScaleValueTypeNumber {
 
   /** @inheritdoc */
   get display() {
+    const cr = game.i18n.localize("DND5E.AbbreviationCR");
     switch ( this.value ) {
-      case 0.125: return "&frac18;";
-      case 0.25: return "&frac14;";
-      case 0.5: return "&frac12;";
-      default: return super.display;
+      case 0.125: return `${cr} &frac18;`;
+      case 0.25: return `${cr} &frac14;`;
+      case 0.5: return `${cr} &frac12;`;
+      default: return `${cr} ${super.display}`;
     }
   }
 }
