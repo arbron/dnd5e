@@ -1,6 +1,7 @@
 import Advancement from "./advancement.mjs";
 import HitPointsConfig from "../../applications/advancement/hit-points-config.mjs";
 import HitPointsFlow from "../../applications/advancement/hit-points-flow.mjs";
+import HitPointsConfigurationData from "../../data/advancement/hit-points.mjs";
 import { simplifyBonus } from "../../utils.mjs";
 
 /**
@@ -13,6 +14,9 @@ export default class HitPointsAdvancement extends Advancement {
   /** @inheritdoc */
   static get metadata() {
     return foundry.utils.mergeObject(super.metadata, {
+      dataModels: {
+        configuration: HitPointsConfigurationData
+      },
       order: 10,
       icon: "systems/dnd5e/icons/svg/hit-points.svg",
       title: game.i18n.localize("DND5E.AdvancementHitPointsTitle"),
@@ -42,7 +46,7 @@ export default class HitPointsAdvancement extends Advancement {
    * @returns {string}
    */
   get hitDie() {
-    return this.item.system.hitDice;
+    return this.configuration.hitDie || this.item.system.hitDice;
   }
 
   /* -------------------------------------------- */

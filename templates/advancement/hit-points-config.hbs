@@ -1,7 +1,14 @@
 <form autocomplete="off">
     {{> "dnd5e.advancement-controls"}}
+    <hr>
     <div class="form-group">
         <label>{{localize "DND5E.HitDie"}}</label>
-        <span class="form-field-readonly">{{hitDie}}</span>
+        <select name="configuration.hitDie">
+            {{#select configuration.hitDie}}
+                {{#each CONFIG.hitDieTypes}}
+                    <option value="{{this}}">{{this}}</option>
+                {{/each}}
+            {{/select}}
+        </select>
     </div>
 </form>

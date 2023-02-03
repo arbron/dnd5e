@@ -27,8 +27,8 @@ export default class ActorHitDiceConfig extends BaseConfigSheet {
   /** @inheritDoc */
   getData(options) {
     return {
-      classes: this.object.items.reduce((classes, item) => {
-        if (item.type === "class") {
+      classes: this.object.itemTypes.class.reduce((classes, item) => {
+        if ( item.system.hitDice ) {
           classes.push({
             classItemId: item.id,
             name: item.name,

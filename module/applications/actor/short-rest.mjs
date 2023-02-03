@@ -36,26 +36,18 @@ export default class ShortRestDialog extends Dialog {
 
   /** @inheritDoc */
   getData() {
-    const data = super.getData();
+    const context = super.getData();
 
     // Determine Hit Dice
-    data.availableHD = this.actor.items.reduce((hd, item) => {
-      if ( item.type === "class" ) {
-        const {levels, hitDice, hitDiceUsed} = item.system;
-        const denom = hitDice ?? "d6";
-        const available = parseInt(levels ?? 1) - parseInt(hitDiceUsed ?? 0);
-        hd[denom] = denom in hd ? hd[denom] + available : available;
-      }
-      return hd;
-    }, {});
-    data.canRoll = this.actor.system.attributes.hd > 0;
-    data.denomination = this._denom;
+    context.hitDice = this.actor.system.attributes.hitDice.denom;
+    context.canRoll = this.actor.system.attributes.hitDice.value > 0;
+    context.denomination = this._denom;
 
     // Determine rest type
     const variant = game.settings.get("dnd5e", "restVariant");
-    data.promptNewDay = variant !== "epic";     // It's never a new day when only resting 1 minute
-    data.newDay = false;                        // It may be a new day, but not by default
-    return data;
+    context.promptNewDay = variant !== "epic";     // It's never a new day when only resting 1 minute
+    context.newDay = false;                        // It may be a new day, but not by default
+    return context;
   }
 
   /* -------------------------------------------- */

@@ -5,8 +5,8 @@
         <div class="form-fields">
             <select name="hd">
                 {{#select denomination}}
-                {{#each availableHD as |num denom|}}
-                <option value="{{denom}}">{{denom}} ({{num}} {{ localize "DND5E.available" }})</option>
+                {{#each hitDice as |data denom|}}
+                <option value="{{denom}}">{{denom}} ({{data.value}} {{ localize "DND5E.available" }})</option>
                 {{/each}}
                 {{/select}}
             </select>

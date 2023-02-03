@@ -303,7 +303,18 @@ export default class Actor5e extends Actor {
    */
   _prepareCharacterData() {
     this.system.details.level = 0;
-    this.system.attributes.hd = 0;
+    /** @deprecated */
+    Object.defineProperty(this.system.attributes, "hd", {
+      get() {
+        foundry.utils.logCompatibilityWarning(
+          "You are referencing the 'attributes.hd' property on an Actor which has been deprecated and "
+          + "renamed to 'attributes.hitDice.value'. Support for this old path will be removed in a future version.",
+          { since: "DnD5e 2.2", until: "DnD5e 2.4" }
+        );
+        return this.hitDice.value;
+      }
+    });
+    const hitDice = this.system.attributes.hitDice = {value: 0, total: 0, denom: {}};
     this.system.attributes.attunement.value = 0;
 
     for ( const item of this.items ) {
@@ -311,7 +322,14 @@ export default class Actor5e extends Actor {
       if ( item.type === "class" ) {
         const classLevels = parseInt(item.system.levels) || 1;
         this.system.details.level += classLevels;
-        this.system.attributes.hd += classLevels - (parseInt(item.system.hitDiceUsed) || 0);
+        if ( item.system.hitDice ) {
+          const availableHD = classLevels - item.system.hitDiceUsed;
+          const hdDenom = hitDice.denom[item.system.hitDice] ??= {value: 0, total: 0};
+          hitDice.value += availableHD;
+          hdDenom.value += availableHD;
+          hitDice.total += classLevels;
+          hdDenom.total += classLevels;
+        }
       }
 
       // Attuned items
@@ -1923,7 +1941,7 @@ export default class Actor5e extends Actor {
     if ( Hooks.call("dnd5e.preShortRest", this, config) === false ) return;
 
     // Take note of the initial hit points and number of hit dice the Actor has
-    const hd0 = this.system.attributes.hd;
+    const hd0 = this.system.attributes.hitDice.value;
     const hp0 = this.system.attributes.hp.value;
 
     // Display a Dialog for rolling hit dice
@@ -1936,7 +1954,7 @@ export default class Actor5e extends Actor {
     else if ( config.autoHD ) await this.autoSpendHitDice({ threshold: config.autoHDThreshold });
 
     // Return the rest result
-    const dhd = this.system.attributes.hd - hd0;
+    const dhd = this.system.attributes.hitDice.value - hd0;
     const dhp = this.system.attributes.hp.value - hp0;
     return this._rest(config.chat, config.newDay, false, dhd, dhp);
   }
@@ -2199,7 +2217,7 @@ export default class Actor5e extends Actor {
     if ( maxHitDice === undefined ) maxHitDice = Math.max(Math.floor(this.system.details.level / 2), 1);
 
     // Sort classes which can recover HD, assuming players prefer recovering larger HD first.
-    const sortedClasses = Object.values(this.classes).sort((a, b) => {
+    const sortedClasses = Object.values(this.classes).filter(c => c.system.hitDice).sort((a, b) => {
       return (parseInt(b.system.hitDice.slice(1)) || 0) - (parseInt(a.system.hitDice.slice(1)) || 0);
     });
 

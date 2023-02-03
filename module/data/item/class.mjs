@@ -29,8 +29,7 @@ export default class ClassData extends SystemDataModel.mixin(ItemDescriptionTemp
         required: true, nullable: false, integer: true, min: 0, initial: 1, label: "DND5E.ClassLevels"
       }),
       hitDice: new foundry.data.fields.StringField({
-        required: true, initial: "d6", blank: false, label: "DND5E.HitDice",
-        validate: v => /d\d+/.test(v), validationError: "must be a dice value in the format d#"
+        required: false, nullable: true, initial: null, label: "DND5E.HitDice"
       }),
       hitDiceUsed: new foundry.data.fields.NumberField({
         required: true, nullable: false, integer: true, initial: 0, min: 0, label: "DND5E.HitDiceUsed"
@@ -93,5 +92,27 @@ export default class ClassData extends SystemDataModel.mixin(ItemDescriptionTemp
       progression: source.spellcasting,
       ability: ""
     };
+  }
+
+  /* -------------------------------------------- */
+  /*  Data Preparation                            */
+  /* -------------------------------------------- */
+
+  /**
+   * Prepare derived data.
+   */
+  prepareDerivedData() {
+    this.#prepareHitDie();
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Fetch hit die from hit points advancement if one exists.
+   */
+  #prepareHitDie() {
+    const advancement = this.parent.advancement.byType.HitPoints?.[0];
+    if ( !advancement?.configuration.hitDie ) return;
+    this.hitDice = advancement.configuration.hitDie;
   }
 }

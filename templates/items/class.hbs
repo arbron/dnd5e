@@ -57,14 +57,11 @@
             <div class="form-group">
                 <label>{{localize "DND5E.HitDice"}}</label>
                 <div class="form-fields">
-                    <select name="system.hitDice">
-                        {{#select system.hitDice}}
-                        {{#each config.hitDieTypes}}
-                        <option value="{{this}}">{{this}}</option>
-                        {{/each}}
-                        {{/select}}
+                    <select name="system.hitDice" disabled>
+                        <option>{{system.hitDice}}</option>
                     </select>
                 </div>
+                <p class="hint">{{localize "DND5E.ClassHitDieHint"}}</p>
             </div>
 
             <div class="form-group">

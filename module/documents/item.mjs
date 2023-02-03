@@ -315,6 +315,7 @@ export default class Item5e extends Item {
     this._prepareAdvancement();
 
     // Specialized preparation per Item type
+    this.system.prepareDerivedData?.();
     switch ( this.type ) {
       case "equipment":
         this._prepareEquipment(); break;
