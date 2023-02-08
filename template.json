@@ -118,7 +118,8 @@
       "creature": {
         "attributes": {
           "attunement": {
-            "max": 3
+            "max": 3,
+            "items": []
           },
           "senses": {
             "darkvision": 0,
@@ -423,6 +424,10 @@
           "value": [],
           "custom": ""
         }
+      },
+      "items": {
+        "attuned": [],
+        "equipped": []
       }
     },
     "npc": {
@@ -458,6 +463,9 @@
           "value": false,
           "initiative": null
         }
+      },
+      "items": {
+        "attuned": []
       }
     },
     "vehicle": {
@@ -512,6 +520,9 @@
       "cargo": {
         "crew": [],
         "passengers": []
+      },
+      "items": {
+        "crewed": []
       }
     },
     "group": {

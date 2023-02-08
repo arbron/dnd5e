@@ -1958,6 +1958,14 @@ export default class Item5e extends Item {
     if ( (this.type === "class") && (this.id === this.parent.system.details.originalClass) ) {
       this.parent._assignPrimaryClass();
     }
+
+    // Clear item's ID from equipped, attuned, or crewed lists
+    const updates = {};
+    for ( const [key, collection] of Object.entries(this.parent.system.items ?? {}) ) {
+      const removed = collection.delete(this.id);
+      if ( removed ) updates[`system.items.${key}`] = Array.from(collection);
+    }
+    if ( !foundry.utils.isEmpty(updates) ) this.parent.update(updates);
   }
 
   /* -------------------------------------------- */

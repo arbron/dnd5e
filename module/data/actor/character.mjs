@@ -84,6 +84,10 @@ export default class CharacterData extends CreatureTemplate {
             required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.DeathSaveFailures"
           })
         }, {label: "DND5E.DeathSave"}),
+        equipped: new foundry.data.fields.SetField(
+          new foundry.data.fields.ForeignDocumentField(foundry.documents.BaseItem, {idOnly: true}),
+          {label: ""}
+        ),
         exhaustion: new foundry.data.fields.NumberField({
           required: true, nullable: false, integer: true, min: 0, initial: 0, label: "DND5E.Exhaustion"
         }),
@@ -115,7 +119,17 @@ export default class CharacterData extends CreatureTemplate {
         primary: makeResourceField({label: "DND5E.ResourcePrimary"}),
         secondary: makeResourceField({label: "DND5E.ResourceSecondary"}),
         tertiary: makeResourceField({label: "DND5E.ResourceTertiary"})
-      }, {label: "DND5E.Resources"})
+      }, {label: "DND5E.Resources"}),
+      items: new foundry.data.fields.SchemaField({
+        attuned: new foundry.data.fields.SetField(
+          new foundry.data.fields.ForeignDocumentField(foundry.documents.BaseItem, {idOnly: true}),
+          {label: "DND5E.ItemsAttuned"}
+        ),
+        equipped: new foundry.data.fields.SetField(
+          new foundry.data.fields.ForeignDocumentField(foundry.documents.BaseItem, {idOnly: true}),
+          {label: "DND5E.ItemsEquipped"}
+        )
+      })
     });
   }
 

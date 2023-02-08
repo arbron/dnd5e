@@ -114,7 +114,13 @@ export default class NPCData extends CreatureTemplate {
       traits: new foundry.data.fields.SchemaField({
         ...TraitsFields.common,
         ...TraitsFields.creature
-      }, {label: "DND5E.Traits"})
+      }, {label: "DND5E.Traits"}),
+      items: new foundry.data.fields.SchemaField({
+        attuned: new foundry.data.fields.SetField(
+          new foundry.data.fields.ForeignDocumentField(foundry.documents.BaseItem, {idOnly: true}),
+          {label: "DND5E.ItemsAttuned"}
+        )
+      })
     });
   }
 

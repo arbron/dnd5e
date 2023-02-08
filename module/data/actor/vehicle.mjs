@@ -111,7 +111,13 @@ export default class VehicleData extends CommonTemplate {
       cargo: new foundry.data.fields.SchemaField({
         crew: new foundry.data.fields.ArrayField(makePassengerData(), {label: "DND5E.VehicleCrew"}),
         passengers: new foundry.data.fields.ArrayField(makePassengerData(), {label: "DND5E.VehiclePassengers"})
-      }, {label: "DND5E.VehicleCrewPassengers"})
+      }, {label: "DND5E.VehicleCrewPassengers"}),
+      items: new foundry.data.fields.SchemaField({
+        crewed: new foundry.data.fields.SetField(
+          new foundry.data.fields.ForeignDocumentField(foundry.documents.BaseItem, {idOnly: true}),
+          {label: "DND5E.ItemsCrewed"}
+        )
+      })
     });
   }
 

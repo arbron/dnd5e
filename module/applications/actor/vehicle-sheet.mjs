@@ -77,9 +77,9 @@ export default class ActorSheet5eVehicle extends ActorSheet5e {
   _prepareCrewedItem(item, context) {
 
     // Determine crewed status
-    const isCrewed = item.system.crewed;
-    context.toggleClass = isCrewed ? "active" : "";
-    context.toggleTitle = game.i18n.localize(`DND5E.${isCrewed ? "Crewed" : "Uncrewed"}`);
+    context.isCrewed = this.actor.system.items.crewed.has(item.id);
+    context.toggleClass = context.isCrewed ? "active" : "";
+    context.toggleTitle = game.i18n.localize(`DND5E.${context.isCrewed ? "Crewed" : "Uncrewed"}`);
 
     // Handle crew actions
     if ( item.type === "feat" && item.system.activation.type === "crew" ) {
@@ -420,14 +420,16 @@ export default class ActorSheet5eVehicle extends ActorSheet5e {
 
   /**
    * Handle toggling an item's crewed status.
-   * @param {Event} event  Triggering event.
+   * @param {Event} event        Triggering event.
    * @returns {Promise<Item5e>}  Item after the toggling is applied.
    * @private
    */
   _onToggleItem(event) {
     event.preventDefault();
     const itemID = event.currentTarget.closest(".item").dataset.itemId;
-    const item = this.actor.items.get(itemID);
-    return item.update({"system.crewed": !item.system.crewed});
+    const crewedItemsCollection = this.actor.system.items.crewed;
+    if ( crewedItemsCollection.has(itemID) ) crewedItemsCollection.delete(itemID);
+    else crewedItemsCollection.add(itemID);
+    return this.actor.update({"system.items.crewed": Array.from(crewedItemsCollection)});
   }
 }
