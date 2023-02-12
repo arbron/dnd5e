@@ -115,6 +115,7 @@ export default class JournalClassPageSheet extends JournalPageSheet {
   async _getTable(item, initialLevel=1) {
     const hasFeatures = !!item.advancement.byType.ItemGrant;
     const scaleValues = this._getScaleValues(item);
+    const itemChoices = (item.advancement.byType.ItemChoice ?? []).filter(i => i.configuration.table.show);
     const spellProgression = await this._getSpellProgression(item);
 
     const headers = [[{content: game.i18n.localize("DND5E.Level")}]];
@@ -130,6 +131,7 @@ export default class JournalClassPageSheet extends JournalPageSheet {
         headers[0].push(...spellProgression.headers[0]);
       }
     }
+    headers[0].push(...itemChoices.map(i => ({content: i.configuration.table.header || i.title})));
 
     const cols = [{ class: "level", span: 1 }];
     if ( item.type === "class" ) cols.push({class: "prof", span: 1});
@@ -167,6 +169,7 @@ export default class JournalClassPageSheet extends JournalPageSheet {
       scaleValues.column.forEach(s => cells.push({class: "scale", content: s.valueForLevel(level)?.display}));
       const spellCells = spellProgression?.rows[rows.length];
       if ( spellCells ) cells.push(...spellCells);
+      itemChoices.forEach(c => cells.push({class: "scale", content: `${c.choicesUpToLevel(level) || "—"}`}));
 
       // Skip empty rows on subclasses
       if ( (item.type === "subclass") && !features.length && !scaleValues.column.length && !spellCells ) continue;

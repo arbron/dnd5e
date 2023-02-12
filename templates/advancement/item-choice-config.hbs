@@ -6,6 +6,29 @@
       <textarea name="configuration.hint">{{configuration.hint}}</textarea>
     </div>
 
+    {{#if showTableConfig}}
+      <hr>
+  
+      <div class="form-group">
+        <label>{{localize "DND5E.AdvancementItemChoiceColumnDisplay"}}</label>
+        <div class="form-fields">
+          <input type="checkbox" name="configuration.table.show" {{checked configuration.table.show}}>
+        </div>
+        <p class="hint">{{localize "DND5E.AdvancementItemChoiceColumnDisplayHint"}}</p>
+      </div>
+  
+      {{#if configuration.table.show}}
+        <div class="form-group">
+          <label>{{localize "DND5E.AdvancementItemChoiceColumnHeader"}}</label>
+          <div class="form-fields">
+            <input type="text" name="configuration.table.header" value="{{configuration.table.header}}">
+          </div>
+        </div>
+      {{/if}}
+  
+      <hr>
+    {{/if}}
+
     <div class="form-group">
       <label>{{localize "DND5E.AdvancementConfigureAllowDrops"}}</label>
       <div class="form-fields">

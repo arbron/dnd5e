@@ -9,7 +9,7 @@ export default class ItemChoiceConfig extends AdvancementConfig {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["dnd5e", "advancement", "item-choice", "two-column"],
-      dragDrop: [{ dropSelector: ".drop-target" }],
+      dragDrop: [{ dropSelector: "form" }],
       dropKeyPath: "pool",
       template: "systems/dnd5e/templates/advancement/item-choice-config.hbs",
       width: 540
@@ -22,6 +22,7 @@ export default class ItemChoiceConfig extends AdvancementConfig {
   getData(options={}) {
     const context = {
       ...super.getData(options),
+      showTableConfig: ["class", "subclass"].includes(this.advancement.item.type),
       showSpellConfig: this.advancement.configuration.type === "spell",
       validTypes: this.advancement.constructor.VALID_TYPES.reduce((obj, type) => {
         obj[type] = game.i18n.localize(`ITEM.Type${type.capitalize()}`);

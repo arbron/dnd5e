@@ -1431,6 +1431,9 @@ h5 {
 .dnd5e.advancement.item-choice {
   --grid-two-column-right-size: 0.5fr;
 }
+.dnd5e.advancement.item-choice .item-list {
+  max-height: 25em;
+}
 .dnd5e.advancement.item-choice .level-list .hint {
   text-align: end;
 }

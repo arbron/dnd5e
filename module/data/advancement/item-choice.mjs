@@ -1,6 +1,24 @@
 import { MappingField } from "../fields.mjs";
 import SpellConfigurationData from "./spell-config.mjs";
 
+/**
+ * Data model for the Item Choice advancement configuration.
+ *
+ * @property {string} hint                     Brief hint text displayed when the choice is presented.
+ * @property {Object<number, number>} choices  Number of choices presented at specific levels.
+ * @property {boolean} allowDrops              Is the player allowed to drop their own items?
+ * @property {string} type                     Item type restriction (e.g. `spell`, `feat`, etc.).
+ * @property {Array<string>} pool              List of item UUIDs to present as choices.
+ * @property {SpellConfigurationData} spell    Spell configuration if the spell item type is chosen.
+ * @property {object} restriction
+ * @property {string} restriction.type         Item system type restriction (e.g. `classfeature`).
+ * @property {string} restriction.subtype      Item subtype restriction (e.g. `invocation`, `fightingstyle`).
+ * @property {string} restriction.level        Level that a spell must be to be chosen, or "available" to only allow
+ *                                             selection of spells that the character can currently cast.
+ * @property {object} table
+ * @property {boolean} table.show              Is the choice displayed as a scale value column on the class table?
+ * @property {string} table.header             The column header text, otherwise advancement name is used.
+ */
 export default class ItemChoiceConfigurationData extends foundry.abstract.DataModel {
   static defineSchema() {
     return {
@@ -22,6 +40,12 @@ export default class ItemChoiceConfigurationData extends foundry.abstract.DataMo
         type: new foundry.data.fields.StringField({label: "DND5E.Type"}),
         subtype: new foundry.data.fields.StringField({label: "DND5E.Subtype"}),
         level: new foundry.data.fields.StringField({label: "DND5E.SpellLevel"})
+      }),
+      table: new foundry.data.fields.SchemaField({
+        show: new foundry.data.fields.BooleanField({
+          label: "DND5E.AdvancementItemChoiceColumnDisplay", hint: "DND5E.AdvancementItemChoiceColumnDisplayHint"
+        }),
+        header: new foundry.data.fields.StringField({label: "DND5E.AdvancementItemChoiceColumnHeader"})
       })
     };
   }

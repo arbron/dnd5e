@@ -62,6 +62,19 @@ export default class ItemChoiceAdvancement extends ItemGrantAdvancement {
   }
 
   /* -------------------------------------------- */
+
+  /**
+   * The number of choices available up to a certain level.
+   * @param {number} level  Level for which to get the choices.
+   * @returns {number}      Choices that could have been made by that level.
+   */
+  choicesUpToLevel(level) {
+    return Object.entries(this.configuration.choices)
+      .filter(([l]) => Number(l) <= level)
+      .reduce((t, [, c]) => t + c, 0);
+  }
+
+  /* -------------------------------------------- */
   /*  Application Methods                         */
   /* -------------------------------------------- */
 
