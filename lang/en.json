@@ -259,6 +259,26 @@
 "DND5E.AdvancementSizeHint": "Set a character's size.",
 "DND5E.AdvancementSizeFlowHintSingle": "Your size is {size}.",
 "DND5E.AdvancementSizeflowHintMultiple": "Choose your size from either {sizes}.",
+"DND5E.Advancement.StartingEquipment": {
+  "Title": "Starting Equipment",
+  "Hint": "Give a player equipment or gold when they create their character.",
+  "Choice": {
+    "Armor": "Choose Armor",
+    "Focus": "Choose Spellcasting Focus",
+    "Tool": "Choose Tool",
+    "Weapon": "Choose Weapon"
+  },
+  "IfProficient": "If Proficient",
+  "Operator": {
+    "AND": "All",
+    "OR": "One"
+  },
+  "SpecificItem": "Specific Item",
+  "Wealth": {
+    "Label": "Starting Wealth",
+    "Hint": "Formula in GP that can be used in place of starting equipment."
+  }
+},
 "DND5E.AdvancementTitle": "Advancement",
 "DND5E.AdvancementTraitTitle": "Traits",
 "DND5E.AdvancementTraitHint": "Grant a character certain traits or give them an option to select traits (such as proficiencies, skills, languages).",
@@ -1526,6 +1546,7 @@
 "DND5E.WarnCantAddMultipleAdvancements": "It is not currently possible to add multiple items with advancements to an actor at the same time. Please add them individually.",
 "DND5E.WarnMultipleArmor": "More than one suit of armor equipped, AC calculation may be incorrect.",
 "DND5E.WarnMultipleShields": "More than one shield equipped, AC calculation may be incorrect.",
+"DND5E.WeaponCategory": "{category} Weapon",
 "DND5E.WeaponImprov": "Improvised",
 "DND5E.WeaponMartialM": "Martial Melee",
 "DND5E.WeaponMartialProficiency": "Martial",

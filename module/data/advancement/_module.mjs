@@ -6,4 +6,5 @@ export {default as ItemChoiceConfigurationData} from "./item-choice.mjs";
 export {default as ItemGrantConfigurationData} from "./item-grant.mjs";
 export * as scaleValue from "./scale-value.mjs";
 export * from "./size.mjs";
+export * as startingEquipment from "./starting-equipment.mjs";
 export {TraitConfigurationData, TraitValueData} from "./trait.mjs";

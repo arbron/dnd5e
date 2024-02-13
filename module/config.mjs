@@ -2907,6 +2907,7 @@ DND5E.advancementTypes = {
   ItemGrant: advancement.ItemGrantAdvancement,
   ScaleValue: advancement.ScaleValueAdvancement,
   Size: advancement.SizeAdvancement,
+  StartingEquipment: advancement.StartingEquipmentAdvancement,
   Trait: advancement.TraitAdvancement
 };
 
