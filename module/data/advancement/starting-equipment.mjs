@@ -37,14 +37,19 @@ export class StartingEquipmentConfigurationData extends foundry.abstract.DataMod
 export class EquipmentEntryData extends foundry.abstract.DataModel {
 
   /**
-   * Equipment entry types.
+   * Types that group together child entries.
    * @enum {string}
    */
-  static TYPES = {
-    // Grouped types
+  static GROUPING_TYPES = {
     AND: "DND5E.Advancement.StartingEquipment.Operator.AND",
-    OR: "DND5E.Advancement.StartingEquipment.Operator.OR",
+    OR: "DND5E.Advancement.StartingEquipment.Operator.OR"
+  };
 
+  /**
+   * Types that contain an option for the player.
+   * @enum {string}
+   */
+  static OPTION_TYPES = {
     // Category types
     armor: "DND5E.Advancement.StartingEquipment.Choice.Armor",
     tool: "DND5E.Advancement.StartingEquipment.Choice.Tool",
@@ -55,17 +60,37 @@ export class EquipmentEntryData extends foundry.abstract.DataModel {
     linked: "DND5E.Advancement.StartingEquipment.SpecificItem"
   };
 
+  /**
+   * Equipment entry types.
+   * @type {Record<string, string>}
+   */
+  static get TYPES() {
+    return { ...this.GROUPING_TYPES, ...this.OPTION_TYPES };
+  }
+
   /* -------------------------------------------- */
 
   /**
    * Where in `CONFIG.DND5E` to find the type category labels.
-   * @enum {string}
+   * @enum {{ label: string, config: string }}
    */
-  static CATEGORY_LABELS = {
-    armor: "armorTypes",
-    focus: "focusTypes",
-    tool: "toolTypes",
-    weapon: "weaponProficiencies"
+  static CATEGORIES = {
+    armor: {
+      label: "DND5E.Armor",
+      config: "armorTypes"
+    },
+    focus: {
+      label: "DND5E.Focus.Label",
+      config: "focusTypes"
+    },
+    tool: {
+      label: "TYPES.Item.tool",
+      config: "toolTypes"
+    },
+    weapon: {
+      label: "TYPES.Item.weapon",
+      config: "weaponProficiencies"
+    }
   };
 
   /* -------------------------------------------- */
@@ -90,7 +115,7 @@ export class EquipmentEntryData extends foundry.abstract.DataModel {
    * @returns {EquipmentEntryData[]}
    */
   get children() {
-    if ( (this.type !== "AND") && (this.type !== "OR") ) return [];
+    if ( !(this.type in this.constructor.GROUPING_TYPES) ) return [];
     return this.parent.pool
       .filter(entry => entry.group === this._id)
       .sort((lhs, rhs) => lhs.sort - rhs.sort);
@@ -106,21 +131,16 @@ export class EquipmentEntryData extends foundry.abstract.DataModel {
     let label;
 
     switch ( this.type ) {
-      // For AND, use a simple conjunction list (e.g. "first, second, and third")
+      // For AND/OR, use a simple conjunction/disjunction list (e.g. "first, second, and third")
       case "AND":
-        return game.i18n.getListFormatter({type: "conjunction", style: "long"})
-          .format(this.children.map(c => c.label));
-
-      // For OR, use a disjunction list with letter prefixes (e.g. "(a) something, or (b) else")
       case "OR":
-        // TODO: Find localizable way to add letter prefixes
-        return game.i18n.getListFormatter({type: "disjunction", style: "long"})
-          .format(this.children.map(c => c.label));
+        return game.i18n.getListFormatter({type: this.type === "AND" ? "conjunction" : "disjunction", style: "long"})
+          .format(this.children.map(c => c.label).filter(l => l));
 
       // For linked type, fetch the name using the index
       case "linked":
         const index = fromUuidSync(this.key);
-        label = index.name;
+        if ( index ) label = index.name;
         break;
 
       // For category types, grab category information from config
@@ -129,6 +149,7 @@ export class EquipmentEntryData extends foundry.abstract.DataModel {
         break;
     }
 
+    if ( !label ) return;
     if ( this.count > 1 ) label = `${formatNumber(this.count)} ${label}`;
     else if ( this.type !== "linked" ) label = game.i18n.format("DND5E.TraitConfigChooseAnyUncounted", { type: label });
     if ( (this.type === "linked") && this.requiresProficiency ) {
@@ -140,24 +161,40 @@ export class EquipmentEntryData extends foundry.abstract.DataModel {
   /* -------------------------------------------- */
 
   /**
+   * Black label of no key is specified for a choice type.
+   * @type {string}
+   */
+  get blankLabel() {
+    return game.i18n.localize(this.constructor.CATEGORIES[this.type]?.label) ?? "";
+  }
+
+  /* -------------------------------------------- */
+
+  /**
    * Get the label for a category.
    * @type {string}
    */
   get categoryLabel() {
-    let config = CONFIG.DND5E[this.constructor.CATEGORY_LABELS[this.type]];
-    let category = this.key;
-
-    // For Weapons, check to see if it specifies melee/ranged
-    if ( (this.type === "weapon") && (this.key in CONFIG.DND5E.weaponProficienciesMap) ) {
-      config = CONFIG.DND5E.weaponTypes;
-    }
-
-    // Fetch the category label from config
-    const configEntry = config[category];
-    let label = configEntry?.label ?? configEntry ?? this.key;
+    const configEntry = this.keyOptions[this.key];
+    let label = configEntry?.label ?? configEntry;
+    if ( !label ) return this.blankLabel.toLowerCase();
 
     if ( this.type === "weapon" ) label = game.i18n.format("DND5E.WeaponCategory", { category: label });
-
     return label.toLowerCase();
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Build a list of possible key options for this entry's type.
+   * @returns {Record<string, string>}
+   */
+  get keyOptions() {
+    const config = foundry.utils.deepClone(CONFIG.DND5E[this.constructor.CATEGORIES[this.type]?.config]);
+    if ( this.type === "weapon" ) foundry.utils.mergeObject(config, CONFIG.DND5E.weaponTypes);
+    return Object.entries(config).reduce((obj, [k, v]) => {
+      obj[k] = foundry.utils.getType(v) === "Object" ? v.label : v;
+      return obj;
+    }, {});
   }
 }

@@ -262,16 +262,22 @@
 "DND5E.Advancement.StartingEquipment": {
   "Title": "Starting Equipment",
   "Hint": "Give a player equipment or gold when they create their character.",
+  "Action": {
+    "AddEntry": "Add Entry",
+    "RemoveEntry": "Remove Entry",
+    "Unlink": "Unlink"
+  },
   "Choice": {
     "Armor": "Choose Armor",
     "Focus": "Choose Spellcasting Focus",
     "Tool": "Choose Tool",
     "Weapon": "Choose Weapon"
   },
+  "DropHint": "Drop item here to link",
   "IfProficient": "If Proficient",
   "Operator": {
-    "AND": "All",
-    "OR": "One"
+    "AND": "All of…",
+    "OR": "One of…"
   },
   "SpecificItem": "Specific Item",
   "Wealth": {
@@ -713,9 +719,12 @@
     "EpicBoon": "Epic Boon"
   }
 },
-"DND5E.Focus.Arcane": "Arcane Focus",
-"DND5E.Focus.Druidic": "Druidic Focus",
-"DND5E.Focus.Holy": "Holy Focus",
+"DND5E.Focus": {
+  "Label": "Spellcasting Focus",
+  "Arcane": "Arcane Focus",
+  "Druidic": "Druidic Focus",
+  "Holy": "Holy Focus"
+},
 "DND5E.Loot.Art": "Art Object",
 "DND5E.Loot.Gear": "Adventuring Gear",
 "DND5E.Loot.Gem": "Gemstone",

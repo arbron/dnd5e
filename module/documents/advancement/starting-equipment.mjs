@@ -25,6 +25,14 @@ export default class StartingEquipmentAdvancement extends Advancement {
   }
 
   /* -------------------------------------------- */
+
+  /**
+   * The item types that can be added to a Linked entry.
+   * @type {Set<string>}
+   */
+  static VALID_TYPES = new Set(["consumable", "container", "equipment", "loot", "tool", "weapon"]);
+
+  /* -------------------------------------------- */
   /*  Display Methods                             */
   /* -------------------------------------------- */
 
@@ -37,7 +45,7 @@ export default class StartingEquipmentAdvancement extends Advancement {
     if ( topLevel.length > 1 ) return `<ul>${topLevel.map(e => `<li>${e.label}</li>`).join("")}`;
 
     // Otherwise display as its own paragraph (like for backgrounds)
-    return `<p>${game.i18n.getListFormatter().format(topLevel.map(e => e.label))}</p>`;
+    return `<p>${game.i18n.getListFormatter().format(topLevel.map(e => e.label).filter(l => l))}</p>`;
   }
 
   /* -------------------------------------------- */
