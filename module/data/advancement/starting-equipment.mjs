@@ -41,8 +41,8 @@ export class EquipmentEntryData extends foundry.abstract.DataModel {
    * @enum {string}
    */
   static GROUPING_TYPES = {
-    AND: "DND5E.Advancement.StartingEquipment.Operator.AND",
-    OR: "DND5E.Advancement.StartingEquipment.Operator.OR"
+    OR: "DND5E.Advancement.StartingEquipment.Operator.OR",
+    AND: "DND5E.Advancement.StartingEquipment.Operator.AND"
   };
 
   /**
@@ -101,10 +101,10 @@ export class EquipmentEntryData extends foundry.abstract.DataModel {
       _id: new DocumentIdField({initial: () => foundry.utils.randomID()}),
       group: new StringField({nullable: true, initial: null}),
       sort: new IntegerSortField(),
-      type: new StringField({required: true, initial: "AND", choices: this.TYPES}),
+      type: new StringField({required: true, initial: "OR", choices: this.TYPES}),
       count: new NumberField({initial: undefined}),
       key: new StringField({initial: undefined}),
-      requiresProficiency: new BooleanField()
+      requiresProficiency: new BooleanField({label: "DND5E.Advancement.StartingEquipment.Proficient.Label"})
     };
   }
 

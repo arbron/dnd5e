@@ -1,6 +1,16 @@
 <form autocomplete="off">
     {{> "dnd5e.advancement-controls"}}
 
+    {{#if showStartingWealth}}
+    <div class="form-group">
+        <label>{{ localize "DND5E.Advancement.StartingEquipment.Wealth.Label" }}</label>
+        <div class="form-fields">
+            <input type="text" name="configuration.wealth" value="{{ configuration.wealth }}">
+        </div>
+        <p class="hint">{{ localize "DND5E.Advancement.StartingEquipment.Wealth.Hint" }}</p>
+    </div>
+    {{/if}}
+
     {{#*inline "list-level"}}
     <ul class="flexcol">
         {{#each entries}}
@@ -40,6 +50,8 @@
             <input type="hidden" name="configuration.pool.{{ id }}._id" value="{{ entry._id }}">
             <input type="hidden" name="configuration.pool.{{ id }}.group" value="{{ entry.group }}">
             <input type="hidden" name="configuration.pool.{{ id }}.sort" value="{{ entry.sort }}" data-dtype="Number">
+            <input type="hidden" name="configuration.pool.{{ id }}.requiresProficiency"
+                   value="{{ entry.requiresProficiency }}" data-dtype="Boolean">
         </li>
         {{/each}}
         <li data-depth="{{ depth }}">

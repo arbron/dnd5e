@@ -1,4 +1,5 @@
 import { EquipmentEntryData } from "../../data/advancement/starting-equipment.mjs";
+import ContextMenu5e from "../context-menu.mjs";
 import AdvancementConfig from "./advancement-config.mjs";
 
 /**
@@ -42,6 +43,8 @@ export default class StartingEquipmentConfig extends AdvancementConfig {
         .map(e => processEntry(e))
     );
 
+    context.showStartingWealth = this.advancement.item.type === "class";
+
     return context;
   }
 
@@ -53,14 +56,62 @@ export default class StartingEquipmentConfig extends AdvancementConfig {
     const html = jQuery[0];
 
     for ( const element of html.querySelectorAll("[data-action]") ) {
-      element.addEventListener("click", event =>
-        this.submit({ updateData: { configuration: {
-          action: event.target.dataset.action,
-          depth: Number(event.target.closest("[data-depth]")?.dataset.depth ?? 0) + 1,
-          entryId: event.target.closest("[data-entry-id]")?.dataset.entryId
-        } } })
-      );
+      element.addEventListener("click", event => this._onAction(event.target));
     }
+
+    new ContextMenu5e(jQuery, "[data-entry-id]", [], { onOpen: this._onOpenContextMenu.bind(this) });
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle an action.
+   * @param {HTMLElement} element       The element on which the action is being performed.
+   * @param {object} [options={}]
+   * @param {string} [options.action]   The specific action to perform.
+   * @param {number} [options.depth]    Depth of the element being acted upon.
+   * @param {string} [options.entryId]  ID of the entry to act upon.
+   */
+  _onAction(element, { action, depth, entryId }={}) {
+    this.submit({ updateData: { configuration: {
+      action: action ?? element.closest("[data-action]")?.dataset.action,
+      depth: depth ?? (Number(event.target.closest("[data-depth]")?.dataset.depth ?? 0) + 1),
+      entryId: entryId ?? element.closest("[data-entry-id]")?.dataset.entryId
+    } } });
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Create list of content menu options.
+   * @param {HTMLElement} element  The element on which the context menu was triggered.
+   * @protected
+   */
+  _onOpenContextMenu(element) {
+    element = element.closest("[data-entry-id]");
+    const entryId = element?.dataset.entryId;
+    const entry = this.advancement.configuration.pool.find(e => e._id === entryId);
+    if ( !entry ) return;
+    ui.context.menuItems = [
+      {
+        name: "DND5E.Advancement.StartingEquipment.Action.AddEntry",
+        icon: "<i class='fa-solid fa-plus fa-fw'></i>",
+        condition: () => entry.type in EquipmentEntryData.GROUPING_TYPES,
+        callback: li => this._onAction(element, { action: "add-entry", entryId })
+      },
+      {
+        name: "DND5E.Advancement.StartingEquipment.Action.RemoveEntry",
+        icon: "<i class='fa-solid fa-trash fa-fw'></i>",
+        callback: li => this._onAction(element, { action: "delete-entry", entryId })
+      }
+    ];
+    if ( entry.type === "linked" ) ui.context.menuItems.push({
+      name: "DND5E.Advancement.StartingEquipment.RequireProficiency",
+      icon: `<i class="fa-regular fa-square${entry.requiresProficiency ? "-check" : ""} fa-fw"
+                aria-checked="${entry.requiresProficiency}"></i>`,
+      callback: li => this._onAction(element, { action: "toggle-proficiency", entryId }),
+      group: "state"
+    });
   }
 
   /* -------------------------------------------- */
@@ -75,7 +126,7 @@ export default class StartingEquipmentConfig extends AdvancementConfig {
           _id: foundry.utils.randomID(),
           group: configuration.entryId,
           sort: highestSort + CONST.SORT_INTEGER_DENSITY,
-          type: (configuration.depth < 3) && !configuration.linkedUuid ? "AND" : "linked",
+          type: (configuration.depth < 3) && !configuration.linkedUuid ? "OR" : "linked",
           key: configuration.linkedUuid
         });
         break;
@@ -87,6 +138,10 @@ export default class StartingEquipmentConfig extends AdvancementConfig {
         };
         getDeleteIds(this.advancement.configuration.pool.find(i => i._id === configuration.entryId));
         configuration.pool = configuration.pool.filter(e => !deleteIds.has(e._id));
+        break;
+      case "toggle-proficiency":
+        const entry = configuration.pool.find(e => e._id === configuration.entryId);
+        if ( entry ) entry.requiresProficiency = !entry.requiresProficiency;
         break;
     }
     return configuration;

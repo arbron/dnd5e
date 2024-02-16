@@ -264,8 +264,7 @@
   "Hint": "Give a player equipment or gold when they create their character.",
   "Action": {
     "AddEntry": "Add Entry",
-    "RemoveEntry": "Remove Entry",
-    "Unlink": "Unlink"
+    "RemoveEntry": "Remove Entry"
   },
   "Choice": {
     "Armor": "Choose Armor",
@@ -279,6 +278,7 @@
     "AND": "All of…",
     "OR": "One of…"
   },
+  "RequireProficiency": "Require Proficiency",
   "SpecificItem": "Specific Item",
   "Wealth": {
     "Label": "Starting Wealth",
