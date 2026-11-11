@@ -373,6 +373,8 @@ The most common `@item` properties are:
 
 `@item.levels` - The class level of this item (for classes only).
 
+`@item.type.document` - Item's type (e.g. `spell`, `weapon`, `feat`, etc.).
+
 
 ### Labels
 
